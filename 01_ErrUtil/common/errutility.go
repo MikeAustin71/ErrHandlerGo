@@ -1,41 +1,65 @@
 package common
 
+import (
+	"fmt"
+)
+
 // SpecError - A data structure used
 // to hold custom error information
 type SpecError struct {
+	IsErr     bool
+	IsPanic   bool
 	PrefixMsg string
-	SuffixMsg string
 	ErrMsg    string
+	FuncName  string
+	ErrNo     int64
 }
 
-func (s *SpecError) NewError(prefix string, suffix string, err error) {
+// NewError - Creates new SpecError Type
+func (s *SpecError) NewError(prefix string, err error, isPanic bool, funcName string, errNo int64) {
 
 	s.PrefixMsg = prefix
-	s.SuffixMsg = suffix
+	s.FuncName = funcName
+	s.ErrNo = errNo
+	s.IsPanic = isPanic
 	if err != nil {
 		s.ErrMsg = err.Error()
+		s.IsErr = true
 	} else {
 		s.ErrMsg = ""
+		s.IsErr = false
 	}
 
 }
 
+// Error - Implements Error Interface
 func (s *SpecError) Error() string {
-	return s.PrefixMsg + s.ErrMsg + s.SuffixMsg
+	m := s.PrefixMsg
+	m += "\n" + s.ErrMsg
+	m += "\nFuncName: " + s.FuncName
+	m += fmt.Sprintf("\nErrNo: %v", s.ErrNo)
+	m += fmt.Sprintf("\nIsErr: %v", s.IsErr)
+	m += fmt.Sprintf("\nIsPanic: %v", s.IsPanic)
+	return m
 }
 
+// CheckErrPanic - Checks for error and then
+// executes 'panic'
 func CheckErrPanic(e error) {
 	if e != nil {
 		panic(e)
 	}
 }
 
-func SpecCheckErrPanic(prefix string, suffix string, err error) {
+// SpecCheckErrPanic - Creates a Speck Error
+// data type and issues a 'panic' command if
+// passed error is valid.
+func SpecCheckErrPanic(prefix string, err error) {
 	if err == nil {
 		return
 	}
 
-	e := SpecError{PrefixMsg: prefix, SuffixMsg: suffix, ErrMsg: err.Error()}
+	e := SpecError{PrefixMsg: prefix, ErrMsg: err.Error()}
 
 	panic(e)
 }
