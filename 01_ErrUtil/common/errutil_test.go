@@ -41,14 +41,121 @@ func TestErrorUtility(t *testing.T) {
 
 }
 
-func TestNoSetError(t *testing.T) {
+func TestUninitializedBaseInfo(t *testing.T) {
 	var se SpecErr
 
-	s := se.SetNoError()
-
-	if s.IsErr == true {
-		t.Error("SetNoError() Expected false got", s.IsErr)
+	if se.BaseInfo.SourceFileName != "" {
+		t.Error("String SourceFileName was uninitialized. Was expecting empty string, got", se.BaseInfo.SourceFileName)
 	}
+
+	if se.BaseInfo.FuncName != "" {
+		t.Error("String FuncName was uninitialized. Was expecting empty string, got", se.BaseInfo.FuncName)
+	}
+
+	if se.BaseInfo.BaseErrorID != 0 {
+		t.Error("Int64 BaseErrorID was uninitialized. Was expecting value of zero, got", se.BaseInfo.BaseErrorID)
+	}
+
+}
+
+func TestInitializeParentInfo(t *testing.T) {
+
+	var bi ErrBaseInfo
+	x := bi.New("TestSourceFileName", "TestFuncName", 9000)
+	y := bi.New("TestSrcFileName2", "TestFuncName2", 14000)
+	z := bi.New("TestSrcFileName3", "TestFuncName3", 15000)
+
+	var se SpecErr
+
+	se.ParentInfo = append(se.ParentInfo, x)
+	se.ParentInfo = append(se.ParentInfo, y)
+	se.ParentInfo = append(se.ParentInfo, z)
+
+	l := len(se.ParentInfo)
+
+	if l != 3 {
+		t.Error("Expected ParentInfo Length of 3, got", l)
+	}
+
+	if se.ParentInfo[1].FuncName != "TestFuncName2" {
+		t.Error("Expected 2nd Element 'TestFuncName2', got", se.ParentInfo[1].FuncName)
+	}
+
+}
+
+func TestAddSlicesParentInfo(t *testing.T) {
+	var bi ErrBaseInfo
+	x := bi.New("TestSourceFileName", "TestFuncName", 9000)
+	y := bi.New("TestSrcFileName2", "TestFuncName2", 14000)
+	z := bi.New("TestSrcFileName3", "TestFuncName3", 15000)
+
+	a := make([]ErrBaseInfo, 0, 30)
+
+	a = append(a, x, y, z)
+
+	var se SpecErr
+
+	se.ParentInfo = a
+
+	l := len(se.ParentInfo)
+
+	if l != 3 {
+		t.Error("Expected ParentInfo Length of 3, got", l)
+	}
+
+	if se.ParentInfo[1].FuncName != "TestFuncName2" {
+		t.Error("Expected 2nd Element 'TestFuncName2', got", se.ParentInfo[1].FuncName)
+	}
+
+}
+
+func TestSetParentInfo(t *testing.T) {
+	var bi ErrBaseInfo
+	x := bi.New("TestSourceFileName", "TestFuncName", 9000)
+	y := bi.New("TestSrcFileName2", "TestFuncName2", 14000)
+	z := bi.New("TestSrcFileName3", "TestFuncName3", 15000)
+
+	a := make([]ErrBaseInfo, 0, 30)
+
+	a = append(a, x, y, z)
+
+	var se SpecErr
+
+	se.ParentInfo = se.SetParentInfo(a)
+
+	l := len(se.ParentInfo)
+
+	if l != 3 {
+		t.Error("Expected ParentInfo length of 3, go length of ", l)
+	}
+
+	if se.ParentInfo[1].FuncName != "TestFuncName2" {
+		t.Error("Expected 2nd Element 'TestFuncName2', got", se.ParentInfo[1].FuncName)
+	}
+}
+
+func TestSetErrDetail(t *testing.T) {
+	var bi ErrBaseInfo
+	x := bi.New("TestSrcFileName2", "TestFuncName2", 14000)
+
+	ex1 := "errprefix"
+	ex4 := int64(334)
+	err := errors.New("Test Error #1")
+
+	se := x.GetBaseSpecErr().NewDetailErr(ex1, err, false, ex4)
+
+	if se.ErrNo != 14334 {
+		t.Error("Expected Err No 14334, go", se.ErrNo)
+	}
+
+	if se.SrcFile != "TestSrcFileName2" {
+		t.Error("Expected Source File: 'TestSrcFileName2',got", se.SrcFile)
+	}
+
+	if se.FuncName != "TestFuncName2" {
+		t.Error("Expected FuncName: 'TestFuncName2', got", se.FuncName)
+	}
+
 }
 
 func TestIsSpecErrNo(t *testing.T) {
@@ -82,4 +189,15 @@ func TestIsSpecErrYes(t *testing.T) {
 		t.Error("Expected CheckIsSpecErr() to return true, go", isErr)
 	}
 
+}
+
+func TestSetNoErr(t *testing.T) {
+
+	var se SpecErr
+
+	x := se.SetNoError()
+
+	if x.IsErr {
+		t.Error("Expected IsErr = 'false', got", x.IsErr)
+	}
 }
