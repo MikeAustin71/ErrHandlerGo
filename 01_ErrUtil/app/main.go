@@ -7,31 +7,14 @@ import (
 
 func main() {
 
-	var bi common.ErrBaseInfo
-	x := bi.New("TestSourceFileName", "TestFuncName", 9000)
-	y := bi.New("TestSrcFileName2", "TestFuncName2", 14000)
-	z := bi.New("TestSrcFileName3", "TestFuncName3", 15000)
+	parent := common.ErrBaseInfo{}.GetNewParentInfo("main.go", "main", 1000)
 
-	a := make([]common.ErrBaseInfo, 0, 30)
+	fmt.Println("Length of 'parent' is:", len(parent))
 
-	a = append(a, x, y, z)
+	fmt.Println("SourceFile Name should be 'main.go'. Actual=: ", parent[0].SourceFileName)
 
-	var se common.SpecErr
+}
 
-	se.ParentInfo = se.SetParentInfo(a)
-
-	l := len(se.ParentInfo)
-
-	if l != 3 {
-		fmt.Println("Length of se.ParentInfo is NOT 3")
-		return
-	}
-
-	if se.ParentInfo[1].FuncName != "TestFuncName2" {
-		fmt.Println("Expected 2nd Element 'TestFuncName2', got", se.ParentInfo[1].FuncName)
-		return
-	}
-
-	fmt.Println("Successful Completion!")
+func testErr(parent []ErrBaseInfo){
 
 }

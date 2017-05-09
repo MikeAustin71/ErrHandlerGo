@@ -29,46 +29,70 @@ func (b ErrBaseInfo) NewBaseInfo() ErrBaseInfo {
 	return ErrBaseInfo{SourceFileName: b.SourceFileName, FuncName: b.FuncName, BaseErrorID: b.BaseErrorID}
 }
 
+// DeepCopyBaseInfo - Same as NewBaseInfo()
+func (b ErrBaseInfo) DeepCopyBaseInfo() ErrBaseInfo {
+	return ErrBaseInfo{SourceFileName: b.SourceFileName, FuncName: b.FuncName, BaseErrorID: b.BaseErrorID}
+}
+
 // GetBaseSpecErr - Returns an empty
 // SpecErr structure populated with
 // Base Error Info
 func (b ErrBaseInfo) GetBaseSpecErr() SpecErr {
 
-	return SpecErr{BaseInfo: b.NewBaseInfo(), IsBaseInfoSet: true}
+	return SpecErr{BaseInfo: b.NewBaseInfo()}
+}
+
+// GetNewParentInfo - Returns a slice of ErrBaseInfo
+// structures with the first element initialized to a
+// new ErrBaseInfo structure.
+func (b ErrBaseInfo) GetNewParentInfo(srcFile, funcName string, baseErrID int64) []ErrBaseInfo {
+	var parent []ErrBaseInfo
+
+	bi := b.New(srcFile, funcName, baseErrID)
+
+	return append(parent, bi)
 }
 
 // SpecErr - A data structure used
 // to hold custom error information
 type SpecErr struct {
-	ParentInfo     []ErrBaseInfo
-	BaseInfo       ErrBaseInfo
-	IsBaseInfoSet  bool
-	IsErr          bool
-	IsPanic        bool
-	PrefixMsg      string
-	ErrMsg         string
-	SrcFile        string
-	ParentFuncName string
-	FuncName       string
-	ErrNo          int64
+	ParentInfo []ErrBaseInfo
+	BaseInfo   ErrBaseInfo
+	IsErr      bool
+	IsPanic    bool
+	PrefixMsg  string
+	ErrMsg     string
+	ErrNo      int64
 }
 
-// New - Creates new SpecErr Type
-func (s SpecErr) New(prefix string, err error, isPanic bool, srcFile string, funcName string, errNo int64) SpecErr {
+// InitializeBaseInfo - Initializes a SpecErr Structure
+// from a ParentInfo array and a ErrBaseInfo
+// structure
+func (s SpecErr) InitializeBaseInfo(parent []ErrBaseInfo, bi ErrBaseInfo) SpecErr {
 
-	x := SpecErr{PrefixMsg: prefix, IsPanic: isPanic, SrcFile: srcFile, FuncName: funcName, ErrNo: errNo}
+	return SpecErr{
+		ParentInfo: s.DeepCopyParentInfo(parent),
+		BaseInfo:   bi.DeepCopyBaseInfo()}
+}
 
-	if s.IsBaseInfoSet {
-		x.BaseInfo = s.BaseInfo.NewBaseInfo()
-	}
+// Initialize - Initializes all elements of
+// the SpecErr structure
+func (s SpecErr) Initialize(parent []ErrBaseInfo, bi ErrBaseInfo, prefix string, err error, isPanic bool, errNo int64) SpecErr {
+	return s.InitializeBaseInfo(parent, bi).New(prefix, err, isPanic, errNo)
 
-	if srcFile == "" {
-		x.SrcFile = s.BaseInfo.SourceFileName
-	}
+}
 
-	if funcName == "" {
-		x.FuncName = s.BaseInfo.FuncName
-	}
+// New - Creates new SpecErr Type. Uses existing
+// Parent and ErrBaseInfo data
+func (s SpecErr) New(prefix string, err error, isPanic bool, errNo int64) SpecErr {
+
+	x := SpecErr{
+		ParentInfo: s.DeepCopyParentInfo(s.ParentInfo),
+		BaseInfo:   s.BaseInfo.DeepCopyBaseInfo(),
+		PrefixMsg:  prefix,
+		IsPanic:    isPanic}
+
+	x.ErrNo = errNo + x.BaseInfo.BaseErrorID
 
 	if err != nil {
 		x.ErrMsg = err.Error()
@@ -82,23 +106,16 @@ func (s SpecErr) New(prefix string, err error, isPanic bool, srcFile string, fun
 	return x
 }
 
-// NewDetailErr - returns a new, populated SpecErr structure.
-// It is designed to work with SpecErr.BaseInfo to replicate pre-fabricated
-func (s SpecErr) NewDetailErr(prefix string, err error, isPanic bool, errDetailID int64) SpecErr {
-
-	if s.IsBaseInfoSet {
-		id := s.BaseInfo.BaseErrorID + errDetailID
-		return s.New(prefix, err, isPanic, s.BaseInfo.SourceFileName, s.BaseInfo.FuncName, id)
-	}
-
-	return s.New(prefix, err, isPanic, "", "", errDetailID)
-
-}
-
 // SetNoError - Returns a SpecErr
 // structure with IsErr set to false.
 func (s SpecErr) SetNoError() SpecErr {
 	return SpecErr{IsErr: false, IsPanic: false}
+}
+
+// DeepCopyBaseInfo - Returns a deep copy of the
+// current BaseInfo structure.
+func (s SpecErr) DeepCopyBaseInfo() ErrBaseInfo {
+	return s.BaseInfo.DeepCopyBaseInfo()
 }
 
 // SetBaseInfo - Sets the SpecErr ErrBaseInfo internal
@@ -106,15 +123,46 @@ func (s SpecErr) SetNoError() SpecErr {
 // error information.
 func (s SpecErr) SetBaseInfo(bi ErrBaseInfo) {
 	s.BaseInfo = bi.NewBaseInfo()
-	s.IsBaseInfoSet = true
 }
 
-// SetParentInfo - Receives an array of slices
+// SetParentInfo - Sets the ParentInfo Slice for
+// the current SpecErr structure
+func (s SpecErr) SetParentInfo(parent []ErrBaseInfo) {
+	if len(parent) == 0 {
+		return
+	}
+
+	s.ParentInfo = s.DeepCopyParentInfo(parent)
+}
+
+// AddParentInfo - Adds ParentInfo elements to
+// the current SpecErr ParentInfo slice
+func (s SpecErr) AddParentInfo(parent []ErrBaseInfo) {
+	if len(parent) == 0 {
+		return
+	}
+
+	x := s.DeepCopyParentInfo(parent)
+
+	for _, bi := range x {
+		s.ParentInfo = append(s.ParentInfo, bi.NewBaseInfo())
+	}
+
+	return
+
+}
+
+// DeepCopyParentInfo - Receives an array of slices
 // type ErrBaseInfo and appends deep copies
 // of those slices to the SpecErr ParentInfo
 // field.
-func (s SpecErr) SetParentInfo(pi []ErrBaseInfo) []ErrBaseInfo {
-	a := make([]ErrBaseInfo,0, len(pi)+10)
+func (s SpecErr) DeepCopyParentInfo(pi []ErrBaseInfo) []ErrBaseInfo {
+
+	if len(pi) == 0 {
+		return pi
+	}
+
+	a := make([]ErrBaseInfo, 0, len(pi)+10)
 	for _, bi := range pi {
 		a = append(a, bi.NewBaseInfo())
 	}
@@ -135,22 +183,15 @@ func (s SpecErr) Error() string {
 	m := s.PrefixMsg
 	m += "\n" + s.ErrMsg
 
-	if s.SrcFile != "" {
-		m += "\nSourceFile: " + s.SrcFile
+	if s.BaseInfo.SourceFileName != "" {
+		m += "\nSourceFile: " + s.BaseInfo.SourceFileName
 	}
 
-	if s.ParentFuncName != "" {
-		m += "\nParentFuncName: " + s.ParentFuncName
+	if s.BaseInfo.FuncName != "" {
+		m += "\nFuncName: " + s.BaseInfo.FuncName
 	}
 
-	if s.FuncName != "" {
-		m += "\nFuncName: " + s.FuncName
-	}
-
-	if s.ErrNo != 0 {
-		m += fmt.Sprintf("\nErrNo: %v", s.ErrNo)
-	}
-
+	m += fmt.Sprintf("\nErrNo: %v", s.ErrNo)
 	m += fmt.Sprintf("\nIsErr: %v", s.IsErr)
 	m += fmt.Sprintf("\nIsPanic: %v", s.IsPanic)
 
@@ -171,6 +212,10 @@ func (s SpecErr) Error() string {
 
 	return m
 }
+
+var blankErrBaseInfo = ErrBaseInfo{}
+var blankSpecErr = SpecErr{}
+var blankParentInfo = make([]ErrBaseInfo, 0, 10)
 
 // CheckErrPanic - Checks for error and then
 // executes 'panic'

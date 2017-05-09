@@ -28,8 +28,7 @@ func TestNewBaseInfo(t *testing.T) {
 	ex2 := "TestFuncName"
 	ex3 := int64(9000)
 
-	var bi ErrBaseInfo
-	x := bi.New(ex1, ex2, ex3)
+	x := ErrBaseInfo{}.New(ex1, ex2, ex3)
 
 	if x.SourceFileName != ex1 {
 		t.Error(fmt.Sprintf("Expected %v got,", ex1), x.SourceFileName)
@@ -52,8 +51,7 @@ func TestNewFunc(t *testing.T) {
 	ex3 := int64(9000)
 	ex4 := "NewFuncName"
 
-	var bi ErrBaseInfo
-	x := bi.New(ex1, ex2, ex3)
+	x := ErrBaseInfo{}.New(ex1, ex2, ex3)
 
 	if x.FuncName != ex2 {
 		t.Error(fmt.Sprintf("Expected %v got,", ex2), x.FuncName)
@@ -79,8 +77,7 @@ func TestBaseInfoDeepCopy(t *testing.T) {
 	ex2 := "TestFuncName"
 	ex3 := int64(9000)
 
-	var bi ErrBaseInfo
-	x := bi.New(ex1, ex2, ex3)
+	x := ErrBaseInfo{}.New(ex1, ex2, ex3)
 
 	y := x.NewBaseInfo()
 
@@ -102,15 +99,10 @@ func TestGetSpecErrFromBaseInfo(t *testing.T) {
 	ex1 := "TestSourceFileName"
 	ex2 := "TestFuncName"
 	ex3 := int64(9000)
-	var bi ErrBaseInfo
 
-	x := bi.New(ex1, ex2, ex3)
+	x := ErrBaseInfo{}.New(ex1, ex2, ex3)
 
 	se := x.GetBaseSpecErr()
-
-	if se.IsBaseInfoSet == false {
-		t.Error("IsBaseInfoSet should be true. Instead, value was ", se.IsBaseInfoSet)
-	}
 
 	if se.BaseInfo.SourceFileName != "TestSourceFileName" {
 		t.Error("Expected BaseInfo.SourceFileName 'TestSourceFileName', got ", se.BaseInfo.SourceFileName)
@@ -124,4 +116,30 @@ func TestGetSpecErrFromBaseInfo(t *testing.T) {
 		t.Error("Expected BaseInfo.BaseErrorID '9000', got ", se.BaseInfo.BaseErrorID)
 	}
 
+}
+
+func TestGetNewParentInfo(t *testing.T) {
+	ex1 := "test11.go"
+	ex2 := "test11"
+	ex3 := int64(1000)
+
+	parent := ErrBaseInfo{}.GetNewParentInfo(ex1, ex2, ex3)
+
+	l := len(parent)
+
+	if l != 1 {
+		t.Error("Expected 1 element. Slice length is:", l)
+	}
+
+	if parent[0].SourceFileName != ex1 {
+		t.Error(fmt.Sprintf("Expected %v, got", ex1), parent[0].SourceFileName)
+	}
+
+	if parent[0].FuncName != ex2 {
+		t.Error(fmt.Sprintf("Expected %v, got", ex2), parent[0].FuncName)
+	}
+
+	if parent[0].BaseErrorID != ex3 {
+		t.Error(fmt.Sprintf("Expected %v, got", ex3), parent[0].BaseErrorID)
+	}
 }
