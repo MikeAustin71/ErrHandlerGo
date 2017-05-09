@@ -189,11 +189,14 @@ func (s SpecErr) Panic() {
 
 // Error - Implements Error Interface
 func (s SpecErr) Error() string {
-	m := "\n---------------------"
-	m += "\n  Error Message"
+
+	m := "\nError Message:"
 	m += "\n---------------------"
-	m += "\n"
-	m += s.PrefixMsg
+	if s.PrefixMsg != "" {
+		m += "\n"
+		m += s.PrefixMsg
+	}
+
 	m += "\n" + s.ErrMsg
 	m += "\n---------------------"
 
