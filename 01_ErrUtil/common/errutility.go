@@ -152,6 +152,15 @@ func (s SpecErr) AddParentInfo(parent []ErrBaseInfo) {
 
 }
 
+// AddBaseToParentInfo - Adds the structure's
+// ErrBaseInfo data to ParentInfo and returns a
+// new ParentInfo Array
+func (s SpecErr) AddBaseToParentInfo() []ErrBaseInfo {
+
+	a := s.DeepCopyParentInfo(s.ParentInfo)
+	return append(a, s.BaseInfo.DeepCopyBaseInfo())
+}
+
 // DeepCopyParentInfo - Receives an array of slices
 // type ErrBaseInfo and appends deep copies
 // of those slices to the SpecErr ParentInfo
@@ -180,8 +189,13 @@ func (s SpecErr) Panic() {
 
 // Error - Implements Error Interface
 func (s SpecErr) Error() string {
-	m := s.PrefixMsg
+	m := "\n---------------------"
+	m += "\n  Error Message"
+	m += "\n---------------------"
+	m += "\n"
+	m += s.PrefixMsg
 	m += "\n" + s.ErrMsg
+	m += "\n---------------------"
 
 	if s.BaseInfo.SourceFileName != "" {
 		m += "\nSourceFile: " + s.BaseInfo.SourceFileName
@@ -198,9 +212,9 @@ func (s SpecErr) Error() string {
 	// If parent Function Info Exists
 	// Print it out.
 	if len(s.ParentInfo) > 0 {
-		m += "---------------------"
-		m += "  Parent Func Info"
-		m += "---------------------"
+		m += "\n---------------------"
+		m += "\n  Parent Func Info"
+		m += "\n---------------------"
 
 		for _, bi := range s.ParentInfo {
 			m += ("\n" + bi.SourceFileName + "-" + bi.FuncName)
