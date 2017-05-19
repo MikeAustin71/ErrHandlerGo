@@ -1,7 +1,7 @@
 package main
 
 import (
-	common "MikeAustin71/ErrHandlerGo/01_ErrUtil/common"
+	"MikeAustin71/ErrHandlerGo/01_ErrUtil/common"
 	"errors"
 	"fmt"
 )
@@ -25,10 +25,9 @@ func main() {
 	ex3 := "prefixString"
 	ex4 := "Error Msg 99"
 	err := errors.New(ex4)
-	ex5 := false
 	ex6 := int64(22)
 
-	x := common.SpecErr{}.Initialize(ex1, ex2, ex3, err, ex5, ex6)
+	x := common.SpecErr{}.Initialize(ex1, ex2, ex3, err, false, ex6)
 
 	fmt.Println(x.Error())
 

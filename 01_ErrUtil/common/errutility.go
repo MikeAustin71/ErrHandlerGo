@@ -220,7 +220,7 @@ func (s SpecErr) Error() string {
 		m += "\n---------------------"
 
 		for _, bi := range s.ParentInfo {
-			m += ("\n" + bi.SourceFileName + "-" + bi.FuncName)
+			m += "\n" + bi.SourceFileName + "-" + bi.FuncName
 			if bi.BaseErrorID != 0 {
 				m += fmt.Sprintf(" ErrorID: %v", bi.BaseErrorID)
 			}
@@ -231,7 +231,6 @@ func (s SpecErr) Error() string {
 }
 
 var blankErrBaseInfo = ErrBaseInfo{}
-var blankSpecErr = SpecErr{}
 var blankParentInfo = make([]ErrBaseInfo, 0, 10)
 
 // CheckErrPanic - Checks for error and then
