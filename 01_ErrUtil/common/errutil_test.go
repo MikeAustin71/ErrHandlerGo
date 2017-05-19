@@ -171,7 +171,7 @@ func TestSetErrDetail(t *testing.T) {
 
 func TestIsSpecErrNo(t *testing.T) {
 
-	s := SpecErr{}.SetNoError()
+	s := SpecErr{}.SignalNoErrors()
 
 	isErr := CheckIsSpecErr(s)
 
@@ -199,7 +199,7 @@ func TestIsSpecErrYes(t *testing.T) {
 }
 
 func TestSetNoErr(t *testing.T) {
-	x := SpecErr{}.SetNoError()
+	x := SpecErr{}.SignalNoErrors()
 
 	if x.IsErr {
 		t.Error("Expected IsErr = 'false', got", x.IsErr)

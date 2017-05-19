@@ -106,11 +106,12 @@ func (s SpecErr) New(prefix string, err error, isPanic bool, errNo int64) SpecEr
 	return x
 }
 
-// SetNoError - Returns a SpecErr
+// SignalNoErrors - Returns a SpecErr
 // structure with IsErr set to false.
-func (s SpecErr) SetNoError() SpecErr {
+func (s SpecErr) SignalNoErrors() SpecErr {
 	return SpecErr{IsErr: false, IsPanic: false}
 }
+
 
 // DeepCopyBaseInfo - Returns a deep copy of the
 // current BaseInfo structure.
