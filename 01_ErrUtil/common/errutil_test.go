@@ -173,10 +173,10 @@ func TestIsSpecErrNo(t *testing.T) {
 
 	s := SpecErr{}.SignalNoErrors()
 
-	isErr := CheckIsSpecErr(s)
+	isErr := s.CheckIsSpecErr()
 
 	if isErr {
-		t.Error("Expected CheckIsSpecErr() to return false, go", isErr)
+		t.Errorf("Expected CheckIsSpecErr() to return false. Instead it retrned %v", isErr)
 	}
 
 }
@@ -190,10 +190,10 @@ func TestIsSpecErrYes(t *testing.T) {
 
 	x := SpecErr{}.New(ex1, err, true, ex4)
 
-	isErr := CheckIsSpecErr(x)
+	isErr := x.CheckIsSpecErr()
 
 	if !isErr {
-		t.Error("Expected CheckIsSpecErr() to return true, go", isErr)
+		t.Errorf("Expected x.CheckIsSpecErr() to return 'true'. Instead it returned %v", isErr)
 	}
 
 }
@@ -202,7 +202,7 @@ func TestSetNoErr(t *testing.T) {
 	x := SpecErr{}.SignalNoErrors()
 
 	if x.IsErr {
-		t.Error("Expected IsErr = 'false', got", x.IsErr)
+		t.Errorf("Expected IsErr= 'false'. Instead IsErr= '%v'", x.IsErr)
 	}
 }
 
@@ -211,10 +211,9 @@ func TestQuickInitialize(t *testing.T) {
 	ex1 := "prefixMsg"
 	ex2 := "Error Msg X"
 	err := errors.New(ex2)
-	ex3 := false
 	ex4 := int64(499)
 
-	x := SpecErr{}.New(ex1, err, ex3, ex4)
+	x := SpecErr{}.New(ex1, err, false, ex4)
 
 	if x.ErrNo != ex4 {
 		t.Error(fmt.Sprintf("Expected ErrNo: '%v', got", ex4), x.ErrNo)
@@ -229,7 +228,7 @@ func TestQuickInitialize(t *testing.T) {
 	}
 
 	if x.IsPanic == true {
-		t.Error(fmt.Sprintf("Expected IsPanic == '%v', got", ex3), x.IsPanic)
+		t.Errorf("Expected IsPanic == '%v'. Instead IsPanic== '%v' ", false, x.IsPanic)
 	}
 }
 
@@ -256,7 +255,7 @@ func TestFullInitialize(t *testing.T) {
 	ex6 := int64(22)
 	ex7 := int64(16022)
 
-	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, ex5, ex6)
+	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, false, ex6)
 
 	pl := len(x.ParentInfo)
 
@@ -277,7 +276,7 @@ func TestFullInitialize(t *testing.T) {
 	}
 
 	if x.IsPanic != ex5 {
-		t.Error(fmt.Sprintf("Expected IsPanic == '%v', got", ex5), x.IsPanic)
+		t.Errorf("Expected IsPanic == '%v'. Instead IsPannic=='%v'", ex5, x.IsPanic)
 	}
 
 	if x.ErrNo != ex7 {
@@ -379,5 +378,83 @@ func TestAddBaseInfoToParent(t *testing.T) {
 	if pl2 != 4 {
 		t.Error("Expected New Parent Info to contain 4-elements. Actual number of elements was ", pl2)
 	}
+
+}
+
+func TestSpecErr_CheckIsSpecErr(t *testing.T) {
+
+	bi := ErrBaseInfo{}
+
+	f := bi.New("TestSourceFileName", "TestFuncName", 9000)
+	g := bi.New("TestSrcFileName2", "TestFuncName2", 14000)
+	h := bi.New("TestSrcFileName3", "TestFuncName3", 15000)
+
+	ex1 := make([]ErrBaseInfo, 0, 10)
+	ex1 = append(ex1, f, g, h)
+
+	ex2_1 := "TestSrcFileName99"
+	ex2_2 := "TestFuncName99"
+	ex2_3 := int64(16000)
+	ex2 := bi.New(ex2_1, ex2_2, ex2_3)
+
+	ex3 := "prefixString"
+	ex4 := "Error Msg 99"
+	err := errors.New(ex4)
+	ex6 := int64(22)
+
+	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, false, ex6)
+
+	result := x.CheckIsSpecErr()
+
+	if result == false {
+		t.Errorf("Expected x.CheckIsSpecErr()== 'true'. Instead, x.CheckIsSpecErr()== '%v'", result)
+	}
+
+}
+
+func TestSpecErr_CheckIsSpecErrPanic(t *testing.T) {
+	bi := ErrBaseInfo{}
+
+	f := bi.New("TestSourceFileName", "TestFuncName", 9000)
+	g := bi.New("TestSrcFileName2", "TestFuncName2", 14000)
+	h := bi.New("TestSrcFileName3", "TestFuncName3", 15000)
+
+	ex1 := make([]ErrBaseInfo, 0, 10)
+	ex1 = append(ex1, f, g, h)
+
+	ex2_1 := "TestSrcFileName99"
+	ex2_2 := "TestFuncName99"
+	ex2_3 := int64(16000)
+	ex2 := bi.New(ex2_1, ex2_2, ex2_3)
+
+	ex3 := "prefixString"
+	ex4 := "Error Msg 99"
+	err := errors.New(ex4)
+	ex6 := int64(22)
+
+	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, false, ex6)
+
+	x.IsPanic = true
+
+	result := x.CheckIsSpecErrPanic()
+
+	if result != true {
+		t.Errorf("Expected x.CheckIsSpecErrPanic()== 'true' .  Instead, x.CheckIsSpecErrPanic()== '%v'", result)
+	}
+
+}
+
+func TestSpecErr_NewErrorMsgString(t *testing.T) {
+	prefixString := "prefixString"
+	errMsg := "This is the Error Msg!"
+	isPanic := false
+	errNo := int64(22)
+
+	s :=  SpecErr{}.NewErrorMsgString(prefixString, errMsg, isPanic, errNo )
+
+	if s.ErrMsg != errMsg {
+		t.Errorf("Expected Error Message= '%v'.  Instead, Error Message = '%v'", errMsg, s.ErrMsg)
+	}
+
 
 }

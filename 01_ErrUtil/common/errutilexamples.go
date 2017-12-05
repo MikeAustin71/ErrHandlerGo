@@ -53,7 +53,7 @@ func TestEx002() {
 	ex2 := bi.New(ex2_1, ex2_2, ex2_3)
 
 	ex3 := "prefixString"
-	ex4 := "Error Msg 99"
+	ex4 := "This is the Error Msg"
 	err := errors.New(ex4)
 	ex6 := int64(22)
 
