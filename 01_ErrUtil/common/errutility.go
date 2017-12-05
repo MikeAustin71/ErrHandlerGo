@@ -4,6 +4,15 @@ import (
 	"fmt"
 )
 
+/*
+		The source code for errutility.go is located in source
+		code repository:
+
+						https://github.com/MikeAustin71/ErrHandlerGo.git
+*/
+
+
+
 // ErrBaseInfo is intended for use with
 // the SpecErr Structure. It sets up base
 // error info to be used repeatedly.
