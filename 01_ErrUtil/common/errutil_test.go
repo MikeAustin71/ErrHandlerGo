@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"testing"
+	"strings"
 )
 
 func TestErrorUtility(t *testing.T) {
@@ -444,7 +445,7 @@ func TestSpecErr_CheckIsSpecErrPanic(t *testing.T) {
 
 }
 
-func TestSpecErr_NewErrorMsgString(t *testing.T) {
+func TestSpecErr_NewErrorMsgString_01(t *testing.T) {
 	prefixString := "prefixString"
 	errMsg := "This is the Error Msg!"
 	isPanic := false
@@ -456,5 +457,46 @@ func TestSpecErr_NewErrorMsgString(t *testing.T) {
 		t.Errorf("Expected Error Message= '%v'.  Instead, Error Message = '%v'", errMsg, s.ErrMsg)
 	}
 
+
+}
+
+func TestSpecErr_NewErrorMsgString_02(t *testing.T) {
+	prefixString := "prefixString"
+	errMsg := "This is the Error Msg!"
+	isPanic := false
+	errNo := int64(0)
+
+	s :=  SpecErr{}.NewErrorMsgString(prefixString, errMsg, isPanic, errNo )
+
+	if s.ErrMsg != errMsg {
+		t.Errorf("Expected Error Message= '%v'.  Instead, Error Message = '%v'", errMsg, s.ErrMsg)
+	}
+
+	errResult := s.Error()
+
+	hasErrNo := strings.Contains(errResult, "ErrNo:")
+
+	if true == hasErrNo {
+		t.Error("Due to Error Number=Zero, expected error message WITHOUT Error Number. Instead, Error Number was included in Error Message")
+	}
+}
+
+func TestSpecErr_SetErrorMessageLabel(t *testing.T) {
+
+	prefixString := "prefixString"
+	errMsg := "This is the Error Msg!"
+	isPanic := false
+	errNo := int64(0)
+
+	s :=  SpecErr{}.NewErrorMsgString(prefixString, errMsg, isPanic, errNo )
+
+	s.SetErrorMessageLabel("StdOut Error")
+
+	expectedErrMsg := "StdOut Error: " + errMsg
+	actualErrMsg := s.Error()
+
+	if strings.Contains(actualErrMsg, expectedErrMsg) == false {
+		t.Errorf("Expected Error Message= '%v'.  Instead, Actual Error Message = '%v'", expectedErrMsg, actualErrMsg)
+	}
 
 }

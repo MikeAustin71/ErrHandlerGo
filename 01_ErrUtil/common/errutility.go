@@ -71,6 +71,7 @@ type SpecErr struct {
 	IsErr      bool
 	IsPanic    bool
 	PrefixMsg  string
+	ErrMsgLabel string
 	ErrMsg     string
 	ErrNo      int64
 }
@@ -165,7 +166,13 @@ func (s SpecErr) Error() string {
 		m += s.PrefixMsg
 	}
 
-	m += "\n" + s.ErrMsg
+	m+= "\n"
+
+	if s.ErrMsgLabel != "" {
+		m+= s.ErrMsgLabel + ": "
+	}
+
+	m += s.ErrMsg
 	m += "\n---------------------"
 
 	if s.BaseInfo.SourceFileName != "" {
@@ -176,7 +183,10 @@ func (s SpecErr) Error() string {
 		m += "\nFuncName: " + s.BaseInfo.FuncName
 	}
 
-	m += fmt.Sprintf("\nErrNo: %v", s.ErrNo)
+	if s.ErrNo != 0 {
+		m += fmt.Sprintf("\nErrNo: %v", s.ErrNo)
+	}
+
 	m += fmt.Sprintf("\nIsErr: %v", s.IsErr)
 	m += fmt.Sprintf("\nIsPanic: %v", s.IsPanic)
 
@@ -218,6 +228,9 @@ func (s SpecErr) Initialize(parent []ErrBaseInfo, bi ErrBaseInfo, prefix string,
 // New - Creates new SpecErr Type. Uses existing
 // Parent and ErrBaseInfo data. The error is based on
 // a parameter of type 'error' passed to the method.
+//
+// Note: If you set errNo == zero, no error number will be displayed in the
+// in the error message.
 func (s SpecErr) New(prefix string, err error, isPanic bool, errNo int64) SpecErr {
 
 	x := SpecErr{
@@ -226,7 +239,10 @@ func (s SpecErr) New(prefix string, err error, isPanic bool, errNo int64) SpecEr
 		PrefixMsg:  prefix,
 		IsPanic:    isPanic}
 
-	x.ErrNo = errNo + x.BaseInfo.BaseErrorID
+	if errNo != 0 {
+		x.ErrNo = errNo + x.BaseInfo.BaseErrorID
+	}
+
 
 	if err != nil {
 		x.ErrMsg = err.Error()
@@ -242,6 +258,9 @@ func (s SpecErr) New(prefix string, err error, isPanic bool, errNo int64) SpecEr
 
 // NewErrorMsgString - Creates a new error message
 // based on an error message string.
+//
+// Note: If you set errNo == zero, no error number will be displayed in the
+// in the error message.
 func (s SpecErr) NewErrorMsgString(prefix string, errMsg string, isPanic bool, errNo int64) SpecErr {
 		er := errors.New(errMsg)
 
@@ -278,6 +297,18 @@ func (s *SpecErr) SetBaseInfo(bi ErrBaseInfo) {
 	s.BaseInfo = bi.NewBaseInfo()
 }
 
+// SetErrorLabel - If an Error Message Label is needed
+// the Error message, set the value Error Message Label
+// here.  This method merely sets the SpecErr string field,
+// SpecErr.ErrMsgLabel. Of course this field can also be
+// set directly with the use of this method.
+//
+// If the SpecErr.ErrMsgLabel is set to "StdOut Err", the
+// error message will be formatted as :
+// 						"StdOut Err: Your Error Message"
+func (s *SpecErr) SetErrorMessageLabel(errorMsgLabel string) {
+	s.ErrMsgLabel = errorMsgLabel
+}
 // SetParentInfo - Sets the ParentInfo Slice for
 // the current SpecErr structure
 func (s *SpecErr) SetParentInfo(parent []ErrBaseInfo) {
