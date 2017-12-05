@@ -18,10 +18,10 @@ func TestEx001() {
 	ex1 := make([]ErrBaseInfo, 0, 10)
 	ex1 = append(ex1, f, g, h)
 
-	ex2_1 := "TestSrcFileName99"
-	ex2_2 := "TestFuncName99"
-	ex2_3 := int64(16000)
-	ex2 := bi.New(ex2_1, ex2_2, ex2_3)
+	ex21 := "TestSrcFileName99"
+	ex22 := "TestFuncName99"
+	ex23 := int64(16000)
+	ex2 := bi.New(ex21, ex22, ex23)
 
 	ex3 := "prefixString"
 	ex4 := "Error Msg 99"
@@ -47,10 +47,10 @@ func TestEx002() {
 	ex1 = append(ex1, f, g, h)
 
 	// Set up BaseInfo
-	ex2_1 := "TestSrcFileName99"
-	ex2_2 := "TestFuncName99"
-	ex2_3 := int64(16000)
-	ex2 := bi.New(ex2_1, ex2_2, ex2_3)
+	ex21 := "TestSrcFileName99"
+	ex22 := "TestFuncName99"
+	ex23 := int64(16000)
+	ex2 := bi.New(ex21, ex22, ex23)
 
 	ex3 := "prefixString"
 	ex4 := "This is the Error Msg"

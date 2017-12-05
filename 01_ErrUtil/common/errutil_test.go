@@ -244,10 +244,10 @@ func TestFullInitialize(t *testing.T) {
 	ex1 := make([]ErrBaseInfo, 0, 10)
 	ex1 = append(ex1, f, g, h)
 
-	ex2_1 := "TestSrcFileName99"
-	ex2_2 := "TestFuncName99"
-	ex2_3 := int64(16000)
-	ex2 := bi.New(ex2_1, ex2_2, ex2_3)
+	ex21 := "TestSrcFileName99"
+	ex22 := "TestFuncName99"
+	ex23 := int64(16000)
+	ex2 := bi.New(ex21, ex22, ex23)
 
 	ex3 := "prefixString"
 	ex4 := "Error Msg 99"
@@ -284,16 +284,16 @@ func TestFullInitialize(t *testing.T) {
 		t.Error(fmt.Sprintf("Expected ErrNo '%v', got", ex7), x.ErrNo)
 	}
 
-	if x.BaseInfo.SourceFileName != ex2_1 {
-		t.Error(fmt.Sprintf("Expected SourceFileName '%v', got", ex2_1), x.BaseInfo.SourceFileName)
+	if x.BaseInfo.SourceFileName != ex21 {
+		t.Error(fmt.Sprintf("Expected SourceFileName '%v', got", ex21), x.BaseInfo.SourceFileName)
 	}
 
-	if x.BaseInfo.FuncName != ex2_2 {
-		t.Error(fmt.Sprintf("Expected Function Name '%v', got", ex2_2), x.BaseInfo.FuncName)
+	if x.BaseInfo.FuncName != ex22 {
+		t.Error(fmt.Sprintf("Expected Function Name '%v', got", ex22), x.BaseInfo.FuncName)
 	}
 
-	if x.BaseInfo.BaseErrorID != ex2_3 {
-		t.Error(fmt.Sprintf("Expected Base Error ID '%v', got", ex2_3), x.BaseInfo.BaseErrorID)
+	if x.BaseInfo.BaseErrorID != ex23 {
+		t.Error(fmt.Sprintf("Expected Base Error ID '%v', got", ex23), x.BaseInfo.BaseErrorID)
 	}
 
 }
@@ -353,10 +353,10 @@ func TestAddBaseInfoToParent(t *testing.T) {
 	ex1 := make([]ErrBaseInfo, 0, 10)
 	ex1 = append(ex1, f, g, h)
 
-	ex2_1 := "TestSrcFileName99"
-	ex2_2 := "TestFuncName99"
-	ex2_3 := int64(16000)
-	ex2 := bi.New(ex2_1, ex2_2, ex2_3)
+	ex21 := "TestSrcFileName99"
+	ex22 := "TestFuncName99"
+	ex23 := int64(16000)
+	ex2 := bi.New(ex21, ex22, ex23)
 
 	ex3 := "prefixString"
 	ex4 := "Error Msg 99"
@@ -393,10 +393,10 @@ func TestSpecErr_CheckIsSpecErr(t *testing.T) {
 	ex1 := make([]ErrBaseInfo, 0, 10)
 	ex1 = append(ex1, f, g, h)
 
-	ex2_1 := "TestSrcFileName99"
-	ex2_2 := "TestFuncName99"
-	ex2_3 := int64(16000)
-	ex2 := bi.New(ex2_1, ex2_2, ex2_3)
+	ex21 := "TestSrcFileName99"
+	ex22 := "TestFuncName99"
+	ex23 := int64(16000)
+	ex2 := bi.New(ex21, ex22, ex23)
 
 	ex3 := "prefixString"
 	ex4 := "Error Msg 99"
@@ -423,10 +423,10 @@ func TestSpecErr_CheckIsSpecErrPanic(t *testing.T) {
 	ex1 := make([]ErrBaseInfo, 0, 10)
 	ex1 = append(ex1, f, g, h)
 
-	ex2_1 := "TestSrcFileName99"
-	ex2_2 := "TestFuncName99"
-	ex2_3 := int64(16000)
-	ex2 := bi.New(ex2_1, ex2_2, ex2_3)
+	ex21 := "TestSrcFileName99"
+	ex22 := "TestFuncName99"
+	ex23 := int64(16000)
+	ex2 := bi.New(ex21, ex22, ex23)
 
 	ex3 := "prefixString"
 	ex4 := "Error Msg 99"
