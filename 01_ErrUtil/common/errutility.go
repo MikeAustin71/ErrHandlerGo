@@ -3,6 +3,8 @@ package common
 import (
 	"fmt"
 	"errors"
+	"time"
+	"strings"
 )
 
 /*
@@ -12,7 +14,37 @@ import (
 						https://github.com/MikeAustin71/ErrHandlerGo.git
 */
 
+// ErrMsgType - a series of constants used to describe
+// Error Message Type
+type ErrMsgType int
 
+// String - Method used to display the text
+// name of an Error Message Type.
+func (errmsgtype ErrMsgType) String() string {
+	return ErrMsgTypeNames[errmsgtype]
+}
+
+const (
+	// ErrTypeFATAL - Describes a an error which is fatal to
+	// program execution. This type of error is equated with
+	// 'panic' errors.
+	ErrTypeFATAL ErrMsgType = iota
+
+	// ErrTypeERROR - Standard Error
+	ErrTypeERROR
+
+	// ErrTypeWARNING - Not an error. This message types
+	// signals a serious warning.
+	ErrTypeWARNING
+
+	// ErrTypeInfo - Not an error. For information purposes
+	// only.
+	ErrTypeInfo
+
+)
+
+// ErrMsgTypeNames - String Array holding Error Message Type names.
+var ErrMsgTypeNames = [...]string{"FATAL", "ERROR", "WARNING", "INFO"}
 
 // ErrBaseInfo is intended for use with
 // the SpecErr Structure. It sets up base
@@ -66,14 +98,17 @@ func (b ErrBaseInfo) GetNewParentInfo(srcFile, funcName string, baseErrID int64)
 // SpecErr - A data structure used
 // to hold custom error information
 type SpecErr struct {
-	ParentInfo []ErrBaseInfo
-	BaseInfo   ErrBaseInfo
-	IsErr      bool
-	IsPanic    bool
-	PrefixMsg  string
-	ErrMsgLabel string
-	ErrMsg     string
-	ErrNo      int64
+	ParentInfo         []ErrBaseInfo
+	BaseInfo           ErrBaseInfo
+	ErrorMsgTimeUTC    time.Time
+	ErrorMsgTimeLocal  time.Time
+	ErrorLocalTimeZone string
+	IsErr              bool
+	IsPanic            bool
+	PrefixMsg          string
+	ErrMsgLabel        string
+	ErrMsg             string
+	ErrNo              int64
 }
 
 
@@ -159,8 +194,10 @@ func (s *SpecErr) DeepCopyParentInfo(pi []ErrBaseInfo) []ErrBaseInfo {
 // Error - Implements Error Interface
 func (s SpecErr) Error() string {
 
+	banner := "\n" + strings.Repeat("-", 75)
+
 	m := "\nError Message:"
-	m += "\n---------------------"
+	m += banner
 	if s.PrefixMsg != "" {
 		m += "\n"
 		m += s.PrefixMsg
@@ -173,7 +210,7 @@ func (s SpecErr) Error() string {
 	}
 
 	m += s.ErrMsg
-	m += "\n---------------------"
+	m += banner
 
 	if s.BaseInfo.SourceFileName != "" {
 		m += "\nSourceFile: " + s.BaseInfo.SourceFileName
@@ -193,9 +230,9 @@ func (s SpecErr) Error() string {
 	// If parent Function Info Exists
 	// Print it out.
 	if len(s.ParentInfo) > 0 {
-		m += "\n---------------------"
+		m += banner
 		m += "\n  Parent Func Info"
-		m += "\n---------------------"
+		m += banner
 
 		for _, bi := range s.ParentInfo {
 			m += "\n" + bi.SourceFileName + "-" + bi.FuncName
@@ -203,6 +240,18 @@ func (s SpecErr) Error() string {
 				m += fmt.Sprintf(" ErrorID: %v", bi.BaseErrorID)
 			}
 		}
+
+		m += banner
+		m += "\n  Error Time"
+		m += banner
+		dt := DateTimeUtility{}
+		m += fmt.Sprintf("\n  Error Time UTC: %v \n", dt.GetDateTimeTzNanoSecDowYMDText(s.ErrorMsgTimeUTC))
+		m += fmt.Sprintf("\nError Time Local: %v \n", dt.GetDateTimeTzNanoSecDowYMDText(s.ErrorMsgTimeLocal))
+		m += fmt.Sprintf("\nLocal Time Zone : %v \n", s.ErrorLocalTimeZone)
+		m += banner
+		m += banner
+		m += "\n"
+
 	}
 
 	return m
@@ -220,8 +269,36 @@ func (s SpecErr) InitializeBaseInfo(parent []ErrBaseInfo, bi ErrBaseInfo) SpecEr
 
 // Initialize - Initializes all elements of
 // the SpecErr structure
-func (s SpecErr) Initialize(parent []ErrBaseInfo, bi ErrBaseInfo, prefix string, err error, isPanic bool, errNo int64) SpecErr {
-	return s.InitializeBaseInfo(parent, bi).New(prefix, err, isPanic, errNo)
+//
+// Input Parameters:
+// parent [] ErrBaseInfo - 	This represents history data of the function chain
+//													which preceded the function in which this error occurred.
+//
+// bi ErrBaseInfo 			 -	This represents the base information associated with the
+//													current function in which the error occurred.
+//
+// prefix string - 	This string will be prefixed and printed before the error
+//									message.
+//
+// err error		 - 	Type Error containing the error message which will be associated
+//									with this SpecErr object.
+//
+// isPanic bool	 -	A boolean value indicating whether this a 'panic' or 'fatal' error
+//									which should halt execution of the program.
+//
+// errNo	int64  - 	An int64 value which specifies the error number associated with this
+//									error message. If 'errNo' is set to zero - no error number will be
+//									will be displayed in the final error message.
+//
+// localTimeZone string - The local IANA time zone which will be used in creating the time
+//												stamp for this error message. Reference Iana Time Zones:
+// 												https://www.iana.org/time-zones. If the 'localTimeZone' parameter
+//												is empty or an invalid time zone, the Local Time Zone will be
+//												defaulted and set to 'Local'. The 'Local' time zone is determined
+//												by the host computer.
+//
+func (s SpecErr) Initialize(parent []ErrBaseInfo, bi ErrBaseInfo, prefix string, err error, isPanic bool, errNo int64, localTimeZone string) SpecErr {
+	return s.InitializeBaseInfo(parent, bi).New(prefix, err, isPanic, errNo, localTimeZone)
 
 }
 
@@ -231,7 +308,29 @@ func (s SpecErr) Initialize(parent []ErrBaseInfo, bi ErrBaseInfo, prefix string,
 //
 // Note: If you set errNo == zero, no error number will be displayed in the
 // in the error message.
-func (s SpecErr) New(prefix string, err error, isPanic bool, errNo int64) SpecErr {
+//
+// Input Parameters:
+// prefix string - 	This string will be prefixed and printed before the error
+//									message.
+//
+// err error		 - 	Type Error containing the error message which will be associated
+//									with this SpecErr object.
+//
+// isPanic bool	 -	A boolean value indicating whether this a 'panic' or 'fatal' error
+//									which should halt execution of the program.
+//
+// errNo	int64  - 	An int64 value which specifies the error number associated with this
+//									error message. If 'errNo' is set to zero - no error number will be
+//									will be displayed in the final error message.
+//
+// localTimeZone string - The local IANA time zone which will be used in creating the time
+//												stamp for this error message. Reference Iana Time Zones:
+// 												https://www.iana.org/time-zones. If the 'localTimeZone' parameter
+//												is empty or an invalid time zone, the Local Time Zone will be
+//												defaulted and set to 'Local'. The 'Local' time zone is determined
+//												by the host computer.
+//
+func (s SpecErr) New(prefix string, err error, isPanic bool, errNo int64, localTimeZone string) SpecErr {
 
 	x := SpecErr{
 		ParentInfo: s.DeepCopyParentInfo(s.ParentInfo),
@@ -253,6 +352,8 @@ func (s SpecErr) New(prefix string, err error, isPanic bool, errNo int64) SpecEr
 		x.IsPanic = false
 	}
 
+	x.SetTime(localTimeZone)
+
 	return x
 }
 
@@ -261,10 +362,31 @@ func (s SpecErr) New(prefix string, err error, isPanic bool, errNo int64) SpecEr
 //
 // Note: If you set errNo == zero, no error number will be displayed in the
 // in the error message.
-func (s SpecErr) NewErrorMsgString(prefix string, errMsg string, isPanic bool, errNo int64) SpecErr {
+// Input Parameters:
+// prefix string - 	This string will be prefixed and printed before the error
+//									message.
+//
+// errMsg string - 	This strings contains the error message which will be associated
+//									with this SpecErr object.
+//
+// isPanic bool	 -	A boolean value indicating whether this a 'panic' or 'fatal' error
+//									which should halt execution of the program.
+//
+// errNo	int64  - 	An int64 value which specifies the error number associated with this
+//									error message. If 'errNo' is set to zero - no error number will be
+//									will be displayed in the final error message.
+//
+// localTimeZone string - The local IANA time zone which will be used in creating the time
+//												stamp for this error message. Reference Iana Time Zones:
+// 												https://www.iana.org/time-zones. If the 'localTimeZone' parameter
+//												is empty or an invalid time zone, the Local Time Zone will be
+//												defaulted and set to 'Local'. The 'Local' time zone is determined
+//												by the host computer.
+//
+func (s SpecErr) NewErrorMsgString(prefix string, errMsg string, isPanic bool, errNo int64, localTimeZone string) SpecErr {
 		er := errors.New(errMsg)
 
-		return s.New(prefix, er, isPanic, errNo)
+		return s.New(prefix, er, isPanic, errNo, localTimeZone)
 }
 
 // Panic - Executes 'panic' command
@@ -319,6 +441,34 @@ func (s *SpecErr) SetParentInfo(parent []ErrBaseInfo) {
 	s.ParentInfo = s.DeepCopyParentInfo(parent)
 }
 
+// SetTime - Sets the time stamp for this Error
+// Message. Notice that the input parameter 'localTimeZone'
+// is the Iana Time Zone for local time.
+//
+// Reference Iana Time Zones: https://www.iana.org/time-zones
+//
+// If the 'localTimeZone' parameter string is empty or an
+// invalid time zone, local time zone will default to 'Local'.
+func(s *SpecErr)SetTime(localTimeZone string){
+
+	tz := TimeZoneUtility{}
+
+	isValid, _, _ := tz.IsValidTimeZone(localTimeZone)
+
+	if !isValid {
+		localTimeZone = "Local"
+	}
+
+	s.ErrorMsgTimeUTC = time.Now().UTC()
+	s.ErrorLocalTimeZone = localTimeZone
+
+	tzLocal, _ := tz.ConvertTz(s.ErrorMsgTimeUTC, s.ErrorLocalTimeZone)
+	s.ErrorMsgTimeLocal = tzLocal.TimeOut
+
+}
+
 var blankErrBaseInfo = ErrBaseInfo{}
 var blankParentInfo = make([]ErrBaseInfo, 0, 10)
+
+
 

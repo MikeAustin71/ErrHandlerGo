@@ -24,11 +24,11 @@ func TestEx001() {
 	ex2 := bi.New(ex21, ex22, ex23)
 
 	ex3 := "prefixString"
-	ex4 := "Error Msg 99"
+	ex4 := "This is the Error Message"
 	err := errors.New(ex4)
 	ex6 := int64(22)
 
-	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, false, ex6)
+	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, false, ex6, "Local")
 
 	fmt.Println(x.Error())
 
@@ -57,7 +57,7 @@ func TestEx002() {
 	err := errors.New(ex4)
 	ex6 := int64(22)
 
-	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, true, ex6)
+	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, true, ex6, "Local")
 
 	panic(x)
 }

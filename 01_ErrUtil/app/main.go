@@ -16,6 +16,6 @@ import (
 
 func main() {
 
-	common.TestEx002()
+	common.TestEx001()
 
 }
