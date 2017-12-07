@@ -14,13 +14,13 @@ import (
 						https://github.com/MikeAustin71/ErrHandlerGo.git
 */
 
-// ErrMsgType - a series of constants used to describe
+// SpecErrMsgType - a series of constants used to describe
 // Error Message Type
-type ErrMsgType int
+type SpecErrMsgType int
 
 // String - Method used to display the text
 // name of an Error Message Type.
-func (errmsgtype ErrMsgType) String() string {
+func (errmsgtype SpecErrMsgType) String() string {
 	return ErrMsgTypeNames[errmsgtype]
 }
 
@@ -29,7 +29,7 @@ const (
 	// ErrTypeNOERRORSALLCLEAR - Describes a state where
 	// there are no errors, no warnings and no information
 	// messages.
-	ErrTypeNOERRORSALLCLEAR ErrMsgType = iota
+	ErrTypeNOERRORSALLCLEAR SpecErrMsgType = iota
 
 	// ErrTypeFATAL - Describes a an error which is fatal to
 	// program execution. This type of error is equated with
@@ -104,17 +104,18 @@ func (b ErrBaseInfo) GetNewParentInfo(srcFile, funcName string, baseErrID int64)
 // SpecErr - A data structure used
 // to hold custom error information
 type SpecErr struct {
-	ParentInfo         []ErrBaseInfo
-	BaseInfo           ErrBaseInfo
-	ErrorMsgTimeUTC    time.Time
-	ErrorMsgTimeLocal  time.Time
-	ErrorLocalTimeZone string
-	IsErr              bool
-	IsPanic            bool
-	PrefixMsg          string
-	ErrMsgLabel        string
-	ErrMsg             string
-	ErrNo              int64
+	ParentInfo         	[]ErrBaseInfo
+	BaseInfo           	ErrBaseInfo
+	ErrorMsgTimeUTC    	time.Time
+	ErrorMsgTimeLocal  	time.Time
+	ErrorLocalTimeZone 	string
+	ErrorMsgType				SpecErrMsgType
+	IsErr              	bool
+	IsPanic            	bool
+	PrefixMsg          	string
+	ErrMsgLabel        	string
+	ErrMsg             	string
+	ErrNo              	int64
 }
 
 

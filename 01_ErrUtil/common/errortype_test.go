@@ -7,7 +7,7 @@ import (
 
 func TestErrMsgType_String001(t *testing.T) {
 
-	var r ErrMsgType
+	var r SpecErrMsgType
 
 	r = ErrTypeNOERRORSALLCLEAR
 
@@ -23,7 +23,7 @@ func TestErrMsgType_String001(t *testing.T) {
 
 func TestErrMsgType_String002(t *testing.T) {
 
-	var r ErrMsgType
+	var r SpecErrMsgType
 
 	r = ErrTypeFATAL
 
@@ -39,7 +39,7 @@ func TestErrMsgType_String002(t *testing.T) {
 
 func TestErrMsgType_String003(t *testing.T) {
 
-	var r ErrMsgType
+	var r SpecErrMsgType
 
 	r = ErrTypeERROR
 
@@ -55,7 +55,7 @@ func TestErrMsgType_String003(t *testing.T) {
 
 func TestErrMsgType_String004(t *testing.T) {
 
-	var r ErrMsgType
+	var r SpecErrMsgType
 
 	r = ErrTypeWARNING
 
@@ -71,7 +71,7 @@ func TestErrMsgType_String004(t *testing.T) {
 
 func TestErrMsgType_String005(t *testing.T) {
 
-	var r ErrMsgType
+	var r SpecErrMsgType
 
 	r = ErrTypeInfo
 
@@ -88,7 +88,7 @@ func TestErrMsgType_String005(t *testing.T) {
 
 func TestErrMsgType_Value001(t *testing.T) {
 
-	var r ErrMsgType
+	var r SpecErrMsgType
 
 	var i int
 
@@ -104,7 +104,7 @@ func TestErrMsgType_Value001(t *testing.T) {
 
 func TestErrMsgType_Value002(t *testing.T) {
 
-	var r ErrMsgType
+	var r SpecErrMsgType
 
 	var i int
 
@@ -120,7 +120,7 @@ func TestErrMsgType_Value002(t *testing.T) {
 
 func TestErrMsgType_Value003(t *testing.T) {
 
-	var r ErrMsgType
+	var r SpecErrMsgType
 
 	var i int
 
@@ -136,7 +136,7 @@ func TestErrMsgType_Value003(t *testing.T) {
 
 func TestErrMsgType_Value004(t *testing.T) {
 
-	var r ErrMsgType
+	var r SpecErrMsgType
 
 	var i int
 
@@ -152,7 +152,7 @@ func TestErrMsgType_Value004(t *testing.T) {
 
 func TestErrMsgType_Value005(t *testing.T) {
 
-	var r ErrMsgType
+	var r SpecErrMsgType
 
 	var i int
 
