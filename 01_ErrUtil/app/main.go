@@ -16,6 +16,6 @@ import (
 
 func main() {
 
-	common.TestEx001()
+	common.TestOpsMsgDtoExample001NewInfoMsg()
 
 }

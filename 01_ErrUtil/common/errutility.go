@@ -25,10 +25,16 @@ func (errmsgtype ErrMsgType) String() string {
 }
 
 const (
+
+	// ErrTypeNOERRORSALLCLEAR - Describes a state where
+	// there are no errors, no warnings and no information
+	// messages.
+	ErrTypeNOERRORSALLCLEAR ErrMsgType = iota
+
 	// ErrTypeFATAL - Describes a an error which is fatal to
 	// program execution. This type of error is equated with
 	// 'panic' errors.
-	ErrTypeFATAL ErrMsgType = iota
+	ErrTypeFATAL
 
 	// ErrTypeERROR - Standard Error
 	ErrTypeERROR
@@ -44,7 +50,7 @@ const (
 )
 
 // ErrMsgTypeNames - String Array holding Error Message Type names.
-var ErrMsgTypeNames = [...]string{"FATAL", "ERROR", "WARNING", "INFO"}
+var ErrMsgTypeNames = [...]string{"NOERRORSALLCLEAR","FATAL", "ERROR", "WARNING", "INFO"}
 
 // ErrBaseInfo is intended for use with
 // the SpecErr Structure. It sets up base
@@ -191,7 +197,9 @@ func (s *SpecErr) DeepCopyParentInfo(pi []ErrBaseInfo) []ErrBaseInfo {
 	return a
 }
 
-// Error - Implements Error Interface
+// Error - Implements Error Interface.
+// Call this method to produce the error
+// message as a string.
 func (s SpecErr) Error() string {
 
 	banner := "\n" + strings.Repeat("-", 75)
@@ -245,9 +253,16 @@ func (s SpecErr) Error() string {
 		m += "\n  Error Time"
 		m += banner
 		dt := DateTimeUtility{}
-		m += fmt.Sprintf("\n  Error Time UTC: %v \n", dt.GetDateTimeTzNanoSecDowYMDText(s.ErrorMsgTimeUTC))
-		m += fmt.Sprintf("\nError Time Local: %v \n", dt.GetDateTimeTzNanoSecDowYMDText(s.ErrorMsgTimeLocal))
-		m += fmt.Sprintf("\nLocal Time Zone : %v \n", s.ErrorLocalTimeZone)
+		m += fmt.Sprintf("\n  Error Time UTC: %v \n", dt.GetDateTimeTzNanoSecYMDDowText(s.ErrorMsgTimeUTC))
+		m += fmt.Sprintf("\nError Time Local: %v \n", dt.GetDateTimeTzNanoSecYMDDowText(s.ErrorMsgTimeLocal))
+		localTz := s.ErrorLocalTimeZone
+
+		if localTz == "Local" || localTz == "local" {
+			localZone, _ := time.Now().Zone()
+			localTz += " - " + localZone
+		}
+
+		m += fmt.Sprintf("\nLocal Time Zone : %v \n", localTz)
 		m += banner
 		m += banner
 		m += "\n"
@@ -290,15 +305,8 @@ func (s SpecErr) InitializeBaseInfo(parent []ErrBaseInfo, bi ErrBaseInfo) SpecEr
 //									error message. If 'errNo' is set to zero - no error number will be
 //									will be displayed in the final error message.
 //
-// localTimeZone string - The local IANA time zone which will be used in creating the time
-//												stamp for this error message. Reference Iana Time Zones:
-// 												https://www.iana.org/time-zones. If the 'localTimeZone' parameter
-//												is empty or an invalid time zone, the Local Time Zone will be
-//												defaulted and set to 'Local'. The 'Local' time zone is determined
-//												by the host computer.
-//
-func (s SpecErr) Initialize(parent []ErrBaseInfo, bi ErrBaseInfo, prefix string, err error, isPanic bool, errNo int64, localTimeZone string) SpecErr {
-	return s.InitializeBaseInfo(parent, bi).New(prefix, err, isPanic, errNo, localTimeZone)
+func (s SpecErr) Initialize(parent []ErrBaseInfo, bi ErrBaseInfo, prefix string, err error, isPanic bool, errNo int64) SpecErr {
+	return s.InitializeBaseInfo(parent, bi).New(prefix, err, isPanic, errNo)
 
 }
 
@@ -323,14 +331,7 @@ func (s SpecErr) Initialize(parent []ErrBaseInfo, bi ErrBaseInfo, prefix string,
 //									error message. If 'errNo' is set to zero - no error number will be
 //									will be displayed in the final error message.
 //
-// localTimeZone string - The local IANA time zone which will be used in creating the time
-//												stamp for this error message. Reference Iana Time Zones:
-// 												https://www.iana.org/time-zones. If the 'localTimeZone' parameter
-//												is empty or an invalid time zone, the Local Time Zone will be
-//												defaulted and set to 'Local'. The 'Local' time zone is determined
-//												by the host computer.
-//
-func (s SpecErr) New(prefix string, err error, isPanic bool, errNo int64, localTimeZone string) SpecErr {
+func (s SpecErr) New(prefix string, err error, isPanic bool, errNo int64) SpecErr {
 
 	x := SpecErr{
 		ParentInfo: s.DeepCopyParentInfo(s.ParentInfo),
@@ -352,7 +353,7 @@ func (s SpecErr) New(prefix string, err error, isPanic bool, errNo int64, localT
 		x.IsPanic = false
 	}
 
-	x.SetTime(localTimeZone)
+	x.SetTime("Local")
 
 	return x
 }
@@ -376,17 +377,10 @@ func (s SpecErr) New(prefix string, err error, isPanic bool, errNo int64, localT
 //									error message. If 'errNo' is set to zero - no error number will be
 //									will be displayed in the final error message.
 //
-// localTimeZone string - The local IANA time zone which will be used in creating the time
-//												stamp for this error message. Reference Iana Time Zones:
-// 												https://www.iana.org/time-zones. If the 'localTimeZone' parameter
-//												is empty or an invalid time zone, the Local Time Zone will be
-//												defaulted and set to 'Local'. The 'Local' time zone is determined
-//												by the host computer.
-//
-func (s SpecErr) NewErrorMsgString(prefix string, errMsg string, isPanic bool, errNo int64, localTimeZone string) SpecErr {
+func (s SpecErr) NewErrorMsgString(prefix string, errMsg string, isPanic bool, errNo int64 ) SpecErr {
 		er := errors.New(errMsg)
 
-		return s.New(prefix, er, isPanic, errNo, localTimeZone)
+		return s.New(prefix, er, isPanic, errNo)
 }
 
 // Panic - Executes 'panic' command
@@ -449,6 +443,9 @@ func (s *SpecErr) SetParentInfo(parent []ErrBaseInfo) {
 //
 // If the 'localTimeZone' parameter string is empty or an
 // invalid time zone, local time zone will default to 'Local'.
+//
+// By default the 'localTimeZone' is set to "Local" signaling
+// that the local time zone for the host computer will be used.
 func(s *SpecErr)SetTime(localTimeZone string){
 
 	tz := TimeZoneUtility{}

@@ -5,14 +5,14 @@ import "testing"
 func TestOpsMsgClass_String_01(t *testing.T) {
 	var r OpsMsgClass
 
-	r = MsgClassDEBUG
+	r = MsgClassNOERRORSNOMESSAGES
 
 	var s string
 
 	s = r.String()
 
-	if s != "DEBUG" {
-		t.Errorf("Expected string 'DEBUG'. Instead got %v", s)
+	if s != "NOERRORSNOMESSAGES" {
+		t.Errorf("Expected string 'NOERRORSNOMESSAGES'. Instead got %v", s)
 	}
 
 }
@@ -78,19 +78,36 @@ func TestOpsMsgClass_String_05(t *testing.T) {
 
 }
 
+func TestOpsMsgClass_String_06(t *testing.T) {
+	var r OpsMsgClass
+
+	r = MsgClassDEBUG
+
+	var s string
+
+	s = r.String()
+
+	if s != "DEBUG" {
+		t.Errorf("Expected string 'DEBUG'. Instead got %v", s)
+	}
+
+}
+
+
 func TestOpsMsClass_Value_01(t *testing.T) {
 	var r OpsMsgClass
 
 	var i int
 
-	r = MsgClassDEBUG
+	r = MsgClassNOERRORSNOMESSAGES
 
 	i = int(r)
 
 	if r != 0 {
-		t.Errorf("Expected DEBUG value = ZERO (0). Instead got %v", i)
+		t.Errorf("Expected MsgClassNOERRORSNOMESSAGES value = ZERO (0). Instead got %v", i)
 	}
 }
+
 
 
 
@@ -148,5 +165,19 @@ func TestOpsMsClass_Value_05(t *testing.T) {
 
 	if r != 4 {
 		t.Errorf("Expected WARNING value = 4. Instead, got %v", i)
+	}
+}
+
+func TestOpsMsClass_Value_06(t *testing.T) {
+	var r OpsMsgClass
+
+	var i int
+
+	r = MsgClassDEBUG
+
+	i = int(r)
+
+	if r != 5 {
+		t.Errorf("Expected DEBUG value = 5. Instead got %v", i)
 	}
 }

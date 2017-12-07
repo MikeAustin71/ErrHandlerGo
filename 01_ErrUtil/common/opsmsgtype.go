@@ -17,14 +17,23 @@ func (opstype OpsMsgType) String() string {
 }
 
 const (
+
+	// OpsNOERRORNOMSGTYPE
+	OpsNOERRORNOMSGTYPE OpsMsgType = iota
+
 	// OpsERRORMSGTYPE - Message Type
-	OpsERRORMSGTYPE OpsMsgType = iota
+	OpsERRORMSGTYPE
+
 	// OpsINFOMSGTYPE - Information Message Type
 	OpsINFOMSGTYPE
+
 	// OpsWARNINGMSGTYPE - Warning Message Type
 	OpsWARNINGMSGTYPE
+
+	// OpsDEBUGMSGTYPE - Debug Message
+	OpsDEBUGMSGTYPE
 
 )
 
 // OpsMsgTypeNames - String Array holding Message Type names.
-var OpsMsgTypeNames = [...]string{"ERROR", "INFO", "WARNING"}
+var OpsMsgTypeNames = [...]string{"NOERRORSNOMSGS","ERROR", "INFO", "WARNING", "DEBUG"}
