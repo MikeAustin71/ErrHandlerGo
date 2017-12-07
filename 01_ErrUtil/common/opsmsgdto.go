@@ -13,12 +13,21 @@ import (
 
 */
 
-
+// OpsMsgContextInfo - Contains context information describing
+// the current environment in which the message was generated.
+type OpsMsgContextInfo struct {
+	SourceFileName 			string
+	ParentObjectName		string
+	FuncName       			string
+	BaseMessageID    		int64
+}
 
 // OpsMsgDto - Data Transfer Object
 // containing information about an
 // operations Message
 type OpsMsgDto struct {
+	ParentHistory		  [] OpsMsgContextInfo	// Function tree showing the execution path leading to this method
+	MsgContext				OpsMsgContextInfo
 	Message          	[]string
 	MsgNumber					int64
 	MsgType          	OpsMsgType
