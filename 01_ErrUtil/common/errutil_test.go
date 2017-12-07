@@ -22,7 +22,7 @@ func TestErrorUtility_01(t *testing.T) {
 	a := make([]ErrBaseInfo, 0, 10)
 	bi := ErrBaseInfo{}.New(ex1, ex2, ex3)
 	se := SpecErr{}.InitializeBaseInfo(a, bi)
-	x := se.New(ex4, err, true, ex5)
+	x := se.New(ex4, err, ErrTypeFATAL, ex5)
 
 	if x.PrefixMsg != ex4 {
 		t.Error(fmt.Sprintf("Expected '%v' got", ex4), x.PrefixMsg)
@@ -154,7 +154,7 @@ func TestSetErrDetail(t *testing.T) {
 	a := make([]ErrBaseInfo, 0, 10)
 	bi := ErrBaseInfo{}.New(ex1, ex2, ex3)
 
-	x := SpecErr{}.InitializeBaseInfo(a, bi).New(ex4, err, true, ex5)
+	x := SpecErr{}.InitializeBaseInfo(a, bi).New(ex4, err, ErrTypeFATAL, ex5)
 
 	if x.ErrNo != ex7 {
 		t.Error(fmt.Sprintf("Expected Err No '%v', got", ex7), x.ErrNo)
@@ -189,7 +189,7 @@ func TestIsSpecErrYes(t *testing.T) {
 
 	err := errors.New(ex99)
 
-	x := SpecErr{}.New(ex1, err, true, ex4)
+	x := SpecErr{}.New(ex1, err, ErrTypeFATAL, ex4)
 
 	isErr := x.CheckIsSpecErr()
 
@@ -214,7 +214,7 @@ func TestQuickInitialize(t *testing.T) {
 	err := errors.New(ex2)
 	ex4 := int64(499)
 
-	x := SpecErr{}.New(ex1, err, false, ex4)
+	x := SpecErr{}.New(ex1, err, ErrTypeERROR, ex4)
 
 	if x.ErrNo != ex4 {
 		t.Error(fmt.Sprintf("Expected ErrNo: '%v', got", ex4), x.ErrNo)
@@ -256,7 +256,7 @@ func TestFullInitialize(t *testing.T) {
 	ex6 := int64(22)
 	ex7 := int64(16022)
 
-	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, false, ex6)
+	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, ErrTypeERROR, ex6)
 
 	pl := len(x.ParentInfo)
 
@@ -306,7 +306,7 @@ func TestBlankInitialize(t *testing.T) {
 	ex3 := false
 	ex4 := int64(22)
 
-	x := SpecErr{}.Initialize(blankParentInfo, blankErrBaseInfo, ex1, err, ex3, ex4)
+	x := SpecErr{}.Initialize(blankParentInfo, blankErrBaseInfo, ex1, err, ErrTypeERROR, ex4)
 
 	if x.PrefixMsg != ex1 {
 		t.Error(fmt.Sprintf("Expected PrefixMsg '%v', got", ex1), x.PrefixMsg)
@@ -364,7 +364,7 @@ func TestAddBaseInfoToParent(t *testing.T) {
 	ex5 := false
 	ex6 := int64(22)
 
-	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, ex5, ex6)
+	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, ErrTypeERROR, ex6)
 
 	pl := len(x.ParentInfo)
 
@@ -378,6 +378,10 @@ func TestAddBaseInfoToParent(t *testing.T) {
 
 	if pl2 != 4 {
 		t.Error("Expected New Parent Info to contain 4-elements. Actual number of elements was ", pl2)
+	}
+
+	if x.IsPanic != ex5 {
+		t.Errorf("Expected IsPanic = '%v'. Instead, IsPanic = '%v'", ex5, x.IsPanic)
 	}
 
 }
@@ -403,7 +407,7 @@ func TestSpecErr_CheckIsSpecErr(t *testing.T) {
 	err := errors.New(ex4)
 	ex6 := int64(22)
 
-	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, false, ex6)
+	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, ErrTypeERROR, ex6)
 
 	result := x.CheckIsSpecErr()
 
@@ -433,7 +437,7 @@ func TestSpecErr_CheckIsSpecErrPanic(t *testing.T) {
 	err := errors.New(ex4)
 	ex6 := int64(22)
 
-	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, false, ex6)
+	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, ErrTypeERROR, ex6)
 
 	x.IsPanic = true
 
@@ -451,12 +455,15 @@ func TestSpecErr_NewErrorMsgString_01(t *testing.T) {
 	isPanic := false
 	errNo := int64(22)
 
-	s :=  SpecErr{}.NewErrorMsgString(prefixString, errMsg, isPanic, errNo)
+	s :=  SpecErr{}.NewErrorMsgString(prefixString, errMsg, ErrTypeERROR, errNo)
 
 	if s.ErrMsg != errMsg {
 		t.Errorf("Expected Error Message= '%v'.  Instead, Error Message = '%v'", errMsg, s.ErrMsg)
 	}
 
+	if isPanic != s.IsPanic {
+		t.Errorf("Expected IsPanic = '%v'.  Instead, IsPanic = '%v'", isPanic, s.IsPanic)
+	}
 
 }
 
@@ -466,7 +473,7 @@ func TestSpecErr_NewErrorMsgString_02(t *testing.T) {
 	isPanic := false
 	errNo := int64(0)
 
-	s :=  SpecErr{}.NewErrorMsgString(prefixString, errMsg, isPanic, errNo)
+	s :=  SpecErr{}.NewErrorMsgString(prefixString, errMsg, ErrTypeERROR, errNo)
 
 	if s.ErrMsg != errMsg {
 		t.Errorf("Expected Error Message= '%v'.  Instead, Error Message = '%v'", errMsg, s.ErrMsg)
@@ -479,16 +486,20 @@ func TestSpecErr_NewErrorMsgString_02(t *testing.T) {
 	if true == hasErrNo {
 		t.Error("Due to Error Number=Zero, expected error message WITHOUT Error Number. Instead, Error Number was included in Error Message")
 	}
+
+	if isPanic != s.IsPanic {
+		t.Errorf("Expected IsPanic = '%v'. Instead, IsPanic = '%v'.", isPanic, s.IsPanic)
+	}
+
 }
 
 func TestSpecErr_SetErrorMessageLabel(t *testing.T) {
 
 	prefixString := "prefixString"
 	errMsg := "This is the Error Msg!"
-	isPanic := false
 	errNo := int64(0)
 
-	s :=  SpecErr{}.NewErrorMsgString(prefixString, errMsg, isPanic, errNo)
+	s :=  SpecErr{}.NewErrorMsgString(prefixString, errMsg, ErrTypeERROR, errNo)
 
 	s.SetErrorMessageLabel("StdOut Error")
 

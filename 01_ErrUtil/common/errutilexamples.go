@@ -5,10 +5,10 @@ import (
 	"fmt"
 )
 
-// TestErrUtility_Example_001 - Test Example designed to print
+// TestErrUtilityExample001 - Test Example designed to print
 // multiple parent data associated with a
 // single error
-func TestErrUtility_Example_001() {
+func TestErrUtilityExample001() {
 	bi := ErrBaseInfo{}
 
 	f := bi.New("TestSourceFileName", "TestFuncName", 9000)
@@ -28,14 +28,14 @@ func TestErrUtility_Example_001() {
 	err := errors.New(ex4)
 	ex6 := int64(22)
 
-	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, false, ex6)
+	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, ErrTypeERROR, ex6)
 
 	fmt.Println(x.Error())
 
 }
 
-// TestErrorUtility_Example_002 - SpeErr example
-func TestErrorUtility_Example_002() {
+// TestErrorUtilityExample_002 - SpeErr example
+func TestErrorUtilityExample002() {
 	// Set up Parent Info
 	bi := ErrBaseInfo{}
 
@@ -57,7 +57,7 @@ func TestErrorUtility_Example_002() {
 	err := errors.New(ex4)
 	ex6 := int64(22)
 
-	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, true, ex6)
+	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, ErrTypeFATAL, ex6)
 
 	panic(x)
 }

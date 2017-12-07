@@ -299,15 +299,15 @@ func (s SpecErr) InitializeBaseInfo(parent []ErrBaseInfo, bi ErrBaseInfo) SpecEr
 // err error		 - 	Type Error containing the error message which will be associated
 //									with this SpecErr object.
 //
-// isPanic bool	 -	A boolean value indicating whether this a 'panic' or 'fatal' error
-//									which should halt execution of the program.
+// errType SpecErrMsgType	 -	A constant designating the type
+//														of error message to be created.
 //
 // errNo	int64  - 	An int64 value which specifies the error number associated with this
 //									error message. If 'errNo' is set to zero - no error number will be
 //									will be displayed in the final error message.
 //
-func (s SpecErr) Initialize(parent []ErrBaseInfo, bi ErrBaseInfo, prefix string, err error, isPanic bool, errNo int64) SpecErr {
-	return s.InitializeBaseInfo(parent, bi).New(prefix, err, isPanic, errNo)
+func (s SpecErr) Initialize(parent []ErrBaseInfo, bi ErrBaseInfo, prefix string, err error, errType SpecErrMsgType, errNo int64) SpecErr {
+	return s.InitializeBaseInfo(parent, bi).New(prefix, err, errType, errNo)
 
 }
 
@@ -325,18 +325,25 @@ func (s SpecErr) Initialize(parent []ErrBaseInfo, bi ErrBaseInfo, prefix string,
 // err error		 - 	Type Error containing the error message which will be associated
 //									with this SpecErr object.
 //
-// isPanic bool	 -	A boolean value indicating whether this a 'panic' or 'fatal' error
-//									which should halt execution of the program.
+// errType SpecErrMsgType	 -	A constant designating the type
+//														of error message to be created.
 //
 // errNo	int64  - 	An int64 value which specifies the error number associated with this
 //									error message. If 'errNo' is set to zero - no error number will be
 //									will be displayed in the final error message.
 //
-func (s SpecErr) New(prefix string, err error, isPanic bool, errNo int64) SpecErr {
+func (s SpecErr) New(prefix string, err error, errType SpecErrMsgType, errNo int64) SpecErr {
+
+	isPanic := false
+
+	if errType == ErrTypeFATAL {
+		isPanic = true
+	}
 
 	x := SpecErr{
 		ParentInfo: s.DeepCopyParentInfo(s.ParentInfo),
 		BaseInfo:   s.BaseInfo.DeepCopyBaseInfo(),
+		ErrorMsgType: errType,
 		PrefixMsg:  prefix,
 		IsPanic:    isPanic}
 
@@ -346,8 +353,16 @@ func (s SpecErr) New(prefix string, err error, isPanic bool, errNo int64) SpecEr
 
 
 	if err != nil {
+
 		x.ErrMsg = err.Error()
-		x.IsErr = true
+
+		if errType == ErrTypeFATAL ||
+				errType == ErrTypeERROR {
+			x.IsErr = true
+		} else {
+			x.IsErr = false
+		}
+
 	} else {
 		x.ErrMsg = ""
 		x.IsErr = false
@@ -371,17 +386,17 @@ func (s SpecErr) New(prefix string, err error, isPanic bool, errNo int64) SpecEr
 // errMsg string - 	This strings contains the error message which will be associated
 //									with this SpecErr object.
 //
-// isPanic bool	 -	A boolean value indicating whether this a 'panic' or 'fatal' error
-//									which should halt execution of the program.
+// errType SpecErrMsgType	 -	A constant designating the type
+//														of error message to be created.
 //
 // errNo	int64  - 	An int64 value which specifies the error number associated with this
 //									error message. If 'errNo' is set to zero - no error number will be
 //									will be displayed in the final error message.
 //
-func (s SpecErr) NewErrorMsgString(prefix string, errMsg string, isPanic bool, errNo int64 ) SpecErr {
+func (s SpecErr) NewErrorMsgString(prefix string, errMsg string, errType SpecErrMsgType, errNo int64 ) SpecErr {
 		er := errors.New(errMsg)
 
-		return s.New(prefix, er, isPanic, errNo)
+		return s.New(prefix, er, errType, errNo)
 }
 
 // Panic - Executes 'panic' command
@@ -463,6 +478,12 @@ func(s *SpecErr)SetTime(localTimeZone string){
 	tzLocal, _ := tz.ConvertTz(s.ErrorMsgTimeUTC, s.ErrorLocalTimeZone)
 	s.ErrorMsgTimeLocal = tzLocal.TimeOut
 
+}
+
+// String - Returns the string message
+// compiled by the Error() method.
+func (s SpecErr) String() string {
+	return s.Error()
 }
 
 var blankErrBaseInfo = ErrBaseInfo{}
