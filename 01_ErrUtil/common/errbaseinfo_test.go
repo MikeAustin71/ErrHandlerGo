@@ -25,13 +25,18 @@ func TestUninitializedErrBaseInfo(t *testing.T) {
 // Creates new BaseInfo Structure
 func TestNewBaseInfo(t *testing.T) {
 	ex1 := "TestSourceFileName"
+	ex1ParentObj := "TestObject"
 	ex2 := "TestFuncName"
 	ex3 := int64(9000)
 
-	x := ErrBaseInfo{}.New(ex1, ex2, ex3)
+	x := ErrBaseInfo{}.New(ex1, ex1ParentObj, ex2, ex3)
 
 	if x.SourceFileName != ex1 {
 		t.Error(fmt.Sprintf("Expected %v got,", ex1), x.SourceFileName)
+	}
+
+	if x.ParentObjectName != ex1ParentObj {
+		t.Errorf("Expected x.ParentObjectName= %v. Instead, got: '%v'", ex1ParentObj, x.ParentObjectName)
 	}
 
 	if x.FuncName != ex2 {
@@ -47,11 +52,12 @@ func TestNewBaseInfo(t *testing.T) {
 // Changes Function Name Only
 func TestNewFunc(t *testing.T) {
 	ex1 := "TestSourceFileName"
+	ex1ParentObj := "TestObject"
 	ex2 := "TestFuncName"
 	ex3 := int64(9000)
 	ex4 := "NewFuncName"
 
-	x := ErrBaseInfo{}.New(ex1, ex2, ex3)
+	x := ErrBaseInfo{}.New(ex1, ex1ParentObj, ex2, ex3)
 
 	if x.FuncName != ex2 {
 		t.Error(fmt.Sprintf("Expected %v got,", ex2), x.FuncName)
@@ -61,6 +67,10 @@ func TestNewFunc(t *testing.T) {
 
 	if y.SourceFileName != ex1 {
 		t.Error(fmt.Sprintf("Expected %v got,", ex1), y.SourceFileName)
+	}
+
+	if y.ParentObjectName != ex1ParentObj {
+		t.Errorf("Expected y.ParentObjectName= %v. Instead, got: %v", ex1ParentObj, y.ParentObjectName)
 	}
 
 	if y.FuncName != ex4 {
@@ -74,15 +84,20 @@ func TestNewFunc(t *testing.T) {
 
 func TestBaseInfoDeepCopy(t *testing.T) {
 	ex1 := "TestSourceFileName"
+	ex1ParentObj:= "TestObject"
 	ex2 := "TestFuncName"
 	ex3 := int64(9000)
 
-	x := ErrBaseInfo{}.New(ex1, ex2, ex3)
+	x := ErrBaseInfo{}.New(ex1, ex1ParentObj, ex2, ex3)
 
 	y := x.NewBaseInfo()
 
 	if y.SourceFileName != ex1 {
 		t.Error(fmt.Sprintf("Expected %v got,", ex1), y.SourceFileName)
+	}
+
+	if y.ParentObjectName != ex1ParentObj {
+		t.Errorf("Expected y.ParentObjectName='%v'. Instead, got: '%v'", ex1, y.ParentObjectName)
 	}
 
 	if y.FuncName != ex2 {
@@ -97,15 +112,20 @@ func TestBaseInfoDeepCopy(t *testing.T) {
 
 func TestGetSpecErrFromBaseInfo(t *testing.T) {
 	ex1 := "TestSourceFileName"
+	ex1ParentObj:= "TestObject"
 	ex2 := "TestFuncName"
 	ex3 := int64(9000)
 
-	x := ErrBaseInfo{}.New(ex1, ex2, ex3)
+	x := ErrBaseInfo{}.New(ex1, ex1ParentObj, ex2, ex3)
 
 	se := x.GetBaseSpecErr()
 
 	if se.BaseInfo.SourceFileName != "TestSourceFileName" {
 		t.Error("Expected BaseInfo.SourceFileName 'TestSourceFileName', got ", se.BaseInfo.SourceFileName)
+	}
+
+	if se.BaseInfo.ParentObjectName != ex1ParentObj {
+		t.Errorf("Expected BaseInfo.ParentObjectName= '%v'.  Instead, got: '%v' ",ex1ParentObj, se.BaseInfo.ParentObjectName)
 	}
 
 	if se.BaseInfo.FuncName != "TestFuncName" {
@@ -120,10 +140,11 @@ func TestGetSpecErrFromBaseInfo(t *testing.T) {
 
 func TestGetNewParentInfo(t *testing.T) {
 	ex1 := "test11.go"
+	ex1ParentObj:="TestObject"
 	ex2 := "test11"
 	ex3 := int64(1000)
 
-	parent := ErrBaseInfo{}.GetNewParentInfo(ex1, ex2, ex3)
+	parent := ErrBaseInfo{}.GetNewParentInfo(ex1, ex1ParentObj, ex2, ex3)
 
 	l := len(parent)
 
@@ -133,6 +154,10 @@ func TestGetNewParentInfo(t *testing.T) {
 
 	if parent[0].SourceFileName != ex1 {
 		t.Error(fmt.Sprintf("Expected %v, got", ex1), parent[0].SourceFileName)
+	}
+
+	if parent[0].ParentObjectName != ex1ParentObj {
+		t.Errorf("Expected parent[0].ParentObjectName='%v'. Instead, got: '%v'", ex1ParentObj, parent[0].ParentObjectName)
 	}
 
 	if parent[0].FuncName != ex2 {

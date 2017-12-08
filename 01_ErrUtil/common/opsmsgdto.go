@@ -16,27 +16,124 @@ import (
 // OpsMsgContextInfo - Contains context information describing
 // the current environment in which the message was generated.
 type OpsMsgContextInfo struct {
-	SourceFileName 			string
-	ParentObjectName		string
-	FuncName       			string
-	BaseMessageID    		int64
+	SourceFileName   string
+	ParentObjectName string
+	FuncName         string
+	BaseMessageId    int64
 }
+
+// New - returns a new, populated OpsMsgContextInfo Structure
+func (ci OpsMsgContextInfo) New(srcFile, parentObject, funcName string, baseMsgID int64) OpsMsgContextInfo {
+	return OpsMsgContextInfo{SourceFileName: srcFile, ParentObjectName:parentObject, FuncName: funcName, BaseMessageId: baseMsgID}
+}
+
+// NewFuncName - Returns a New OpsMsgContextInfo structure with a different Func Name
+func (ci OpsMsgContextInfo) NewFuncName(funcName string) OpsMsgContextInfo {
+	return OpsMsgContextInfo{SourceFileName: ci.SourceFileName, FuncName: funcName, BaseMessageId: ci.BaseMessageId}
+}
+
+// NewOpsMsgContextInfo - returns a deep copy of the current
+// OpsMsgContextInfo structure.
+func (ci OpsMsgContextInfo) NewOpsMsgContextInfo() OpsMsgContextInfo {
+	return OpsMsgContextInfo{SourceFileName: ci.SourceFileName, FuncName: ci.FuncName, BaseMessageId: ci.BaseMessageId}
+}
+
+// DeepCopyOpsMsgContextInfo - Same as NewOpsMsgContextInfo()
+func (ci OpsMsgContextInfo) DeepCopyOpsMsgContextInfo() OpsMsgContextInfo {
+	return OpsMsgContextInfo{SourceFileName: ci.SourceFileName, ParentObjectName: ci.ParentObjectName, FuncName: ci.FuncName, BaseMessageId: ci.BaseMessageId}
+}
+
+// GetBaseOpsMsgDto - Returns an empty
+// OpsMsgDto structure populated with
+// Base Message Context Information
+func (ci OpsMsgContextInfo) GetBaseOpsMsgDto() OpsMsgDto {
+
+	return OpsMsgDto{MsgContext: ci.NewOpsMsgContextInfo()}
+}
+
+// GetNewParentInfo - Returns a slice of OpsMsgContextInfo
+// structures with the first element initialized to a
+// new OpsMsgContextInfo structure.
+func (ci OpsMsgContextInfo) GetNewParentInfo(srcFile, parentObject, funcName string, baseMsgID int64) []OpsMsgContextInfo {
+	var parent []OpsMsgContextInfo
+
+	newCi := ci.New(srcFile, parentObject, funcName, baseMsgID)
+
+	return append(parent, newCi)
+}
+
 
 // OpsMsgDto - Data Transfer Object
 // containing information about an
 // operations Message
 type OpsMsgDto struct {
-	ParentHistory		  [] OpsMsgContextInfo	// Function tree showing the execution path leading to this method
-	MsgContext				OpsMsgContextInfo
-	Message          	[]string
-	MsgNumber					int64
-	MsgType          	OpsMsgType
-	MsgClass         	OpsMsgClass
-	MsgTimeUTC       	time.Time
-	MsgTimeLocal     	time.Time
-	MsgLocalTimeZone 	string
-	ErrDto           	SpecErr
+	ParentContextHistory [] OpsMsgContextInfo // Function tree showing the execution path leading to this method
+	MsgContext           OpsMsgContextInfo
+	Message              []string
+	msgId                int64 // The identifying number for this message
+	msgNumber            int64 //  Message Number = msgId + MsgContext.BaseMessageId. This is the number displayed in the message
+	MsgType              OpsMsgType
+	MsgClass             OpsMsgClass
+	MsgTimeUTC           time.Time
+	MsgTimeLocal         time.Time
+	MsgLocalTimeZone     string
+	ErrDto               SpecErr
 }
+
+
+// AddParentContextHistory - Adds ParentInfo elements to
+// the current SpecErr ParentInfo slice
+func (opsMsg *OpsMsgDto) AddParentContextHistory(parent []OpsMsgContextInfo) {
+
+	if len(parent) == 0 {
+		return
+	}
+
+	x := opsMsg.DeepCopyParentContextHistory(parent)
+
+	for _, bi := range x {
+		opsMsg.ParentContextHistory = append(opsMsg.ParentContextHistory, bi.NewOpsMsgContextInfo())
+	}
+
+	return
+}
+
+// AddParentContextHistoryFromOpsMsgDto - Receives an OpsMsgDto object as
+// an input parameter ('opsMsg2'). The parent context history from this second OpsMsgDto
+// object ('opsMsg2') is added to the parent history of the current or host OpsMsgDto
+// Object. In addition, the MsgContext object from 'opsMsg2' is also added to the
+// parent history of the current or host OpsMsgDto Object.
+func (opsMsg *OpsMsgDto) AddParentContextHistoryFromOpsMsgDto(opsMsg2 OpsMsgDto) {
+	opsMsg.AddParentContextHistory(opsMsg2.ParentContextHistory)
+	opsMsg.ParentContextHistory = append(opsMsg.ParentContextHistory, opsMsg2.DeepCopyMsgContext())
+
+}
+
+// DeepCopyOpsMsgContextInfo - Returns a deep copy of the
+// current MsgContext (OpsMsgContextInfo structure).
+func (opsMsg *OpsMsgDto) DeepCopyMsgContext() OpsMsgContextInfo {
+	return opsMsg.MsgContext.DeepCopyOpsMsgContextInfo()
+}
+
+
+// DeepCopyParentContextHistory - Receives an array of slices
+// type OpsMsgContextInfo and appends deep copies
+// of those slices to the OpsMsgDto ParentContextHistory
+// field.
+func (opsMsg *OpsMsgDto) DeepCopyParentContextHistory(pi []OpsMsgContextInfo) []OpsMsgContextInfo {
+
+	if len(pi) == 0 {
+		return pi
+	}
+
+	newHistory := make([]OpsMsgContextInfo, 0, len(pi)+10)
+	for _, ci := range pi {
+		newHistory = append(newHistory, ci.NewOpsMsgContextInfo())
+	}
+
+	return newHistory
+}
+
 
 // GetMessage - Returns the Operations Message
 // stored in this object. Note that the underling
@@ -51,6 +148,7 @@ func (opsMsg *OpsMsgDto) GetMessage() string {
 			output = opsMsg.Message[i]
 		} else {
 			output += "\n"
+			output += opsMsg.Message[i]
 		}
 
 	}
@@ -77,9 +175,10 @@ func(opsMsg OpsMsgDto) NewDebugMsg(msg string, msgNo int64) OpsMsgDto {
 	om.MsgClass = MsgClassDEBUG
 
 	if msgNo == 0 {
-		om.MsgNumber = 0
+		om.msgId = 0
 	} else {
-		om.MsgNumber = msgNo
+		om.msgId = msgNo
+		om.msgNumber = msgNo + om.MsgContext.BaseMessageId
 	}
 
 	om.SetTime("Local")
@@ -108,9 +207,10 @@ func(opsMsg OpsMsgDto) NewInfoMsg(msg string, msgNo int64) OpsMsgDto {
 	om.MsgClass = MsgClassINFO
 
 	if msgNo == 0 {
-		om.MsgNumber = 0
+		om.msgId = 0
 	} else {
-		om.MsgNumber = msgNo
+		om.msgId = msgNo
+		om.msgNumber = msgNo + om.MsgContext.BaseMessageId
 	}
 
 	om.SetTime("Local")
@@ -137,9 +237,10 @@ func (opsMsg OpsMsgDto) NewFatalErrorMsg(errMsg string, errNo int64) OpsMsgDto {
 	om.MsgClass = MsgClassFATAL
 
 	if errNo == 0 {
-		om.MsgNumber = 0
+		om.msgId = 0
 	} else {
-		om.MsgNumber = errNo
+		om.msgId = errNo
+		om.msgNumber = errNo + om.MsgContext.BaseMessageId
 	}
 
 	om.SetTime("Local")
@@ -167,9 +268,11 @@ func (opsMsg OpsMsgDto) NewStdErrorMsg(msg string, errNo int64) OpsMsgDto {
 	om.MsgClass = MsgClassOPERROR
 
 	if errNo == 0 {
-		om.MsgNumber = 0
+		om.msgId = 0
+		om.msgNumber = 0
 	} else {
-		om.MsgNumber = errNo
+		om.msgId = errNo
+		om.msgNumber = errNo + om.MsgContext.BaseMessageId
 	}
 
 	om.SetTime("Local")
@@ -203,7 +306,14 @@ func (opsMsg *OpsMsgDto) NewSpecErrMsg(se SpecErr) OpsMsgDto {
 		opsMsg.ErrDto = se
 	}
 
-	opsMsg.MsgNumber = se.ErrNo
+	if se.ErrNo == 0 {
+		om.msgId = 0
+		om.msgNumber = 0
+	} else {
+		om.msgId = se.ErrNo
+		om.msgNumber = se.ErrNo
+	}
+
 	opsMsg.MsgTimeUTC = se.ErrorMsgTimeUTC
 	opsMsg.MsgTimeLocal = se.ErrorMsgTimeLocal
 	opsMsg.MsgLocalTimeZone = se.ErrorLocalTimeZone
@@ -219,7 +329,13 @@ func (opsMsg OpsMsgDto) NewWarningMsg(msg string, msgNo int64) OpsMsgDto {
 	om := OpsMsgDto{}
 	om.MsgType = OpsWARNINGMSGTYPE
 	om.MsgClass = MsgClassWARNING
-	om.MsgNumber = msgNo
+	if msgNo == 0 {
+		om.msgId = 0
+		om.msgNumber = 0
+	} else {
+		om.msgId = msgNo
+		om.msgNumber = msgNo + om.MsgContext.BaseMessageId
+	}
 	om.SetTime("Local")
 	om.setMsg(msg)
 
@@ -267,8 +383,8 @@ case 4:
 		banner = strings.Repeat("_", 75)
 	}
 
-	if opsMsg.MsgNumber != 0 {
-		msgNo = msgPrefix + ": " + string(opsMsg.MsgNumber)
+	if opsMsg.msgId != 0 {
+		msgNo = msgPrefix + ": " + string(opsMsg.msgNumber)
 	} else {
 		msgNo = ""
 	}

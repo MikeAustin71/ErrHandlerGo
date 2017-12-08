@@ -10,6 +10,7 @@ import (
 func TestErrorUtility_01(t *testing.T) {
 
 	ex1 := "errutil_test.go"
+	ex1ParentObj := "ErrorObj"
 	ex2 := "TestErrorUtility"
 	ex3 := int64(10000)
 
@@ -20,7 +21,7 @@ func TestErrorUtility_01(t *testing.T) {
 
 	err := errors.New(ex6)
 	a := make([]ErrBaseInfo, 0, 10)
-	bi := ErrBaseInfo{}.New(ex1, ex2, ex3)
+	bi := ErrBaseInfo{}.New(ex1, ex1ParentObj, ex2, ex3)
 	se := SpecErr{}.InitializeBaseInfo(a, bi)
 	x := se.New(ex4, err, ErrTypeFATAL, ex5)
 
@@ -34,6 +35,10 @@ func TestErrorUtility_01(t *testing.T) {
 
 	if x.BaseInfo.SourceFileName != ex1 {
 		t.Error(fmt.Sprintf("Expected '%v' got", ex1), x.BaseInfo.SourceFileName)
+	}
+
+	if x.BaseInfo.ParentObjectName != ex1ParentObj {
+		t.Errorf("Expected BaseInfo.ParentObjectName = '%v'. Instead, got ParentObjectName= '%v'", ex1ParentObj, x.BaseInfo.ParentObjectName)
 	}
 
 	if x.BaseInfo.FuncName != ex2 {
@@ -67,9 +72,9 @@ func TestInitializeParentInfo(t *testing.T) {
 
 	bi := ErrBaseInfo{}
 
-	x := bi.New("TestSourceFileName", "TestFuncName", 9000)
-	y := bi.New("TestSrcFileName2", "TestFuncName2", 14000)
-	z := bi.New("TestSrcFileName3", "TestFuncName3", 15000)
+	x := bi.New("TestSourceFileName", "TestObjectName", "TestFuncName", 9000)
+	y := bi.New("TestSrcFileName2", "TestObject2", "TestFuncName2", 14000)
+	z := bi.New("TestSrcFileName3", "TestObject3", "TestFuncName3", 15000)
 
 	se := SpecErr{}
 	se.ParentInfo = append(se.ParentInfo, x)
@@ -86,13 +91,17 @@ func TestInitializeParentInfo(t *testing.T) {
 		t.Error("Expected 2nd Element 'TestFuncName2', got", se.ParentInfo[1].FuncName)
 	}
 
+	if se.ParentInfo[1].ParentObjectName != "TestObject2" {
+		t.Errorf("Expected 2nd Element ParentObjectName = 'TestObject2'. Instead, ParentObjectName= '%v'", se.ParentInfo[1].ParentObjectName)
+	}
+
 }
 
 func TestAddSlicesParentInfo(t *testing.T) {
 	var bi ErrBaseInfo
-	x := bi.New("TestSourceFileName", "TestFuncName", 9000)
-	y := bi.New("TestSrcFileName2", "TestFuncName2", 14000)
-	z := bi.New("TestSrcFileName3", "TestFuncName3", 15000)
+	x := bi.New("TestSourceFileName", "TestParentObj", "TestFuncName", 9000)
+	y := bi.New("TestSrcFileName2", "TestParentObj2", "TestFuncName2", 14000)
+	z := bi.New("TestSrcFileName3", "TestParentObj3", "TestFuncName3", 15000)
 
 	a := make([]ErrBaseInfo, 0, 30)
 
@@ -112,13 +121,17 @@ func TestAddSlicesParentInfo(t *testing.T) {
 		t.Error("Expected 2nd Element 'TestFuncName2', got", se.ParentInfo[1].FuncName)
 	}
 
+	if se.ParentInfo[1].ParentObjectName != "TestParentObj2" {
+		t.Errorf("Expected 2nd Element 'TestParentObj2', Instead, got: '%v'", se.ParentInfo[1].ParentObjectName)
+	}
+
 }
 
 func TestSetParentInfo(t *testing.T) {
 	var bi ErrBaseInfo
-	x := bi.New("TestSourceFileName", "TestFuncName", 9000)
-	y := bi.New("TestSrcFileName2", "TestFuncName2", 14000)
-	z := bi.New("TestSrcFileName3", "TestFuncName3", 15000)
+	x := bi.New("TestSourceFileName", "TestParentObj","TestFuncName", 9000)
+	y := bi.New("TestSrcFileName2", "TestParentObj2", "TestFuncName2", 14000)
+	z := bi.New("TestSrcFileName3", "TestParentObj3", "TestFuncName3", 15000)
 
 	a := make([]ErrBaseInfo, 0, 30)
 
@@ -135,13 +148,18 @@ func TestSetParentInfo(t *testing.T) {
 	}
 
 	if se.ParentInfo[1].FuncName != "TestFuncName2" {
-		t.Error("Expected 2nd Element 'TestFuncName2', got", se.ParentInfo[1].FuncName)
+		t.Errorf("Expected 2nd Element se.ParentInfo[1].FuncName = 'TestFuncName2'. Instead, got '%v'", se.ParentInfo[1].FuncName)
+	}
+
+	if se.ParentInfo[1].ParentObjectName != "TestParentObj2" {
+		t.Errorf("Expected 2nd Element se.ParentInfo[1].ParentObjectName = 'TestParentObj2'. Instead, got '%v'", se.ParentInfo[1].ParentObjectName)
 	}
 }
 
 func TestSetErrDetail(t *testing.T) {
 
 	ex1 := "errutil_test.go"
+	ex1ParentObj := "TestErrObj"
 	ex2 := "TestErrorUtility"
 	ex3 := int64(10000)
 
@@ -152,7 +170,7 @@ func TestSetErrDetail(t *testing.T) {
 
 	err := errors.New(ex6)
 	a := make([]ErrBaseInfo, 0, 10)
-	bi := ErrBaseInfo{}.New(ex1, ex2, ex3)
+	bi := ErrBaseInfo{}.New(ex1, ex1ParentObj, ex2, ex3)
 
 	x := SpecErr{}.InitializeBaseInfo(a, bi).New(ex4, err, ErrTypeFATAL, ex5)
 
@@ -166,6 +184,10 @@ func TestSetErrDetail(t *testing.T) {
 
 	if x.BaseInfo.FuncName != ex2 {
 		t.Error(fmt.Sprintf("Expected FuncName: '%v', got", ex2), x.BaseInfo.FuncName)
+	}
+
+	if x.BaseInfo.ParentObjectName != ex1ParentObj {
+		t.Errorf("Expected x.BaseInfo.ParentObjectName: '%v'. Instead, got '%v'", ex1ParentObj, x.BaseInfo.ParentObjectName)
 	}
 
 }
@@ -237,17 +259,18 @@ func TestFullInitialize(t *testing.T) {
 
 	bi := ErrBaseInfo{}
 
-	f := bi.New("TestSourceFileName", "TestFuncName", 9000)
-	g := bi.New("TestSrcFileName2", "TestFuncName2", 14000)
-	h := bi.New("TestSrcFileName3", "TestFuncName3", 15000)
+	f := bi.New("TestSourceFileName", "TestParentObj", "TestFuncName", 9000)
+	g := bi.New("TestSrcFileName2", "TestParentObj2", "TestFuncName2", 14000)
+	h := bi.New("TestSrcFileName3", "TestParentObj3", "TestFuncName3", 15000)
 
 	ex1 := make([]ErrBaseInfo, 0, 10)
 	ex1 = append(ex1, f, g, h)
 
 	ex21 := "TestSrcFileName99"
+	ex21ParentObj := "TestOjb99"
 	ex22 := "TestFuncName99"
 	ex23 := int64(16000)
-	ex2 := bi.New(ex21, ex22, ex23)
+	ex2 := bi.New(ex21, ex21ParentObj, ex22, ex23)
 
 	ex3 := "prefixString"
 	ex4 := "Error Msg 99"
@@ -286,6 +309,10 @@ func TestFullInitialize(t *testing.T) {
 
 	if x.BaseInfo.SourceFileName != ex21 {
 		t.Error(fmt.Sprintf("Expected SourceFileName '%v', got", ex21), x.BaseInfo.SourceFileName)
+	}
+
+	if x.BaseInfo.ParentObjectName != ex21ParentObj {
+		t.Errorf("Expected x.BaseInfo.ParentObjectName = '%v'. Instead, got '%v'", ex21ParentObj, x.BaseInfo.ParentObjectName)
 	}
 
 	if x.BaseInfo.FuncName != ex22 {
@@ -346,17 +373,18 @@ func TestAddBaseInfoToParent(t *testing.T) {
 
 	bi := ErrBaseInfo{}
 
-	f := bi.New("TestSourceFileName", "TestFuncName", 9000)
-	g := bi.New("TestSrcFileName2", "TestFuncName2", 14000)
-	h := bi.New("TestSrcFileName3", "TestFuncName3", 15000)
+	f := bi.New("TestSourceFileName", "TestObject", "TestFuncName", 9000)
+	g := bi.New("TestSrcFileName2", "TestObject2", "TestFuncName2", 14000)
+	h := bi.New("TestSrcFileName3", "TestObject3", "TestFuncName3", 15000)
 
 	ex1 := make([]ErrBaseInfo, 0, 10)
 	ex1 = append(ex1, f, g, h)
 
 	ex21 := "TestSrcFileName99"
+	ex21ParentObj := "TestObject99"
 	ex22 := "TestFuncName99"
 	ex23 := int64(16000)
-	ex2 := bi.New(ex21, ex22, ex23)
+	ex2 := bi.New(ex21, ex21ParentObj, ex22, ex23)
 
 	ex3 := "prefixString"
 	ex4 := "Error Msg 99"
@@ -390,17 +418,18 @@ func TestSpecErr_CheckIsSpecErr(t *testing.T) {
 
 	bi := ErrBaseInfo{}
 
-	f := bi.New("TestSourceFileName", "TestFuncName", 9000)
-	g := bi.New("TestSrcFileName2", "TestFuncName2", 14000)
-	h := bi.New("TestSrcFileName3", "TestFuncName3", 15000)
+	f := bi.New("TestSourceFileName", "TestObject", "TestFuncName", 9000)
+	g := bi.New("TestSrcFileName2", "TestObject2", "TestFuncName2", 14000)
+	h := bi.New("TestSrcFileName3", "TestObject3", "TestFuncName3", 15000)
 
 	ex1 := make([]ErrBaseInfo, 0, 10)
 	ex1 = append(ex1, f, g, h)
 
 	ex21 := "TestSrcFileName99"
+	ex21ParentObj := "TestObject99"
 	ex22 := "TestFuncName99"
 	ex23 := int64(16000)
-	ex2 := bi.New(ex21, ex22, ex23)
+	ex2 := bi.New(ex21, ex21ParentObj, ex22, ex23)
 
 	ex3 := "prefixString"
 	ex4 := "Error Msg 99"
@@ -420,17 +449,18 @@ func TestSpecErr_CheckIsSpecErr(t *testing.T) {
 func TestSpecErr_CheckIsSpecErrPanic(t *testing.T) {
 	bi := ErrBaseInfo{}
 
-	f := bi.New("TestSourceFileName", "TestFuncName", 9000)
-	g := bi.New("TestSrcFileName2", "TestFuncName2", 14000)
-	h := bi.New("TestSrcFileName3", "TestFuncName3", 15000)
+	f := bi.New("TestSourceFileName", "TestObject", "TestFuncName", 9000)
+	g := bi.New("TestSrcFileName2", "TestObject2", "TestFuncName2", 14000)
+	h := bi.New("TestSrcFileName3","TestObject3", "TestFuncName3", 15000)
 
 	ex1 := make([]ErrBaseInfo, 0, 10)
 	ex1 = append(ex1, f, g, h)
 
 	ex21 := "TestSrcFileName99"
+	ex21ParentObj := "TestObject99"
 	ex22 := "TestFuncName99"
 	ex23 := int64(16000)
-	ex2 := bi.New(ex21, ex22, ex23)
+	ex2 := bi.New(ex21, ex21ParentObj, ex22, ex23)
 
 	ex3 := "prefixString"
 	ex4 := "Error Msg 99"

@@ -56,30 +56,31 @@ var ErrMsgTypeNames = [...]string{"NOERRORSALLCLEAR","FATAL", "ERROR", "WARNING"
 // the SpecErr Structure. It sets up base
 // error info to be used repeatedly.
 type ErrBaseInfo struct {
-	SourceFileName string
-	FuncName       string
-	BaseErrorID    int64
+	SourceFileName 		string
+	ParentObjectName	string
+	FuncName       		string
+	BaseErrorID    		int64
 }
 
 // New - returns a new, populated ErrBaseInfo Structure
-func (b ErrBaseInfo) New(srcFile, funcName string, baseErrID int64) ErrBaseInfo {
-	return ErrBaseInfo{SourceFileName: srcFile, FuncName: funcName, BaseErrorID: baseErrID}
+func (b ErrBaseInfo) New(srcFile, parentObjName, funcName string, baseErrID int64) ErrBaseInfo {
+	return ErrBaseInfo{SourceFileName: srcFile, ParentObjectName: parentObjName, FuncName: funcName, BaseErrorID: baseErrID}
 }
 
-// NewFunc - Returns a New ErrBaseInfo structure with a different Func Name
+// NewFuncName - Returns a New ErrBaseInfo structure with a different Func Name
 func (b ErrBaseInfo) NewFunc(funcName string) ErrBaseInfo {
-	return ErrBaseInfo{SourceFileName: b.SourceFileName, FuncName: funcName, BaseErrorID: b.BaseErrorID}
+	return ErrBaseInfo{SourceFileName: b.SourceFileName, ParentObjectName: b.ParentObjectName, FuncName: funcName, BaseErrorID: b.BaseErrorID}
 }
 
-// NewBaseInfo - returns a deep copy of the current
+// NewOpsMsgContextInfo - returns a deep copy of the current
 // ErrBaseInfo structure.
 func (b ErrBaseInfo) NewBaseInfo() ErrBaseInfo {
-	return ErrBaseInfo{SourceFileName: b.SourceFileName, FuncName: b.FuncName, BaseErrorID: b.BaseErrorID}
+	return ErrBaseInfo{SourceFileName: b.SourceFileName, ParentObjectName: b.ParentObjectName, FuncName: b.FuncName, BaseErrorID: b.BaseErrorID}
 }
 
-// DeepCopyBaseInfo - Same as NewBaseInfo()
+// DeepCopyOpsMsgContextInfo - Same as NewOpsMsgContextInfo()
 func (b ErrBaseInfo) DeepCopyBaseInfo() ErrBaseInfo {
-	return ErrBaseInfo{SourceFileName: b.SourceFileName, FuncName: b.FuncName, BaseErrorID: b.BaseErrorID}
+	return ErrBaseInfo{SourceFileName: b.SourceFileName, ParentObjectName: b.ParentObjectName, FuncName: b.FuncName, BaseErrorID: b.BaseErrorID}
 }
 
 // GetBaseSpecErr - Returns an empty
@@ -93,10 +94,10 @@ func (b ErrBaseInfo) GetBaseSpecErr() SpecErr {
 // GetNewParentInfo - Returns a slice of ErrBaseInfo
 // structures with the first element initialized to a
 // new ErrBaseInfo structure.
-func (b ErrBaseInfo) GetNewParentInfo(srcFile, funcName string, baseErrID int64) []ErrBaseInfo {
+func (b ErrBaseInfo) GetNewParentInfo(srcFile, parentObj, funcName string, baseErrID int64) []ErrBaseInfo {
 	var parent []ErrBaseInfo
 
-	bi := b.New(srcFile, funcName, baseErrID)
+	bi := b.New(srcFile, parentObj, funcName, baseErrID)
 
 	return append(parent, bi)
 }
@@ -119,7 +120,7 @@ type SpecErr struct {
 }
 
 
-// AddParentInfo - Adds ParentInfo elements to
+// AddParentContextHistory - Adds ParentInfo elements to
 // the current SpecErr ParentInfo slice
 func (s *SpecErr) AddParentInfo(parent []ErrBaseInfo) {
 	if len(parent) == 0 {
@@ -174,13 +175,13 @@ func (s *SpecErr) CheckIsSpecErrPanic() bool {
 	return s.IsPanic
 }
 
-// DeepCopyBaseInfo - Returns a deep copy of the
+// DeepCopyOpsMsgContextInfo - Returns a deep copy of the
 // current BaseInfo structure.
-func (s SpecErr) DeepCopyBaseInfo() ErrBaseInfo {
+func (s *SpecErr) DeepCopyBaseInfo() ErrBaseInfo {
 	return s.BaseInfo.DeepCopyBaseInfo()
 }
 
-// DeepCopyParentInfo - Receives an array of slices
+// DeepCopyParentContextHistory - Receives an array of slices
 // type ErrBaseInfo and appends deep copies
 // of those slices to the SpecErr ParentInfo
 // field.
@@ -203,10 +204,11 @@ func (s *SpecErr) DeepCopyParentInfo(pi []ErrBaseInfo) []ErrBaseInfo {
 // message as a string.
 func (s SpecErr) Error() string {
 
-	banner := "\n" + strings.Repeat("-", 75)
+	banner1 := "\n" + strings.Repeat("-", 76)
+	banner2 := "\n" + strings.Repeat("- ", 38)
 
 	m := "\nError Message:"
-	m += banner
+	m += banner2
 	if s.PrefixMsg != "" {
 		m += "\n"
 		m += s.PrefixMsg
@@ -219,40 +221,44 @@ func (s SpecErr) Error() string {
 	}
 
 	m += s.ErrMsg
-	m += banner
+	m += banner2
 
 	if s.BaseInfo.SourceFileName != "" {
-		m += "\nSourceFile: " + s.BaseInfo.SourceFileName
+		m += "\n  SourceFile: " + s.BaseInfo.SourceFileName
+	}
+
+	if s.BaseInfo.ParentObjectName != "" {
+		m += "\nParentObject: " + s.BaseInfo.ParentObjectName
 	}
 
 	if s.BaseInfo.FuncName != "" {
-		m += "\nFuncName: " + s.BaseInfo.FuncName
+		m += "\n    FuncName: " + s.BaseInfo.FuncName
 	}
 
 	if s.ErrNo != 0 {
-		m += fmt.Sprintf("\nErrNo: %v", s.ErrNo)
+		m += fmt.Sprintf("\n  ErrNo: %v", s.ErrNo)
 	}
 
-	m += fmt.Sprintf("\nIsErr: %v", s.IsErr)
+	m += fmt.Sprintf("\n  IsErr: %v", s.IsErr)
 	m += fmt.Sprintf("\nIsPanic: %v", s.IsPanic)
 
 	// If parent Function Info Exists
 	// Print it out.
 	if len(s.ParentInfo) > 0 {
-		m += banner
+		m += banner2
 		m += "\n  Parent Func Info"
-		m += banner
+		m += banner2
 
 		for _, bi := range s.ParentInfo {
-			m += "\n" + bi.SourceFileName + "-" + bi.FuncName
+			m += "\n Source File: " + bi.SourceFileName +"  ParentObj: " + bi.ParentObjectName + "  FuncName: " + bi.FuncName
 			if bi.BaseErrorID != 0 {
-				m += fmt.Sprintf(" ErrorID: %v", bi.BaseErrorID)
+				m += fmt.Sprintf("  ErrorID: %v", bi.BaseErrorID)
 			}
 		}
 
-		m += banner
+		m += banner2
 		m += "\n  Error Time"
-		m += banner
+		m += banner2
 		dt := DateTimeUtility{}
 		m += fmt.Sprintf("\n  Error Time UTC: %v \n", dt.GetDateTimeTzNanoSecYMDDowText(s.ErrorMsgTimeUTC))
 		m += fmt.Sprintf("\nError Time Local: %v \n", dt.GetDateTimeTzNanoSecYMDDowText(s.ErrorMsgTimeLocal))
@@ -264,8 +270,7 @@ func (s SpecErr) Error() string {
 		}
 
 		m += fmt.Sprintf("\nLocal Time Zone : %v \n", localTz)
-		m += banner
-		m += banner
+		m += banner1
 		m += "\n"
 
 	}

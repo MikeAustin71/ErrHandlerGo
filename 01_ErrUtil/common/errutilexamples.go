@@ -11,17 +11,18 @@ import (
 func TestErrUtilityExample001() {
 	bi := ErrBaseInfo{}
 
-	f := bi.New("TestSourceFileName", "TestFuncName", 9000)
-	g := bi.New("TestSrcFileName2", "TestFuncName2", 14000)
-	h := bi.New("TestSrcFileName3", "TestFuncName3", 15000)
+	f := bi.New("TestSourceFileName", "TestObject", "TestFuncName", 9000)
+	g := bi.New("TestSrcFileName2", "TestObject2", "TestFuncName2", 14000)
+	h := bi.New("TestSrcFileName3", "TestObject3", "TestFuncName3", 15000)
 
 	ex1 := make([]ErrBaseInfo, 0, 10)
 	ex1 = append(ex1, f, g, h)
 
 	ex21 := "TestSrcFileName99"
+	ex21ParentObj := "TestObject99"
 	ex22 := "TestFuncName99"
 	ex23 := int64(16000)
-	ex2 := bi.New(ex21, ex22, ex23)
+	ex2 := bi.New(ex21, ex21ParentObj, ex22, ex23)
 
 	ex3 := "prefixString"
 	ex4 := "This is the Error Message"
@@ -39,18 +40,19 @@ func TestErrorUtilityExample002() {
 	// Set up Parent Info
 	bi := ErrBaseInfo{}
 
-	f := bi.New("TestSourceFileName", "TestFuncName", 9000)
-	g := bi.New("TestSrcFileName2", "TestFuncName2", 14000)
-	h := bi.New("TestSrcFileName3", "TestFuncName3", 15000)
+	f := bi.New("TestSourceFileName", "TestObject", "TestFuncName", 9000)
+	g := bi.New("TestSrcFileName2", "TestObject2", "TestFuncName2", 14000)
+	h := bi.New("TestSrcFileName3", "TestObject3", "TestFuncName3", 15000)
 
 	ex1 := make([]ErrBaseInfo, 0, 10)
 	ex1 = append(ex1, f, g, h)
 
 	// Set up BaseInfo
 	ex21 := "TestSrcFileName99"
+	ex21ParentObj := "TestObject99"
 	ex22 := "TestFuncName99"
 	ex23 := int64(16000)
-	ex2 := bi.New(ex21, ex22, ex23)
+	ex2 := bi.New(ex21, ex21ParentObj, ex22, ex23)
 
 	ex3 := "prefixString"
 	ex4 := "This is the Error Msg"
