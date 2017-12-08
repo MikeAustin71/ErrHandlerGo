@@ -293,17 +293,34 @@ func (opsMsg *OpsMsgDto) NewSpecErrMsg(se SpecErr) OpsMsgDto {
 	if se.IsPanic {
 		om.MsgType = OpsERRORMSGTYPE
 		om.MsgClass = MsgClassFATAL
-		opsMsg.ErrDto = se
+		om.ErrDto = se
 
 	} else if se.IsErr {
 		om.MsgType = OpsERRORMSGTYPE
 		om.MsgClass = MsgClassOPERROR
-		opsMsg.ErrDto = se
+		om.ErrDto = se
+
+	} else if se.ErrorMsgType == ErrTypeWARNING {
+
+		om.MsgType = OpsWARNINGMSGTYPE
+		om.MsgClass = MsgClassWARNING
+		om.ErrDto = se
+
+	} else if se.ErrorMsgType == ErrTypeInfo {
+
+		om.MsgType = OpsINFOMSGTYPE
+		om.MsgClass = MsgClassINFO
+		om.ErrDto = se
+
+	} else if se.ErrorMsgType == ErrTypeNOERRORSALLCLEAR {
+		om.MsgType = OpsNOERRORNOMSGTYPE
+		om.MsgClass = MsgClassNOERRORSNOMESSAGES
+		om.ErrDto = se
 
 	} else {
 		om.MsgType = OpsINFOMSGTYPE
 		om.MsgClass = MsgClassINFO
-		opsMsg.ErrDto = se
+		om.ErrDto = se
 	}
 
 	if se.ErrNo == 0 {
@@ -314,10 +331,21 @@ func (opsMsg *OpsMsgDto) NewSpecErrMsg(se SpecErr) OpsMsgDto {
 		om.msgNumber = se.ErrNo
 	}
 
-	opsMsg.MsgTimeUTC = se.ErrorMsgTimeUTC
-	opsMsg.MsgTimeLocal = se.ErrorMsgTimeLocal
-	opsMsg.MsgLocalTimeZone = se.ErrorLocalTimeZone
-	opsMsg.Message = append(opsMsg.Message, se.Error())
+	om.MsgTimeUTC = se.ErrorMsgTimeUTC
+	om.MsgTimeLocal = se.ErrorMsgTimeLocal
+	om.MsgLocalTimeZone = se.ErrorLocalTimeZone
+	om.Message = append(opsMsg.Message, se.Error())
+
+	x := se.DeepCopyParentInfo(se.ParentInfo)
+
+	for _, bi := range x {
+		ci := OpsMsgContextInfo{SourceFileName:bi.SourceFileName, ParentObjectName: bi.ParentObjectName, FuncName: bi.FuncName, BaseMessageId: bi.BaseErrorID}
+		om.ParentContextHistory = append(om.ParentContextHistory, ci)
+	}
+
+	y := se.DeepCopyBaseInfo()
+
+	om.MsgContext = OpsMsgContextInfo{SourceFileName:y.SourceFileName, ParentObjectName: y.ParentObjectName, FuncName: y.FuncName, BaseMessageId: y.BaseErrorID}
 
 	return om
 }
