@@ -479,7 +479,7 @@ func (s SpecErr) New(prefix string, err error, errType SpecErrMsgType, errNo int
 		se.SetStdError(prefix, errMsg, errNo)
 
 	case SpecErrTypeFATAL:
-		se.SetFatalErrMsg(prefix, errMsg, errNo)
+		se.SetFatalError(prefix, errMsg, errNo)
 
 	case SpecErrTypeINFO:
 		se.SetInfoMessage(prefix, errMsg, errNo)
@@ -488,7 +488,7 @@ func (s SpecErr) New(prefix string, err error, errType SpecErrMsgType, errNo int
 		se.SetWarningMessage(prefix, errMsg, errNo)
 
 	case SpecErrTypeSUCCESSFULCOMPLETION:
-		se.SetSuccessfulCompletion()
+		se.SetSuccessfulCompletion(errNo)
 
 	case SpecErrTypeNOERRORSALLCLEAR:
 		se.EmptyMsgData()
@@ -528,7 +528,7 @@ func (s SpecErr) NewErrorMsgString(prefix string, errMsg string, errType SpecErr
 		se.SetStdError(prefix, errMsg, errNo)
 
 	case SpecErrTypeFATAL:
-		se.SetFatalErrMsg(prefix, errMsg, errNo)
+		se.SetFatalError(prefix, errMsg, errNo)
 
 	case SpecErrTypeINFO:
 		se.SetInfoMessage(prefix, errMsg, errNo)
@@ -537,7 +537,7 @@ func (s SpecErr) NewErrorMsgString(prefix string, errMsg string, errType SpecErr
 		se.SetWarningMessage(prefix, errMsg, errNo)
 
 	case SpecErrTypeSUCCESSFULCOMPLETION:
-		se.SetSuccessfulCompletion()
+		se.SetSuccessfulCompletion(errNo)
 
 	case SpecErrTypeNOERRORSALLCLEAR:
 		se.EmptyMsgData()
@@ -568,7 +568,7 @@ func (s *SpecErr) PanicOnSpecErr(eSpec SpecErr) {
 func (s SpecErr) SignalNoErrors() SpecErr {
 	//return SpecErr{IsErr: false, IsPanic: false}
 	se := SpecErr{}
-	se.SetSuccessfulCompletion()
+	se.SetSuccessfulCompletion(0)
 	return se
 }
 
@@ -584,7 +584,7 @@ func (s *SpecErr) SetBaseInfo(bi ErrBaseInfo) {
 func (s *SpecErr) SetError(prefix string, err error, errType SpecErrMsgType, errNo int64) {
 
 	if errType == SpecErrTypeSUCCESSFULCOMPLETION {
-		s.SetSuccessfulCompletion()
+		s.SetSuccessfulCompletion(errNo)
 		return
 	}
 
@@ -650,7 +650,7 @@ func (s *SpecErr) SetErrorWithMessage(prefix string, errMsg string, errType Spec
 	}
 
 	if errType == SpecErrTypeSUCCESSFULCOMPLETION {
-		s.SetSuccessfulCompletion()
+		s.SetSuccessfulCompletion(errNo)
 		return
 	}
 
@@ -669,9 +669,9 @@ func (s *SpecErr) SetErrorWithMessage(prefix string, errMsg string, errType Spec
 	s.SetTime("Local")
 }
 
-// SetFatalErrMsg - Sets the value of the current or host SpecErr object
+// SetFatalError - Sets the value of the current or host SpecErr object
 // to a FATAL error.  Both IsPanic IsErr are set to 'true'.
-func (s *SpecErr) SetFatalErrMsg(prefix string, errMsg string, errNo int64) {
+func (s *SpecErr) SetFatalError(prefix string, errMsg string, errNo int64) {
 
 	s.EmptyMsgData()
 	newErr := errors.New(errMsg)
@@ -688,7 +688,13 @@ func (s *SpecErr) SetInfoMessage(prefix string, warningMsg string, msgNo int64) 
 	s.IsPanic = false
 	s.PrefixMsg = prefix
 	s.ErrMsg = warningMsg
-	s.ErrNo  = msgNo
+
+	if msgNo == 0 {
+		s.ErrNo = 0
+	} else {
+		s.ErrNo = msgNo + s.BaseInfo.BaseErrorID
+	}
+
 	s.SetTime("Local")
 
 }
@@ -717,12 +723,18 @@ func (s *SpecErr) SetStdError(prefix string, errMsg string, errNo int64) {
 // SetSuccessfulCompletion - Sets values for the current
 // or host SpecErr object to reflect successful completion
 // of the operation.
-func (s *SpecErr) SetSuccessfulCompletion() {
+func (s *SpecErr) SetSuccessfulCompletion(msgNo int64) {
 	s.IsErr = false
 	s.IsPanic = false
 	s.ErrorMsgType = SpecErrTypeSUCCESSFULCOMPLETION
 	s.ErrMsg = "Successful Completion!"
-	s.ErrNo = 0
+
+	if msgNo == 0 {
+		s.ErrNo = 0
+	} else {
+		s.ErrNo = msgNo + s.BaseInfo.BaseErrorID
+	}
+
 	s.PrefixMsg = ""
 	s.SetTime("Local")
 }
@@ -765,7 +777,7 @@ func (s *SpecErr) SetWarningMessage(prefix string, warningMsg string, msgNo int6
 	s.IsPanic = false
 	s.PrefixMsg = prefix
 	s.ErrMsg = warningMsg
-	s.ErrNo  = msgNo
+	s.ErrNo  = msgNo + s.BaseInfo.BaseErrorID
 	s.SetTime("Local")
 }
 

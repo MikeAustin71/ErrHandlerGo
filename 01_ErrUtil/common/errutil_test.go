@@ -744,7 +744,7 @@ func TestSpecErr_NewWarningMsgString01(t *testing.T) {
 
 }
 
-func TestSpecErr_SetStdError(t *testing.T) {
+func TestSpecErr_SetStdError_01(t *testing.T) {
 	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
 	currBaseInfo := testCreateSpecErrBaseInfoObject()
 	xMsg := "This is error msg 1"
@@ -775,6 +775,94 @@ func TestSpecErr_SetStdError(t *testing.T) {
 
 	if !strings.Contains(msg, xPrefix) {
 		t.Errorf("Expected final error message to contain '%v'.  Instead, it did NOT!", xPrefix)
+	}
+
+	if se.ErrorMsgType != xType {
+		t.Errorf("Expected SpeErrType= '%v'. Instead, got '%v'",xType, se.ErrorMsgType)
+	}
+}
+
+func TestSpecErr_SetFatalError_01(t *testing.T) {
+	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
+	currBaseInfo := testCreateSpecErrBaseInfoObject()
+	xMsg := "This is fatal error msg 1"
+	xPrefix := "Prefix1"
+	xType := SpecErrTypeFATAL
+
+	se := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
+
+	se.SetFatalError(xPrefix,xMsg, 822)
+
+	if len(se.ParentInfo) != 5 {
+		t.Errorf("Expected length of se.ParentInfo array == 5. Instead, array length == '%v'", len(se.ParentInfo))
+	}
+
+	if se.ParentInfo[4].ParentObjectName != "TestObject5" {
+		t.Errorf("Expected se2.ParentInfo[5].ParentObjectName != 'TestObject5'. Instead ObjectName='%v'", se.ParentInfo[4].ParentObjectName)
+	}
+
+	if se.ErrNo != 6822 {
+		t.Errorf("Expected se.ErrNo== 6822.  Instead, se.ErrNo== '%v'", se.ErrNo)
+	}
+
+	msg := se.Error()
+
+	if !strings.Contains(msg,xMsg){
+		t.Errorf("Expected final error message to contain '%v'.  Instead it did NOT!", xMsg)
+	}
+
+	if !strings.Contains(msg, xPrefix) {
+		t.Errorf("Expected final error message to contain '%v'.  Instead, it did NOT!", xPrefix)
+	}
+
+	str := se.String()
+
+	if str != msg {
+		t.Errorf("Compared Error() to String(). Results do not match. Error()= '%v' - String() = '%v'", msg, str)
+	}
+
+	if se.ErrorMsgType != xType {
+		t.Errorf("Expected SpeErrType= '%v'. Instead, got '%v'",xType, se.ErrorMsgType)
+	}
+}
+
+func TestSpecErr_SetInfoMsg_01(t *testing.T) {
+	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
+	currBaseInfo := testCreateSpecErrBaseInfoObject()
+	xMsg := "This is information msg 1"
+	xPrefix := "Prefix1"
+	xType := SpecErrTypeINFO
+
+	se := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
+
+	se.SetInfoMessage(xPrefix,xMsg, 822)
+
+	if len(se.ParentInfo) != 5 {
+		t.Errorf("Expected length of se.ParentInfo array == 5. Instead, array length == '%v'", len(se.ParentInfo))
+	}
+
+	if se.ParentInfo[4].ParentObjectName != "TestObject5" {
+		t.Errorf("Expected se2.ParentInfo[5].ParentObjectName != 'TestObject5'. Instead ObjectName='%v'", se.ParentInfo[4].ParentObjectName)
+	}
+
+	if se.ErrNo != 6822 {
+		t.Errorf("Expected se.ErrNo== 6822.  Instead, se.ErrNo== '%v'", se.ErrNo)
+	}
+
+	msg := se.Error()
+
+	if !strings.Contains(msg,xMsg){
+		t.Errorf("Expected final error message to contain '%v'.  Instead it did NOT!", xMsg)
+	}
+
+	if !strings.Contains(msg, xPrefix) {
+		t.Errorf("Expected final error message to contain '%v'.  Instead, it did NOT!", xPrefix)
+	}
+
+	str := se.String()
+
+	if str != msg {
+		t.Errorf("Compared Error() to String(). Results do not match. Error()= '%v' - String() = '%v'", msg, str)
 	}
 
 	if se.ErrorMsgType != xType {
