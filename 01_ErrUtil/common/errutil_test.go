@@ -541,3 +541,69 @@ func TestSpecErr_SetErrorMessageLabel(t *testing.T) {
 	}
 
 }
+
+func TestSpecErr_ConfigureParentInfoFromParentSpecErr01(t *testing.T) {
+
+	bi := ErrBaseInfo{}
+
+	baseInfo := bi.New("TestSrcFileName6", "TestObject6", "TestFuncName6", 6000)
+
+	parentInfo := createParentBaseInfo5Elements()
+
+	e := errors.New("This is the error message")
+
+	se := SpecErr{}.Initialize(parentInfo, baseInfo,"Error Prefix", e, ErrTypeFATAL, 553 )
+
+	baseInfo2 := bi.New("TestSrcFileName7", "TestObject7", "TestFuncName7", 7000)
+
+	se2 := SpecErr{}
+
+	se2.ConfigureParentInfoFromParentSpecErr(se)
+
+	se2.ConfigureBaseInfo(baseInfo2)
+
+	e2 := errors.New("This is Error Message # 2")
+
+	se2.SetErrorMsg("Prefix2", e2, ErrTypeERROR, 902)
+
+	if len(se2.ParentInfo) != 6 {
+
+		t.Errorf("Expected length of se2.ParentInfo array == 6. Instead, array length == '%v'", len(se2.ParentInfo))
+
+	}
+
+	if se2.ParentInfo[5].ParentObjectName != "TestObject6" {
+		t.Error("Expected se2.ParentInfo[5].ParentObjectName != 'TestObject6'. Instead ObjectName='%v'", se2.ParentInfo[5].ParentObjectName)
+	}
+
+	if se2.ErrNo != 7902 {
+		t.Errorf("Expected se2.ErrNo== 7902.  Instead, se2.ErrNo== '%v'", se2.ErrNo)
+	}
+
+	msg := se2.Error()
+
+	if !strings.Contains(msg,"This is Error Message # 2"){
+		t.Error("Expected final error message to contain 'This is Error Message # 2'.  Instead it did NOT!")
+	}
+
+	if !strings.Contains(msg, "Prefix2") {
+		t.Error("Expected final error message to contain 'Prefix2'.  Instead it did NOT!")
+	}
+}
+
+
+func createParentBaseInfo5Elements() []ErrBaseInfo {
+	parentBaseInfo := make([]ErrBaseInfo, 0, 10)
+	bi := ErrBaseInfo{}
+
+	a := bi.New("TestSrcFileName1", "TestObject1", "TestFuncName1", 1000)
+	b := bi.New("TestSrcFileName2", "TestObject2", "TestFuncName2", 2000)
+	c := bi.New("TestSrcFileName3","TestObject3", "TestFuncName3", 3000)
+	d := bi.New("TestSrcFileName4","TestObject4", "TestFuncName4", 4000)
+	e := bi.New("TestSrcFileName5","TestObject5", "TestFuncName5", 5000)
+
+	parentBaseInfo = append(parentBaseInfo, a, b, c, d, e)
+
+
+	return parentBaseInfo
+}

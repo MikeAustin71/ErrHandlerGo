@@ -358,42 +358,13 @@ func (s SpecErr) Initialize(parent []ErrBaseInfo, bi ErrBaseInfo, prefix string,
 //
 func (s SpecErr) New(prefix string, err error, errType SpecErrMsgType, errNo int64) SpecErr {
 
-	isPanic := false
-
-	if errType == ErrTypeFATAL {
-		isPanic = true
-	}
 
 	x := SpecErr{
 		ParentInfo: s.DeepCopyParentInfo(s.ParentInfo),
 		BaseInfo:   s.BaseInfo.DeepCopyBaseInfo(),
-		ErrorMsgType: errType,
-		PrefixMsg:  prefix,
-		IsPanic:    isPanic}
-
-	if errNo != 0 {
-		x.ErrNo = errNo + x.BaseInfo.BaseErrorID
 	}
 
-
-	if err != nil {
-
-		x.ErrMsg = err.Error()
-
-		if errType == ErrTypeFATAL ||
-				errType == ErrTypeERROR {
-			x.IsErr = true
-		} else {
-			x.IsErr = false
-		}
-
-	} else {
-		x.ErrMsg = ""
-		x.IsErr = false
-		x.IsPanic = false
-	}
-
-	x.SetTime("Local")
+	x.SetErrorMsg(prefix, err, errType, errNo)
 
 	return x
 }
@@ -451,6 +422,43 @@ func (s SpecErr) SignalNoErrors() SpecErr {
 // error information.
 func (s *SpecErr) SetBaseInfo(bi ErrBaseInfo) {
 	s.BaseInfo = bi.NewBaseInfo()
+}
+
+func (s *SpecErr) SetErrorMsg(prefix string, err error, errType SpecErrMsgType, errNo int64) {
+	s.IsPanic = false
+
+	if errType == ErrTypeFATAL {
+		s.IsPanic = true
+	}
+
+	s.ErrorMsgType = errType
+	s.PrefixMsg = prefix
+
+	if errNo != 0 {
+		s.ErrNo = errNo + s.BaseInfo.BaseErrorID
+	} else {
+		s.ErrNo = 0
+	}
+
+	if err != nil {
+
+		s.ErrMsg = err.Error()
+
+		if errType == ErrTypeFATAL ||
+			errType == ErrTypeERROR {
+			s.IsErr = true
+		} else {
+			s.IsErr = false
+		}
+
+	} else {
+		s.ErrMsg = ""
+		s.IsErr = false
+		s.IsPanic = false
+	}
+
+	s.SetTime("Local")
+
 }
 
 // SetErrorLabel - If an Error Message Label is needed
