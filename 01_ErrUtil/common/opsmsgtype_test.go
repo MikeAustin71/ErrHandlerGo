@@ -189,3 +189,13 @@ func TestOpsMsgTypeValue006(t *testing.T) {
 	}
 
 }
+
+func TestOpsMsgTypeInitialization001(t *testing.T) {
+
+	om:= OpsMsgDto{}
+
+	if om.MsgType != OpsMsgTypeNOERRORNOMSG {
+		t.Errorf("Expected uninitialized OpsMsgDto object to show MsgType= 'OpsMsgTypeNOERRORNOMSG'.  Instead, MsgType= '%v' ", om.MsgType)
+	}
+
+}

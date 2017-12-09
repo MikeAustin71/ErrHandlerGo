@@ -210,3 +210,13 @@ func TestOpsMsClass_Value_07(t *testing.T) {
 		t.Errorf("Expected SUCCESSFUL COMPLETION value = 6. Instead got %v", i)
 	}
 }
+
+func TestOpsMsgClass_Initialization_01(t *testing.T) {
+
+	om := OpsMsgDto{}
+
+	if om.MsgClass != OpsMsgClassNOERRORSNOMESSAGES {
+	 t.Errorf("Expected Uninitialized OpsMsgDto object to set MsgClass = OpsMsgClassNOERRORSNOMESSAGES. Instead MsgClass = '%v'",om.MsgClass.String())
+	}
+
+}
