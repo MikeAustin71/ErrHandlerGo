@@ -60,31 +60,31 @@ var ErrMsgTypeNames = [...]string{"NOERRORSALLCLEAR","FATAL", "ERROR", "WARNING"
 // the SpecErr Structure. It sets up base
 // error info to be used repeatedly.
 type ErrBaseInfo struct {
-	SourceFileName 		string
-	ParentObjectName	string
-	FuncName       		string
-	BaseErrorID    		int64
+	SourceFileName   string
+	ParentObjectName string
+	FuncName         string
+	BaseErrorId      int64
 }
 
 // New - returns a new, populated ErrBaseInfo Structure
 func (b ErrBaseInfo) New(srcFile, parentObjName, funcName string, baseErrID int64) ErrBaseInfo {
-	return ErrBaseInfo{SourceFileName: srcFile, ParentObjectName: parentObjName, FuncName: funcName, BaseErrorID: baseErrID}
+	return ErrBaseInfo{SourceFileName: srcFile, ParentObjectName: parentObjName, FuncName: funcName, BaseErrorId: baseErrID}
 }
 
 // NewFuncName - Returns a New ErrBaseInfo structure with a different Func Name
 func (b ErrBaseInfo) NewFunc(funcName string) ErrBaseInfo {
-	return ErrBaseInfo{SourceFileName: b.SourceFileName, ParentObjectName: b.ParentObjectName, FuncName: funcName, BaseErrorID: b.BaseErrorID}
+	return ErrBaseInfo{SourceFileName: b.SourceFileName, ParentObjectName: b.ParentObjectName, FuncName: funcName, BaseErrorId: b.BaseErrorId}
 }
 
 // NewOpsMsgContextInfo - returns a deep copy of the current
 // ErrBaseInfo structure.
 func (b ErrBaseInfo) NewBaseInfo() ErrBaseInfo {
-	return ErrBaseInfo{SourceFileName: b.SourceFileName, ParentObjectName: b.ParentObjectName, FuncName: b.FuncName, BaseErrorID: b.BaseErrorID}
+	return ErrBaseInfo{SourceFileName: b.SourceFileName, ParentObjectName: b.ParentObjectName, FuncName: b.FuncName, BaseErrorId: b.BaseErrorId}
 }
 
 // DeepCopyOpsMsgContextInfo - Same as NewOpsMsgContextInfo()
 func (b ErrBaseInfo) DeepCopyBaseInfo() ErrBaseInfo {
-	return ErrBaseInfo{SourceFileName: b.SourceFileName, ParentObjectName: b.ParentObjectName, FuncName: b.FuncName, BaseErrorID: b.BaseErrorID}
+	return ErrBaseInfo{SourceFileName: b.SourceFileName, ParentObjectName: b.ParentObjectName, FuncName: b.FuncName, BaseErrorId: b.BaseErrorId}
 }
 
 // Equal - Compares two ErrBaseInfo objectes to determine
@@ -94,7 +94,7 @@ func (b *ErrBaseInfo) Equal(b2 *ErrBaseInfo) bool {
 	if b.SourceFileName != b2.SourceFileName ||
 		b.ParentObjectName != b2.ParentObjectName ||
 			b.FuncName != b2.FuncName ||
-				b.BaseErrorID != b2.BaseErrorID {
+				b.BaseErrorId != b2.BaseErrorId {
 					return false
 	}
 
@@ -454,8 +454,8 @@ func (s SpecErr) Error() string {
 
 		for _, bi := range s.ParentInfo {
 			m += "\n SrcFile: " + bi.SourceFileName +"  ParentObj: " + bi.ParentObjectName + "  FuncName: " + bi.FuncName
-			if bi.BaseErrorID != 0 {
-				m += fmt.Sprintf("  ErrorID: %v", bi.BaseErrorID)
+			if bi.BaseErrorId != 0 {
+				m += fmt.Sprintf("  ErrorID: %v", bi.BaseErrorId)
 			}
 		}
 	}
@@ -686,7 +686,7 @@ func (s *SpecErr) SetError(prefix string, err error, errType SpecErrMsgType, err
 	s.PrefixMsg = prefix
 
 	if errNo != 0 {
-		s.ErrNo = errNo + s.BaseInfo.BaseErrorID
+		s.ErrNo = errNo + s.BaseInfo.BaseErrorId
 	} else {
 		s.ErrNo = 0
 	}
@@ -751,7 +751,7 @@ func (s *SpecErr) SetErrorWithMessage(prefix string, errMsg string, errType Spec
 	if errNo == 0 {
 		s.ErrNo = 0
 	} else {
-		s.ErrNo = errNo + s.BaseInfo.BaseErrorID
+		s.ErrNo = errNo + s.BaseInfo.BaseErrorId
 	}
 
 	s.SetTime("Local")
@@ -780,7 +780,7 @@ func (s *SpecErr) SetInfoMessage(prefix string, warningMsg string, msgNo int64) 
 	if msgNo == 0 {
 		s.ErrNo = 0
 	} else {
-		s.ErrNo = msgNo + s.BaseInfo.BaseErrorID
+		s.ErrNo = msgNo + s.BaseInfo.BaseErrorId
 	}
 
 	s.SetTime("Local")
@@ -820,7 +820,7 @@ func (s *SpecErr) SetSuccessfulCompletion(msgNo int64) {
 	if msgNo == 0 {
 		s.ErrNo = 0
 	} else {
-		s.ErrNo = msgNo + s.BaseInfo.BaseErrorID
+		s.ErrNo = msgNo + s.BaseInfo.BaseErrorId
 	}
 
 	s.PrefixMsg = ""
@@ -865,7 +865,7 @@ func (s *SpecErr) SetWarningMessage(prefix string, warningMsg string, msgNo int6
 	s.IsPanic = false
 	s.PrefixMsg = prefix
 	s.ErrMsg = warningMsg
-	s.ErrNo  = msgNo + s.BaseInfo.BaseErrorID
+	s.ErrNo  = msgNo + s.BaseInfo.BaseErrorId
 	s.SetTime("Local")
 }
 

@@ -35,7 +35,7 @@ func (ci OpsMsgContextInfo) NewFuncName(funcName string) OpsMsgContextInfo {
 // NewOpsMsgContextInfo - returns a deep copy of the current
 // OpsMsgContextInfo structure.
 func (ci OpsMsgContextInfo) NewOpsMsgContextInfo() OpsMsgContextInfo {
-	return OpsMsgContextInfo{SourceFileName: ci.SourceFileName, FuncName: ci.FuncName, BaseMessageId: ci.BaseMessageId}
+	return OpsMsgContextInfo{SourceFileName: ci.SourceFileName, ParentObjectName: ci.ParentObjectName, FuncName: ci.FuncName, BaseMessageId: ci.BaseMessageId}
 }
 
 // DeepCopyOpsMsgContextInfo - Same as NewOpsMsgContextInfo()
@@ -170,6 +170,17 @@ func (opsMsg *OpsMsgDto) GetMessage() string {
 	return output
 }
 
+// InitializeContextInfo - Initializes Parent Context History and Message Context Info for a new
+// OpsMsgDto object.
+//
+// Example Usage: oMsg := OpsMsgDto{}.InitializeContextInfo(parentHistory, msgContext)
+func(opsMsg OpsMsgDto) InitializeContextInfo(parentHistory []OpsMsgContextInfo, msgContext OpsMsgContextInfo) OpsMsgDto {
+	om := OpsMsgDto{}
+	om.ParentContextHistory = om.DeepCopyParentContextHistory(parentHistory)
+	om.MsgContext = msgContext.DeepCopyOpsMsgContextInfo()
+
+	return om
+}
 
 // NewDebugMsg - Create a new Debug Message
 //
@@ -353,13 +364,13 @@ func (opsMsg *OpsMsgDto) NewMsgFromSpecErrMsg(se SpecErr) OpsMsgDto {
 	x := se.DeepCopyParentInfo(se.ParentInfo)
 
 	for _, bi := range x {
-		ci := OpsMsgContextInfo{SourceFileName:bi.SourceFileName, ParentObjectName: bi.ParentObjectName, FuncName: bi.FuncName, BaseMessageId: bi.BaseErrorID}
+		ci := OpsMsgContextInfo{SourceFileName:bi.SourceFileName, ParentObjectName: bi.ParentObjectName, FuncName: bi.FuncName, BaseMessageId: bi.BaseErrorId}
 		om.ParentContextHistory = append(om.ParentContextHistory, ci)
 	}
 
 	y := se.DeepCopyBaseInfo()
 
-	om.MsgContext = OpsMsgContextInfo{SourceFileName:y.SourceFileName, ParentObjectName: y.ParentObjectName, FuncName: y.FuncName, BaseMessageId: y.BaseErrorID}
+	om.MsgContext = OpsMsgContextInfo{SourceFileName:y.SourceFileName, ParentObjectName: y.ParentObjectName, FuncName: y.FuncName, BaseMessageId: y.BaseErrorId}
 
 	return om
 }

@@ -62,8 +62,8 @@ func TestUninitializedBaseInfo(t *testing.T) {
 		t.Error("String FuncName was uninitialized. Was expecting empty string, got", se.BaseInfo.FuncName)
 	}
 
-	if se.BaseInfo.BaseErrorID != 0 {
-		t.Error("Int64 BaseErrorID was uninitialized. Was expecting value of zero, got", se.BaseInfo.BaseErrorID)
+	if se.BaseInfo.BaseErrorId != 0 {
+		t.Error("Int64 BaseErrorId was uninitialized. Was expecting value of zero, got", se.BaseInfo.BaseErrorId)
 	}
 
 }
@@ -322,8 +322,8 @@ func TestFullInitialize(t *testing.T) {
 		t.Error(fmt.Sprintf("Expected Function Name '%v', got", ex22), x.BaseInfo.FuncName)
 	}
 
-	if x.BaseInfo.BaseErrorID != ex23 {
-		t.Error(fmt.Sprintf("Expected Base Error ID '%v', got", ex23), x.BaseInfo.BaseErrorID)
+	if x.BaseInfo.BaseErrorId != ex23 {
+		t.Error(fmt.Sprintf("Expected Base Error ID '%v', got", ex23), x.BaseInfo.BaseErrorId)
 	}
 
 }
@@ -366,8 +366,8 @@ func TestBlankInitialize(t *testing.T) {
 		t.Error("Expected BaseInfo FuncName == '', got", x.BaseInfo.FuncName)
 	}
 
-	if x.BaseInfo.BaseErrorID != int64(0) {
-		t.Error("Expected BaseInfo BaseErrorID == 'Zero', got", x.BaseInfo.BaseErrorID)
+	if x.BaseInfo.BaseErrorId != int64(0) {
+		t.Error("Expected BaseInfo BaseErrorId == 'Zero', got", x.BaseInfo.BaseErrorId)
 	}
 
 }
@@ -1009,7 +1009,7 @@ func TestSpecErr_Equal_03(t *testing.T) {
 
 	s2 := s.CopyOut()
 
-	s2.BaseInfo.BaseErrorID = 90
+	s2.BaseInfo.BaseErrorId = 90
 
 	if s.Equal(&s2) {
 		t.Error("Expected after changes to s2, s!=s2. However, s==s2!")

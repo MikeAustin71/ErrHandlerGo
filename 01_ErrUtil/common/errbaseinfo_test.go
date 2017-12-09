@@ -16,8 +16,8 @@ func TestUninitializedErrBaseInfo(t *testing.T) {
 		t.Error("String FuncName was uninitialized. Was expecting empty string, got", se.FuncName)
 	}
 
-	if se.BaseErrorID != 0 {
-		t.Error("Int64 BaseErrorID was uninitialized. Was expecting value of zero, got", se.BaseErrorID)
+	if se.BaseErrorId != 0 {
+		t.Error("Int64 BaseErrorId was uninitialized. Was expecting value of zero, got", se.BaseErrorId)
 	}
 
 }
@@ -43,8 +43,8 @@ func TestNewBaseInfo(t *testing.T) {
 		t.Error(fmt.Sprintf("Expected %v got,", ex2), x.FuncName)
 	}
 
-	if x.BaseErrorID != ex3 {
-		t.Error(fmt.Sprintf("Expected %v got,", ex3), x.BaseErrorID)
+	if x.BaseErrorId != ex3 {
+		t.Error(fmt.Sprintf("Expected %v got,", ex3), x.BaseErrorId)
 	}
 
 }
@@ -77,8 +77,8 @@ func TestNewFunc(t *testing.T) {
 		t.Error(fmt.Sprintf("Expected %v got,", ex4), y.FuncName)
 	}
 
-	if y.BaseErrorID != ex3 {
-		t.Error(fmt.Sprintf("Expected %v got,", ex3), y.BaseErrorID)
+	if y.BaseErrorId != ex3 {
+		t.Error(fmt.Sprintf("Expected %v got,", ex3), y.BaseErrorId)
 	}
 }
 
@@ -104,8 +104,8 @@ func TestBaseInfoDeepCopy(t *testing.T) {
 		t.Error(fmt.Sprintf("Expected %v got,", ex2), y.FuncName)
 	}
 
-	if y.BaseErrorID != ex3 {
-		t.Error(fmt.Sprintf("Expected %v got,", ex3), y.BaseErrorID)
+	if y.BaseErrorId != ex3 {
+		t.Error(fmt.Sprintf("Expected %v got,", ex3), y.BaseErrorId)
 	}
 
 }
@@ -132,8 +132,8 @@ func TestGetSpecErrFromBaseInfo(t *testing.T) {
 		t.Error("Expected BaseInfo.FuncName 'TestFuncName', got ", se.BaseInfo.FuncName)
 	}
 
-	if se.BaseInfo.BaseErrorID != 9000 {
-		t.Error("Expected BaseInfo.BaseErrorID '9000', got ", se.BaseInfo.BaseErrorID)
+	if se.BaseInfo.BaseErrorId != 9000 {
+		t.Error("Expected BaseInfo.BaseErrorId '9000', got ", se.BaseInfo.BaseErrorId)
 	}
 
 }
@@ -164,7 +164,86 @@ func TestGetNewParentInfo(t *testing.T) {
 		t.Error(fmt.Sprintf("Expected %v, got", ex2), parent[0].FuncName)
 	}
 
-	if parent[0].BaseErrorID != ex3 {
-		t.Error(fmt.Sprintf("Expected %v, got", ex3), parent[0].BaseErrorID)
+	if parent[0].BaseErrorId != ex3 {
+		t.Error(fmt.Sprintf("Expected %v, got", ex3), parent[0].BaseErrorId)
 	}
+}
+
+func TestErrBaseInfo_Equal_01(t *testing.T) {
+
+	e1 := testCreateErrBaseInfoObject()
+
+	e2 := e1.DeepCopyBaseInfo()
+
+
+	if !e1.Equal(&e2) {
+		t.Error("After copying e1 to e2, e1 IS NOT EQUAL to e2!")
+	}
+
+}
+
+func TestErrBaseInfo_Equal_02(t *testing.T) {
+
+	e1 := testCreateErrBaseInfoObject()
+
+	e2 := e1.DeepCopyBaseInfo()
+
+	e2.FuncName = "xx"
+
+	if e1.Equal(&e2) {
+		t.Error("After copying e1 to e2 and changing a field value, e1 IS STILL EQUAL to e2!")
+	}
+
+}
+
+func TestErrBaseInfo_Equal_03(t *testing.T) {
+
+	e1 := testCreateErrBaseInfoObject()
+
+	e2 := e1.DeepCopyBaseInfo()
+
+	e2.SourceFileName = "xx"
+
+	if e1.Equal(&e2) {
+		t.Error("After copying e1 to e2 and changing a field value, e1 IS STILL EQUAL to e2!")
+	}
+
+}
+
+func TestErrBaseInfo_Equal_04(t *testing.T) {
+
+	e1 := testCreateErrBaseInfoObject()
+
+	e2 := e1.DeepCopyBaseInfo()
+
+	e2.ParentObjectName = "xx"
+
+	if e1.Equal(&e2) {
+		t.Error("After copying e1 to e2 and changing a field value, e1 IS STILL EQUAL to e2!")
+	}
+
+}
+
+func TestErrBaseInfo_Equal_05(t *testing.T) {
+
+	e1 := testCreateErrBaseInfoObject()
+
+	e2 := e1.DeepCopyBaseInfo()
+
+	e2.BaseErrorId = 25
+
+	if e1.Equal(&e2) {
+		t.Error("After copying e1 to e2 and changing a field value, e1 IS STILL EQUAL to e2!")
+	}
+
+}
+
+func testCreateErrBaseInfoObject() ErrBaseInfo {
+	ex1 := "test11.go"
+	ex2 :="TestObj11"
+	ex3 := "test11"
+	ex4 := int64(1000)
+
+	return ErrBaseInfo{SourceFileName: ex1, ParentObjectName: ex2, FuncName:ex3, BaseErrorId: ex4}
+
 }
