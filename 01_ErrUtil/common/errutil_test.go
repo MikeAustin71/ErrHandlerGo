@@ -202,6 +202,9 @@ func TestIsSpecErrNo(t *testing.T) {
 		t.Errorf("Expected CheckIsSpecErr() to return false. Instead it retrned %v", isErr)
 	}
 
+	if s.ErrorMsgType != SpecErrTypeSUCCESSFULCOMPLETION {
+		t.Errorf("Expected s.ErrorMsgType=='SpecErrTypeSUCCESSFULCOMPLETION'. Instead, got: '%v'", s.ErrorMsgType.String())
+	}
 }
 
 func TestIsSpecErrYes(t *testing.T) {
@@ -548,7 +551,7 @@ func TestSpecErr_ConfigureParentInfoFromParentSpecErr01(t *testing.T) {
 
 	baseInfo := bi.New("TestSrcFileName6", "TestObject6", "TestFuncName6", 6000)
 
-	parentInfo := createParentBaseInfo5Elements()
+	parentInfo := createSpecErrParentBaseInfo5Elements()
 
 	e := errors.New("This is the error message")
 
@@ -591,8 +594,157 @@ func TestSpecErr_ConfigureParentInfoFromParentSpecErr01(t *testing.T) {
 	}
 }
 
+func TestSpecErr_InitializeBaseInfoWithSpecErr01(t *testing.T) {
 
-func createParentBaseInfo5Elements() []ErrBaseInfo {
+	bi := ErrBaseInfo{}
+
+	baseInfo := bi.New("TestSrcFileName6", "TestObject6", "TestFuncName6", 6000)
+
+	parentInfo := createSpecErrParentBaseInfo5Elements()
+
+	e := errors.New("This is the error message")
+
+	se := SpecErr{}.Initialize(parentInfo, baseInfo,"Error Prefix", e, SpecErrTypeFATAL, 553 )
+
+	baseInfo2 := bi.New("TestSrcFileName7", "TestObject7", "TestFuncName7", 7000)
+
+	se2 := SpecErr{}.InitializeBaseInfoWithSpecErr(se, baseInfo2)
+
+	e2 := errors.New("This is Error Message # 2")
+
+	se2.SetError("Prefix2", e2, SpecErrTypeERROR, 902)
+
+	if len(se2.ParentInfo) != 6 {
+
+		t.Errorf("Expected length of se2.ParentInfo array == 6. Instead, array length == '%v'", len(se2.ParentInfo))
+
+	}
+
+	if se2.ParentInfo[5].ParentObjectName != "TestObject6" {
+		t.Error("Expected se2.ParentInfo[5].ParentObjectName != 'TestObject6'. Instead ObjectName='%v'", se2.ParentInfo[5].ParentObjectName)
+	}
+
+	if se2.ErrNo != 7902 {
+		t.Errorf("Expected se2.ErrNo== 7902.  Instead, se2.ErrNo== '%v'", se2.ErrNo)
+	}
+
+	msg := se2.Error()
+
+	if !strings.Contains(msg,"This is Error Message # 2"){
+		t.Error("Expected final error message to contain 'This is Error Message # 2'.  Instead it did NOT!")
+	}
+
+	if !strings.Contains(msg, "Prefix2") {
+		t.Error("Expected final error message to contain 'Prefix2'.  Instead it did NOT!")
+	}
+
+	if se2.ErrorMsgType != SpecErrTypeERROR {
+		t.Errorf("Expected 'SpecErrTypeERROR'. Instead, got '%v'", se2.ErrorMsgType)
+	}
+
+}
+
+func TestSpecErr_NewInfoMsgString01(t *testing.T) {
+
+	bi := ErrBaseInfo{}
+
+	baseInfo := bi.New("TestSrcFileName6", "TestObject6", "TestFuncName6", 6000)
+
+	parentInfo := createSpecErrParentBaseInfo5Elements()
+
+	e := errors.New("This is an error message #1")
+
+	se := SpecErr{}.Initialize(parentInfo, baseInfo,"Error Prefix", e, SpecErrTypeFATAL, 553 )
+
+	baseInfo2 := bi.New("TestSrcFileName7", "TestObject7", "TestFuncName7", 7000)
+
+	se2 := SpecErr{}.InitializeBaseInfoWithSpecErr(se, baseInfo2)
+
+	iMsg := "This is Information Message # 2"
+
+	se2.SetErrorWithMessage("Prefix2", iMsg, SpecErrTypeINFO, 902)
+
+	if len(se2.ParentInfo) != 6 {
+
+		t.Errorf("Expected length of se2.ParentInfo array == 6. Instead, array length == '%v'", len(se2.ParentInfo))
+
+	}
+
+	if se2.ParentInfo[5].ParentObjectName != "TestObject6" {
+		t.Error("Expected se2.ParentInfo[5].ParentObjectName != 'TestObject6'. Instead ObjectName='%v'", se2.ParentInfo[5].ParentObjectName)
+	}
+
+	if se2.ErrNo != 7902 {
+		t.Errorf("Expected se2.ErrNo== 7902.  Instead, se2.ErrNo== '%v'", se2.ErrNo)
+	}
+
+	msg := se2.Error()
+
+	if !strings.Contains(msg,iMsg){
+		t.Errorf("Expected final error message to contain '%v'.  Instead it did NOT!", iMsg)
+	}
+
+	if !strings.Contains(msg, "Prefix2") {
+		t.Error("Expected final error message to contain 'Prefix2'.  Instead, it did NOT!")
+	}
+
+	if se2.ErrorMsgType != SpecErrTypeINFO {
+		t.Errorf("Expected 'SpecErrTypeINFO'. Instead, got '%v'", se2.ErrorMsgType)
+	}
+
+}
+
+func TestSpecErr_NewWarningMsgString01(t *testing.T) {
+
+	bi := ErrBaseInfo{}
+
+	baseInfo := bi.New("TestSrcFileName6", "TestObject6", "TestFuncName6", 6000)
+
+	parentInfo := createSpecErrParentBaseInfo5Elements()
+
+	e := errors.New("This is an error message #1")
+
+	se := SpecErr{}.Initialize(parentInfo, baseInfo,"Error Prefix", e, SpecErrTypeFATAL, 553 )
+
+	baseInfo2 := bi.New("TestSrcFileName7", "TestObject7", "TestFuncName7", 7000)
+
+	se2 := SpecErr{}.InitializeBaseInfoWithSpecErr(se, baseInfo2)
+
+	iMsg := "This is Warning Message # 2"
+
+	se2.SetErrorWithMessage("Prefix2", iMsg, SpecErrTypeWARNING, 902)
+
+	if len(se2.ParentInfo) != 6 {
+
+		t.Errorf("Expected length of se2.ParentInfo array == 6. Instead, array length == '%v'", len(se2.ParentInfo))
+
+	}
+
+	if se2.ParentInfo[5].ParentObjectName != "TestObject6" {
+		t.Error("Expected se2.ParentInfo[5].ParentObjectName != 'TestObject6'. Instead ObjectName='%v'", se2.ParentInfo[5].ParentObjectName)
+	}
+
+	if se2.ErrNo != 7902 {
+		t.Errorf("Expected se2.ErrNo== 7902.  Instead, se2.ErrNo== '%v'", se2.ErrNo)
+	}
+
+	msg := se2.Error()
+
+	if !strings.Contains(msg,iMsg){
+		t.Errorf("Expected final error message to contain '%v'.  Instead it did NOT!", iMsg)
+	}
+
+	if !strings.Contains(msg, "Prefix2") {
+		t.Error("Expected final error message to contain 'Prefix2'.  Instead, it did NOT!")
+	}
+
+	if se2.ErrorMsgType != SpecErrTypeWARNING {
+		t.Errorf("Expected 'SpecErrTypeINFO'. Instead, got '%v'", se2.ErrorMsgType)
+	}
+
+}
+
+func createSpecErrParentBaseInfo5Elements() []ErrBaseInfo {
 	parentBaseInfo := make([]ErrBaseInfo, 0, 10)
 	bi := ErrBaseInfo{}
 

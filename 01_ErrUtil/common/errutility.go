@@ -171,6 +171,11 @@ func (s *SpecErr) CheckIsSpecErr() bool {
 
 }
 
+func (s *SpecErr) ConfigureContext(parentSpecErr SpecErr, newBaseInfo ErrBaseInfo) {
+	s.ConfigureParentInfoFromParentSpecErr(parentSpecErr)
+	s.ConfigureBaseInfo(newBaseInfo)
+}
+
 // ConfigureParentInfoFromParentSpecErr - Receives a SpecErr object
 // as input parameter ('parentSpecErr'). The ParentInfo array from
 // 'parentSpecErr' object is added to the current or host SpecErr
@@ -227,25 +232,25 @@ func (s *SpecErr) DeepCopyParentInfo(pi []ErrBaseInfo) []ErrBaseInfo {
 // message as a string.
 func (s SpecErr) Error() string {
 
-	var banner1, banner2, mTitle string
+	var banner1, banner2, mTitle, m string
 
 
 	if s.ErrorMsgType == SpecErrTypeNOERRORSALLCLEAR {
 		return "No Errors - No Messages"
 	} else if	s.ErrorMsgType == SpecErrTypeINFO {
 
-		banner1 = "\n" + strings.Repeat("*", 76)
-		banner2 = "\n" + strings.Repeat("=", 76)
+		banner1 = "\n" + strings.Repeat("*", 78)
+		banner2 = "\n" + strings.Repeat("=", 78)
 		mTitle = "Information Message"
 	} else if s.ErrorMsgType == SpecErrTypeERROR ||
 		s.ErrorMsgType == SpecErrTypeFATAL {
 
-		banner1 = "\n" + strings.Repeat("!", 76)
-		banner2 = "\n" + strings.Repeat("-", 76)
+		banner1 = "\n" + strings.Repeat("!", 78)
+		banner2 = "\n" + strings.Repeat("-", 78)
 		mTitle = "Error Message"
 	} else if s.ErrorMsgType == SpecErrTypeWARNING {
-		banner1 = "\n" + strings.Repeat("?", 76)
-		banner2 = "\n" + strings.Repeat("_", 76)
+		banner1 = "\n" + strings.Repeat("?", 78)
+		banner2 = "\n" + strings.Repeat("_", 78)
 		mTitle = "Warning Message"
 
 	} else {
@@ -253,10 +258,14 @@ func (s SpecErr) Error() string {
 		return "Successful Completion!"
 	}
 
-	m:= banner1
-	m = "\n" + mTitle
+	m = "\n" + banner1
+	m += "\n" + mTitle
 	m += banner2
-	m += "Message: "
+
+	if s.ErrNo != 0 {
+		m += fmt.Sprintf("\n  ErrNo: %v", s.ErrNo)
+	}
+
 	if s.PrefixMsg != "" {
 		m += "\n"
 		m += s.PrefixMsg
@@ -271,21 +280,26 @@ func (s SpecErr) Error() string {
 	m += s.ErrMsg
 	m += banner2
 
+	if s.BaseInfo.SourceFileName != "" ||
+		s.BaseInfo.ParentObjectName != "" ||
+			s.BaseInfo.FuncName != ""  {
+				m+= "\nCurrent Base Context Info"
+				m+=  banner2
+
+	}
+
 	if s.BaseInfo.SourceFileName != "" {
-		m += "\n  SourceFile: " + s.BaseInfo.SourceFileName
+		m += "\n  SrcFile: " + s.BaseInfo.SourceFileName
 	}
 
 	if s.BaseInfo.ParentObjectName != "" {
-		m += "\nParentObject: " + s.BaseInfo.ParentObjectName
+		m += "\nParentObj: " + s.BaseInfo.ParentObjectName
 	}
 
 	if s.BaseInfo.FuncName != "" {
-		m += "\n    FuncName: " + s.BaseInfo.FuncName
+		m += "\n FuncName: " + s.BaseInfo.FuncName
 	}
 
-	if s.ErrNo != 0 {
-		m += fmt.Sprintf("\n  ErrNo: %v", s.ErrNo)
-	}
 
 	m += fmt.Sprintf("\n  IsErr: %v", s.IsErr)
 	m += fmt.Sprintf("\nIsPanic: %v", s.IsPanic)
@@ -298,35 +312,22 @@ func (s SpecErr) Error() string {
 		m += banner2
 
 		for _, bi := range s.ParentInfo {
-			m += "\n Source File: " + bi.SourceFileName +"  ParentObj: " + bi.ParentObjectName + "  FuncName: " + bi.FuncName
+			m += "\n SrcFile: " + bi.SourceFileName +"  ParentObj: " + bi.ParentObjectName + "  FuncName: " + bi.FuncName
 			if bi.BaseErrorID != 0 {
 				m += fmt.Sprintf("  ErrorID: %v", bi.BaseErrorID)
 			}
 		}
 
-		m += "\n"
-	}
-
-	if s.BaseInfo.SourceFileName != "" ||
-			s.BaseInfo.FuncName != "" ||
-				s.BaseInfo.ParentObjectName != "" ||
-					s.BaseInfo.BaseErrorID != 0 {
-
-		m += banner2
-		m += "\nCurrent Context Info"
-		m += banner2
-
-		m += "\n Source File: " + s.BaseInfo.SourceFileName +"  ParentObj: " + s.BaseInfo.ParentObjectName + "  FuncName: " + s.BaseInfo.FuncName
-		m += "\n BaseErrorID: " + string(s.BaseInfo.BaseErrorID)
-		m += "\n"
+		//m += "\n"
 	}
 
 	m += banner2
 	m += "\n  Error Time"
 	m += banner2
 	dt := DateTimeUtility{}
-	m += fmt.Sprintf("\n  Error Time UTC: %v \n", dt.GetDateTimeTzNanoSecYMDDowText(s.ErrorMsgTimeUTC))
-	m += fmt.Sprintf("\nError Time Local: %v \n", dt.GetDateTimeTzNanoSecYMDDowText(s.ErrorMsgTimeLocal))
+	dtfmt := "2006-01-02 Mon 15:04:05.000000000 -0700 MST"
+	m += fmt.Sprintf("\n  Error Time UTC: %v", dt.GetDateTimeCustomFmt(s.ErrorMsgTimeUTC, dtfmt))
+	m += fmt.Sprintf("\nError Time Local: %v", dt.GetDateTimeCustomFmt(s.ErrorMsgTimeLocal, dtfmt))
 	localTz := s.ErrorLocalTimeZone
 
 	if localTz == "Local" || localTz == "local" {
@@ -334,21 +335,33 @@ func (s SpecErr) Error() string {
 		localTz += " - " + localZone
 	}
 
-	m += fmt.Sprintf("\nLocal Time Zone : %v \n", localTz)
-	m += banner1
+	m += fmt.Sprintf("\nLocal Time Zone : %v", localTz)
+	m +=  banner1
 	m += "\n"
 
 	return m
 }
 
+// InitializeBaseInfoWithSpecErr - Initialize a SpecErr object by passing in a parent SpecErr object and
+// the current BaseInfo data.
+func (s SpecErr) InitializeBaseInfoWithSpecErr(parentSpeErr SpecErr, currentBaseInfo ErrBaseInfo) SpecErr {
+
+	se := SpecErr{}
+
+	se.ConfigureContext(parentSpeErr, currentBaseInfo)
+
+	return se
+
+}
+
 // InitializeBaseInfo - Initializes a SpecErr Structure
 // from a ParentInfo array and a ErrBaseInfo
 // structure
-func (s SpecErr) InitializeBaseInfo(parent []ErrBaseInfo, bi ErrBaseInfo) SpecErr {
+func (s SpecErr) InitializeBaseInfo(parent []ErrBaseInfo, currentBaseInfo ErrBaseInfo) SpecErr {
 
 	return SpecErr{
 		ParentInfo: s.DeepCopyParentInfo(parent),
-		BaseInfo:   bi.DeepCopyBaseInfo()}
+		BaseInfo:   currentBaseInfo.DeepCopyBaseInfo()}
 }
 
 // Initialize - Initializes all elements of
@@ -477,6 +490,7 @@ func (s SpecErr) SignalNoErrors() SpecErr {
 	se.SetSuccessfulCompletion()
 	return se
 }
+
 
 // SetBaseInfo - Sets the SpecErr ErrBaseInfo internal
 // structure. This data is used for creating repetitive
