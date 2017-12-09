@@ -18,26 +18,29 @@ func (opsmsgclass OpsMsgClass) String() string {
 
 const (
 
-	// MsgClassNOERRORSNOMESSAGES - 0 Signals all clear - No Errors
-	// and No Messages
-	MsgClassNOERRORSNOMESSAGES OpsMsgClass = iota
+	// OpsMsgClassNOERRORSNOMESSAGES - 0 Signals uninitialized message
+	// with no errors and no messages
+	OpsMsgClassNOERRORSNOMESSAGES OpsMsgClass = iota
 
-	// MsgClassOPERROR - 1 Message is an Error Message
-	MsgClassOPERROR
+	// OpsMsgClassOPERROR - 1 Message is an Error Message
+	OpsMsgClassOPERROR
 
-	// MsgClassFATAL - 2 Message is a Fatal Error Message
-	MsgClassFATAL
+	// OpsMsgClassFATAL - 2 Message is a Fatal Error Message
+	OpsMsgClassFATAL
 
-	// MsgClassINFO - 3 Message is an Informational Message
-	MsgClassINFO
+	// OpsMsgClassINFO - 3 Message is an Informational Message
+	OpsMsgClassINFO
 
-	// MsgClassWARNING - 4 Message is a warning Message
-	MsgClassWARNING
+	// OpsMsgClassWARNING - 4 Message is a warning Message
+	OpsMsgClassWARNING
 
-	// MsgClassDEBUG - 5 Message is a Debug Message
-	MsgClassDEBUG
+	// OpsMsgClassDEBUG - 5 Message is a Debug Message
+	OpsMsgClassDEBUG
 
+	// OpsMsgClassSUCCESSFULCOMPLETION - 6 Message signalling successful
+	// completion of the operation
+	OpsMsgClassSUCCESSFULCOMPLETION
 )
 
 // OpsMsgClassNames - string array containing names of Log Levels
-var OpsMsgClassNames = [...]string{"NOERRORSNOMESSAGES", "OPERROR", "FATAL", "INFO", "WARNING", "DEBUG"}
+var OpsMsgClassNames = [...]string{"NOERRORSNOMESSAGES", "OPERROR", "FATAL", "INFO", "WARNING", "DEBUG", "SUCCESS"}

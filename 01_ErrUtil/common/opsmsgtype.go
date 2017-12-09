@@ -18,22 +18,27 @@ func (opstype OpsMsgType) String() string {
 
 const (
 
-	// OpsNOERRORNOMSGTYPE
-	OpsNOERRORNOMSGTYPE OpsMsgType = iota
+	// OpsMsgTypeNOERRORNOMSG - 0 Uninitialized -
+	// no errors and no messages
+	OpsMsgTypeNOERRORNOMSG OpsMsgType = iota
 
-	// OpsERRORMSGTYPE - Message Type
-	OpsERRORMSGTYPE
+	// OpsMsgTypeERRORMSG - 1 Error Message
+	OpsMsgTypeERRORMSG
 
-	// OpsINFOMSGTYPE - Information Message Type
-	OpsINFOMSGTYPE
+	// OpsMsgTypeINFOMSG - 2 Information Message Type
+	OpsMsgTypeINFOMSG
 
-	// OpsWARNINGMSGTYPE - Warning Message Type
-	OpsWARNINGMSGTYPE
+	// OpsMsgTypeWARNINGMSG - 3 Warning Message Type
+	OpsMsgTypeWARNINGMSG
 
-	// OpsDEBUGMSGTYPE - Debug Message
-	OpsDEBUGMSGTYPE
+	// OpsMsgTypeDEBUGMSG - 4 Debug Message
+	OpsMsgTypeDEBUGMSG
+
+	// OpsMsgTypeSUCCESSFULCOMPLETION - 5 Message signalling
+	// successful completion of the operation.
+	OpsMsgTypeSUCCESSFULCOMPLETION
 
 )
 
 // OpsMsgTypeNames - String Array holding Message Type names.
-var OpsMsgTypeNames = [...]string{"NOERRORSNOMSGS","ERROR", "INFO", "WARNING", "DEBUG"}
+var OpsMsgTypeNames = [...]string{"NOERRORSNOMSGS","ERROR", "INFO", "WARNING", "DEBUG", "SUCCESS"}

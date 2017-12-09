@@ -5,7 +5,7 @@ import "testing"
 func TestOpsMsgClass_String_01(t *testing.T) {
 	var r OpsMsgClass
 
-	r = MsgClassNOERRORSNOMESSAGES
+	r = OpsMsgClassNOERRORSNOMESSAGES
 
 	var s string
 
@@ -20,7 +20,7 @@ func TestOpsMsgClass_String_01(t *testing.T) {
 func TestOpsMsgClass_String_02(t *testing.T) {
 	var r OpsMsgClass
 
-	r = MsgClassOPERROR
+	r = OpsMsgClassOPERROR
 
 	var s string
 
@@ -36,7 +36,7 @@ func TestOpsMsgClass_String_02(t *testing.T) {
 func TestOpsMsgClass_String_03(t *testing.T) {
 	var r OpsMsgClass
 
-	r = MsgClassFATAL
+	r = OpsMsgClassFATAL
 
 	var s string
 
@@ -51,7 +51,7 @@ func TestOpsMsgClass_String_03(t *testing.T) {
 func TestOpsMsgClass_String_04(t *testing.T) {
 	var r OpsMsgClass
 
-	r = MsgClassINFO
+	r = OpsMsgClassINFO
 
 	var s string
 
@@ -66,7 +66,7 @@ func TestOpsMsgClass_String_04(t *testing.T) {
 func TestOpsMsgClass_String_05(t *testing.T) {
 	var r OpsMsgClass
 
-	r = MsgClassWARNING
+	r = OpsMsgClassWARNING
 
 	var s string
 
@@ -81,7 +81,7 @@ func TestOpsMsgClass_String_05(t *testing.T) {
 func TestOpsMsgClass_String_06(t *testing.T) {
 	var r OpsMsgClass
 
-	r = MsgClassDEBUG
+	r = OpsMsgClassDEBUG
 
 	var s string
 
@@ -93,18 +93,33 @@ func TestOpsMsgClass_String_06(t *testing.T) {
 
 }
 
+func TestOpsMsgClass_String_07(t *testing.T) {
+	var r OpsMsgClass
+
+	r = OpsMsgClassSUCCESSFULCOMPLETION
+
+	var s string
+
+	s = r.String()
+
+	if s != "SUCCESS" {
+		t.Errorf("Expected string 'SUCCESS'. Instead got %v", s)
+	}
+
+}
+
 
 func TestOpsMsClass_Value_01(t *testing.T) {
 	var r OpsMsgClass
 
 	var i int
 
-	r = MsgClassNOERRORSNOMESSAGES
+	r = OpsMsgClassNOERRORSNOMESSAGES
 
 	i = int(r)
 
 	if r != 0 {
-		t.Errorf("Expected MsgClassNOERRORSNOMESSAGES value = ZERO (0). Instead got %v", i)
+		t.Errorf("Expected OpsMsgClassNOERRORSNOMESSAGES value = ZERO (0). Instead got %v", i)
 	}
 }
 
@@ -116,7 +131,7 @@ func TestOpsMsClass_Value_02(t *testing.T) {
 
 	var i int
 
-	r = MsgClassOPERROR
+	r = OpsMsgClassOPERROR
 
 	i = int(r)
 
@@ -131,7 +146,7 @@ func TestOpsMsClass_Value_03(t *testing.T) {
 
 	var i int
 
-	r = MsgClassFATAL
+	r = OpsMsgClassFATAL
 
 	i = int(r)
 
@@ -145,7 +160,7 @@ func TestOpsMsClass_Value_04(t *testing.T) {
 
 	var i int
 
-	r = MsgClassINFO
+	r = OpsMsgClassINFO
 
 	i = int(r)
 
@@ -159,7 +174,7 @@ func TestOpsMsClass_Value_05(t *testing.T) {
 
 	var i int
 
-	r = MsgClassWARNING
+	r = OpsMsgClassWARNING
 
 	i = int(r)
 
@@ -173,11 +188,25 @@ func TestOpsMsClass_Value_06(t *testing.T) {
 
 	var i int
 
-	r = MsgClassDEBUG
+	r = OpsMsgClassDEBUG
 
 	i = int(r)
 
 	if r != 5 {
 		t.Errorf("Expected DEBUG value = 5. Instead got %v", i)
+	}
+}
+
+func TestOpsMsClass_Value_07(t *testing.T) {
+	var r OpsMsgClass
+
+	var i int
+
+	r = OpsMsgClassSUCCESSFULCOMPLETION
+
+	i = int(r)
+
+	if r != 6 {
+		t.Errorf("Expected SUCCESSFUL COMPLETION value = 6. Instead got %v", i)
 	}
 }

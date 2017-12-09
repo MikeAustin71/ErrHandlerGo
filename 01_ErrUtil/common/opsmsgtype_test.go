@@ -12,7 +12,7 @@ import "testing"
 func TestOpsMsgTypeText001(t *testing.T) {
 	var r OpsMsgType
 
-	r = OpsNOERRORNOMSGTYPE
+	r = OpsMsgTypeNOERRORNOMSG
 
 	var s string
 
@@ -27,7 +27,7 @@ func TestOpsMsgTypeText001(t *testing.T) {
 func TestOpsMsgTypeText002(t *testing.T) {
 	var r OpsMsgType
 
-	r = OpsERRORMSGTYPE
+	r = OpsMsgTypeERRORMSG
 
 	var s string
 
@@ -42,7 +42,7 @@ func TestOpsMsgTypeText002(t *testing.T) {
 func TestOpsMsgTypeText003(t *testing.T) {
 	var r OpsMsgType
 
-	r = OpsINFOMSGTYPE
+	r = OpsMsgTypeINFOMSG
 
 	var s string
 
@@ -57,7 +57,7 @@ func TestOpsMsgTypeText003(t *testing.T) {
 func TestOpsMsgTypeText004(t *testing.T) {
 	var r OpsMsgType
 
-	r = OpsWARNINGMSGTYPE
+	r = OpsMsgTypeWARNINGMSG
 
 	var s string
 
@@ -72,7 +72,7 @@ func TestOpsMsgTypeText004(t *testing.T) {
 func TestOpsMsgTypeText005(t *testing.T) {
 	var r OpsMsgType
 
-	r = OpsDEBUGMSGTYPE
+	r = OpsMsgTypeDEBUGMSG
 
 	var s string
 
@@ -84,18 +84,33 @@ func TestOpsMsgTypeText005(t *testing.T) {
 
 }
 
+func TestOpsMsgTypeText006(t *testing.T) {
+	var r OpsMsgType
+
+	r = OpsMsgTypeSUCCESSFULCOMPLETION
+
+	var s string
+
+	s = r.String()
+
+	if s != "SUCCESS" {
+		t.Errorf("Expected string 'SUCCESS'. Instead, got %v", s)
+	}
+
+}
+
 
 func TestOpsMsgTypeValue001(t *testing.T) {
 	var r OpsMsgType
 
 	var i int
 
-	r = OpsNOERRORNOMSGTYPE
+	r = OpsMsgTypeNOERRORNOMSG
 
 	i = int(r)
 
 	if r != 0 {
-		t.Errorf("Expected 'OpsNOERRORNOMSGTYPE' value = 0. Instead, got %v", i)
+		t.Errorf("Expected 'OpsMsgTypeNOERRORNOMSG' value = 0. Instead, got %v", i)
 	}
 
 }
@@ -105,12 +120,12 @@ func TestOpsMsgTypeValue002(t *testing.T) {
 
 	var i int
 
-	r = OpsERRORMSGTYPE
+	r = OpsMsgTypeERRORMSG
 
 	i = int(r)
 
 	if r != 1 {
-		t.Errorf("Expected 'OpsERRORMSGTYPE' value = 1. Instead, got %v", i)
+		t.Errorf("Expected 'OpsMsgTypeERRORMSG' value = 1. Instead, got %v", i)
 	}
 
 }
@@ -120,12 +135,12 @@ func TestOpsMsgTypeValue003(t *testing.T) {
 
 	var i int
 
-	r = OpsINFOMSGTYPE
+	r = OpsMsgTypeINFOMSG
 
 	i = int(r)
 
 	if r != 2 {
-		t.Errorf("Expected 'OpsINFOMSGTYPE' value = 2. Instead, got %v", i)
+		t.Errorf("Expected 'OpsMsgTypeINFOMSG' value = 2. Instead, got %v", i)
 	}
 
 }
@@ -135,12 +150,12 @@ func TestOpsMsgTypeValue004(t *testing.T) {
 
 	var i int
 
-	r = OpsWARNINGMSGTYPE
+	r = OpsMsgTypeWARNINGMSG
 
 	i = int(r)
 
 	if r != 3 {
-		t.Errorf("Expected 'OpsWARNINGMSGTYPE' value = 3. Instead, got %v", i)
+		t.Errorf("Expected 'OpsMsgTypeWARNINGMSG' value = 3. Instead, got %v", i)
 	}
 
 }
@@ -150,12 +165,27 @@ func TestOpsMsgTypeValue005(t *testing.T) {
 
 	var i int
 
-	r = OpsDEBUGMSGTYPE
+	r = OpsMsgTypeDEBUGMSG
 
 	i = int(r)
 
 	if r != 4 {
-		t.Errorf("Expected 'OpsDEBUGMSGTYPE' value = 4. Instead, got %v", i)
+		t.Errorf("Expected 'OpsMsgTypeDEBUGMSG' value = 4. Instead, got %v", i)
+	}
+
+}
+
+func TestOpsMsgTypeValue006(t *testing.T) {
+	var r OpsMsgType
+
+	var i int
+
+	r = OpsMsgTypeSUCCESSFULCOMPLETION
+
+	i = int(r)
+
+	if r != 5 {
+		t.Errorf("Expected 'OpsMsgTypeSUCCESSFULCOMPLETION' value = 5. Instead, got %v", i)
 	}
 
 }

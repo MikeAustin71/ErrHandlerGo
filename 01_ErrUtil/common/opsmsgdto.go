@@ -171,8 +171,8 @@ func (opsMsg *OpsMsgDto) GetMessage() string {
 func(opsMsg OpsMsgDto) NewDebugMsg(msg string, msgNo int64) OpsMsgDto {
 
 	om := OpsMsgDto{}
-	om.MsgType = OpsDEBUGMSGTYPE
-	om.MsgClass = MsgClassDEBUG
+	om.MsgType = OpsMsgTypeDEBUGMSG
+	om.MsgClass = OpsMsgClassDEBUG
 
 	if msgNo == 0 {
 		om.msgId = 0
@@ -203,8 +203,8 @@ func(opsMsg OpsMsgDto) NewDebugMsg(msg string, msgNo int64) OpsMsgDto {
 func(opsMsg OpsMsgDto) NewInfoMsg(msg string, msgNo int64) OpsMsgDto {
 
 	om := OpsMsgDto{}
-	om.MsgType = OpsINFOMSGTYPE
-	om.MsgClass = MsgClassINFO
+	om.MsgType = OpsMsgTypeINFOMSG
+	om.MsgClass = OpsMsgClassINFO
 
 	if msgNo == 0 {
 		om.msgId = 0
@@ -233,8 +233,8 @@ func(opsMsg OpsMsgDto) NewInfoMsg(msg string, msgNo int64) OpsMsgDto {
 func (opsMsg OpsMsgDto) NewFatalErrorMsg(errMsg string, errNo int64) OpsMsgDto {
 
 	om := OpsMsgDto{}
-	om.MsgType = OpsERRORMSGTYPE
-	om.MsgClass = MsgClassFATAL
+	om.MsgType = OpsMsgTypeERRORMSG
+	om.MsgClass = OpsMsgClassFATAL
 
 	if errNo == 0 {
 		om.msgId = 0
@@ -264,8 +264,8 @@ func (opsMsg OpsMsgDto) NewFatalErrorMsg(errMsg string, errNo int64) OpsMsgDto {
 func (opsMsg OpsMsgDto) NewStdErrorMsg(msg string, errNo int64) OpsMsgDto {
 
 	om := OpsMsgDto{}
-	om.MsgType = OpsERRORMSGTYPE
-	om.MsgClass = MsgClassOPERROR
+	om.MsgType = OpsMsgTypeERRORMSG
+	om.MsgClass = OpsMsgClassOPERROR
 
 	if errNo == 0 {
 		om.msgId = 0
@@ -282,44 +282,44 @@ func (opsMsg OpsMsgDto) NewStdErrorMsg(msg string, errNo int64) OpsMsgDto {
 
 }
 
-// NewSpecErrMsg - Create a new Operations Message based on
+// NewMsgFromSpecErrMsg - Create a new Operations Message based on
 // the error information contained in a Type SpecErr passed
 // into the method. The new message will be designated as
 // an error message.
-func (opsMsg *OpsMsgDto) NewSpecErrMsg(se SpecErr) OpsMsgDto {
+func (opsMsg *OpsMsgDto) NewMsgFromSpecErrMsg(se SpecErr) OpsMsgDto {
 
 	om := OpsMsgDto{}
 
-	if se.IsPanic {
-		om.MsgType = OpsERRORMSGTYPE
-		om.MsgClass = MsgClassFATAL
+	if se.ErrorMsgType == ErrTypeFATAL {
+		om.MsgType = OpsMsgTypeERRORMSG
+		om.MsgClass = OpsMsgClassFATAL
 		om.ErrDto = se
 
-	} else if se.IsErr {
-		om.MsgType = OpsERRORMSGTYPE
-		om.MsgClass = MsgClassOPERROR
+	} else if se.ErrorMsgType == ErrTypeERROR {
+		om.MsgType = OpsMsgTypeERRORMSG
+		om.MsgClass = OpsMsgClassOPERROR
 		om.ErrDto = se
 
 	} else if se.ErrorMsgType == ErrTypeWARNING {
 
-		om.MsgType = OpsWARNINGMSGTYPE
-		om.MsgClass = MsgClassWARNING
+		om.MsgType = OpsMsgTypeWARNINGMSG
+		om.MsgClass = OpsMsgClassWARNING
 		om.ErrDto = se
 
 	} else if se.ErrorMsgType == ErrTypeInfo {
 
-		om.MsgType = OpsINFOMSGTYPE
-		om.MsgClass = MsgClassINFO
+		om.MsgType = OpsMsgTypeINFOMSG
+		om.MsgClass = OpsMsgClassINFO
 		om.ErrDto = se
 
 	} else if se.ErrorMsgType == ErrTypeNOERRORSALLCLEAR {
-		om.MsgType = OpsNOERRORNOMSGTYPE
-		om.MsgClass = MsgClassNOERRORSNOMESSAGES
+		om.MsgType = OpsMsgTypeNOERRORNOMSG
+		om.MsgClass = OpsMsgClassNOERRORSNOMESSAGES
 		om.ErrDto = se
 
 	} else {
-		om.MsgType = OpsINFOMSGTYPE
-		om.MsgClass = MsgClassINFO
+		om.MsgType = OpsMsgTypeINFOMSG
+		om.MsgClass = OpsMsgClassINFO
 		om.ErrDto = se
 	}
 
@@ -355,8 +355,8 @@ func (opsMsg *OpsMsgDto) NewSpecErrMsg(se SpecErr) OpsMsgDto {
 func (opsMsg OpsMsgDto) NewWarningMsg(msg string, msgNo int64) OpsMsgDto {
 
 	om := OpsMsgDto{}
-	om.MsgType = OpsWARNINGMSGTYPE
-	om.MsgClass = MsgClassWARNING
+	om.MsgType = OpsMsgTypeWARNINGMSG
+	om.MsgClass = OpsMsgClassWARNING
 	if msgNo == 0 {
 		om.msgId = 0
 		om.msgNumber = 0
@@ -385,25 +385,25 @@ func (opsMsg *OpsMsgDto) getMsgTitle() (string, string, string) {
 	switch i {
 
 	case 0:
-		// MsgClassDEBUG - 0 Message is a Debug Message
+		// OpsMsgClassDEBUG - 0 Message is a Debug Message
 		title = "DEBUG Message"
 		banner = strings.Repeat("*", 75)
 	case 1:
-		// MsgClassOPERROR - 1 Message is an Error Message
+		// OpsMsgClassOPERROR - 1 Message is an Error Message
 		title = "Standard ERROR Message"
 		msgPrefix = "Error Number: "
 		banner = strings.Repeat("X", 75)
 	case 2:
-		// MsgClassFATAL - 2 Message is a Fatal Error Message
+		// OpsMsgClassFATAL - 2 Message is a Fatal Error Message
 		title = "FATAL ERROR Message"
 		msgPrefix = "Error Number: "
 		banner = strings.Repeat("!", 75)
 	case 3:
-		// MsgClassINFO - 3 Message is an Informational Message
+		// OpsMsgClassINFO - 3 Message is an Informational Message
 		title = "Information Message"
 		banner = strings.Repeat("_", 75)
 case 4:
-		// MsgClassWARNING - 4 Message is a warning Message
+		// OpsMsgClassWARNING - 4 Message is a warning Message
 		title = "WARNING Message"
 		banner = strings.Repeat("?", 75)
 	default:
