@@ -576,7 +576,7 @@ func TestSpecErr_ConfigureParentInfoFromParentSpecErr01(t *testing.T) {
 	}
 
 	if se2.ParentInfo[5].ParentObjectName != "TestObject6" {
-		t.Error("Expected se2.ParentInfo[5].ParentObjectName != 'TestObject6'. Instead ObjectName='%v'", se2.ParentInfo[5].ParentObjectName)
+		t.Errorf("Expected se2.ParentInfo[5].ParentObjectName != 'TestObject6'. Instead ObjectName='%v'", se2.ParentInfo[5].ParentObjectName)
 	}
 
 	if se2.ErrNo != 7902 {
@@ -621,7 +621,7 @@ func TestSpecErr_InitializeBaseInfoWithSpecErr01(t *testing.T) {
 	}
 
 	if se2.ParentInfo[5].ParentObjectName != "TestObject6" {
-		t.Error("Expected se2.ParentInfo[5].ParentObjectName != 'TestObject6'. Instead ObjectName='%v'", se2.ParentInfo[5].ParentObjectName)
+		t.Errorf("Expected se2.ParentInfo[5].ParentObjectName != 'TestObject6'. Instead ObjectName='%v'", se2.ParentInfo[5].ParentObjectName)
 	}
 
 	if se2.ErrNo != 7902 {
@@ -671,7 +671,7 @@ func TestSpecErr_NewInfoMsgString01(t *testing.T) {
 	}
 
 	if se2.ParentInfo[5].ParentObjectName != "TestObject6" {
-		t.Error("Expected se2.ParentInfo[5].ParentObjectName != 'TestObject6'. Instead ObjectName='%v'", se2.ParentInfo[5].ParentObjectName)
+		t.Errorf("Expected se2.ParentInfo[5].ParentObjectName != 'TestObject6'. Instead ObjectName='%v'", se2.ParentInfo[5].ParentObjectName)
 	}
 
 	if se2.ErrNo != 7902 {
@@ -721,7 +721,7 @@ func TestSpecErr_NewWarningMsgString01(t *testing.T) {
 	}
 
 	if se2.ParentInfo[5].ParentObjectName != "TestObject6" {
-		t.Error("Expected se2.ParentInfo[5].ParentObjectName != 'TestObject6'. Instead ObjectName='%v'", se2.ParentInfo[5].ParentObjectName)
+		t.Errorf("Expected se2.ParentInfo[5].ParentObjectName != 'TestObject6'. Instead ObjectName='%v'", se2.ParentInfo[5].ParentObjectName)
 	}
 
 	if se2.ErrNo != 7902 {
