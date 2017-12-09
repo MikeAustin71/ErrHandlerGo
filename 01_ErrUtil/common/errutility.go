@@ -26,31 +26,35 @@ func (errmsgtype SpecErrMsgType) String() string {
 
 const (
 
-	// ErrTypeNOERRORSALLCLEAR - Describes a state where
+	// SpecErrTypeNOERRORSALLCLEAR - Describes a state where
 	// there are no errors, no warnings and no information
 	// messages.
-	ErrTypeNOERRORSALLCLEAR SpecErrMsgType = iota
+	SpecErrTypeNOERRORSALLCLEAR SpecErrMsgType = iota
 
-	// ErrTypeFATAL - Describes a an error which is fatal to
+	// SpecErrTypeFATAL - Describes a an error which is fatal to
 	// program execution. This type of error is equated with
 	// 'panic' errors.
-	ErrTypeFATAL
+	SpecErrTypeFATAL
 
-	// ErrTypeERROR - Standard Error
-	ErrTypeERROR
+	// SpecErrTypeERROR - Standard Error
+	SpecErrTypeERROR
 
-	// ErrTypeWARNING - Not an error. This message types
+	// SpecErrTypeWARNING - Not an error. This message types
 	// signals a serious warning.
-	ErrTypeWARNING
+	SpecErrTypeWARNING
 
-	// ErrTypeInfo - Not an error. For information purposes
+	// SpecErrTypeINFO - Not an error. For information purposes
 	// only.
-	ErrTypeInfo
+	SpecErrTypeINFO
+
+	// SpecErrTypeSUCCESSFULCOMPLETION - Signals that the operation
+	// completed successfully with no errors.
+	SpecErrTypeSUCCESSFULCOMPLETION
 
 )
 
 // ErrMsgTypeNames - String Array holding Error Message Type names.
-var ErrMsgTypeNames = [...]string{"NOERRORSALLCLEAR","FATAL", "ERROR", "WARNING", "INFO"}
+var ErrMsgTypeNames = [...]string{"NOERRORSALLCLEAR","FATAL", "ERROR", "WARNING", "INFO","SUCCESS"}
 
 // ErrBaseInfo is intended for use with
 // the SpecErr Structure. It sets up base
@@ -223,11 +227,36 @@ func (s *SpecErr) DeepCopyParentInfo(pi []ErrBaseInfo) []ErrBaseInfo {
 // message as a string.
 func (s SpecErr) Error() string {
 
-	banner1 := "\n" + strings.Repeat("-", 76)
-	banner2 := "\n" + strings.Repeat("- ", 38)
+	var banner1, banner2, mTitle string
 
-	m := "\nError Message:"
+
+	if s.ErrorMsgType == SpecErrTypeNOERRORSALLCLEAR {
+		return "No Errors - No Messages"
+	} else if	s.ErrorMsgType == SpecErrTypeINFO {
+
+		banner1 = "\n" + strings.Repeat("*", 76)
+		banner2 = "\n" + strings.Repeat("=", 76)
+		mTitle = "Information Message"
+	} else if s.ErrorMsgType == SpecErrTypeERROR ||
+		s.ErrorMsgType == SpecErrTypeFATAL {
+
+		banner1 = "\n" + strings.Repeat("!", 76)
+		banner2 = "\n" + strings.Repeat("-", 76)
+		mTitle = "Error Message"
+	} else if s.ErrorMsgType == SpecErrTypeWARNING {
+		banner1 = "\n" + strings.Repeat("?", 76)
+		banner2 = "\n" + strings.Repeat("_", 76)
+		mTitle = "Warning Message"
+
+	} else {
+		// Must be successful completion message
+		return "Successful Completion!"
+	}
+
+	m:= banner1
+	m = "\n" + mTitle
 	m += banner2
+	m += "Message: "
 	if s.PrefixMsg != "" {
 		m += "\n"
 		m += s.PrefixMsg
@@ -265,7 +294,7 @@ func (s SpecErr) Error() string {
 	// Print it out.
 	if len(s.ParentInfo) > 0 {
 		m += banner2
-		m += "\n  Parent Func Info"
+		m += "\n  Parent Context Info"
 		m += banner2
 
 		for _, bi := range s.ParentInfo {
@@ -275,24 +304,39 @@ func (s SpecErr) Error() string {
 			}
 		}
 
-		m += banner2
-		m += "\n  Error Time"
-		m += banner2
-		dt := DateTimeUtility{}
-		m += fmt.Sprintf("\n  Error Time UTC: %v \n", dt.GetDateTimeTzNanoSecYMDDowText(s.ErrorMsgTimeUTC))
-		m += fmt.Sprintf("\nError Time Local: %v \n", dt.GetDateTimeTzNanoSecYMDDowText(s.ErrorMsgTimeLocal))
-		localTz := s.ErrorLocalTimeZone
-
-		if localTz == "Local" || localTz == "local" {
-			localZone, _ := time.Now().Zone()
-			localTz += " - " + localZone
-		}
-
-		m += fmt.Sprintf("\nLocal Time Zone : %v \n", localTz)
-		m += banner1
 		m += "\n"
-
 	}
+
+	if s.BaseInfo.SourceFileName != "" ||
+			s.BaseInfo.FuncName != "" ||
+				s.BaseInfo.ParentObjectName != "" ||
+					s.BaseInfo.BaseErrorID != 0 {
+
+		m += banner2
+		m += "\nCurrent Context Info"
+		m += banner2
+
+		m += "\n Source File: " + s.BaseInfo.SourceFileName +"  ParentObj: " + s.BaseInfo.ParentObjectName + "  FuncName: " + s.BaseInfo.FuncName
+		m += "\n BaseErrorID: " + string(s.BaseInfo.BaseErrorID)
+		m += "\n"
+	}
+
+	m += banner2
+	m += "\n  Error Time"
+	m += banner2
+	dt := DateTimeUtility{}
+	m += fmt.Sprintf("\n  Error Time UTC: %v \n", dt.GetDateTimeTzNanoSecYMDDowText(s.ErrorMsgTimeUTC))
+	m += fmt.Sprintf("\nError Time Local: %v \n", dt.GetDateTimeTzNanoSecYMDDowText(s.ErrorMsgTimeLocal))
+	localTz := s.ErrorLocalTimeZone
+
+	if localTz == "Local" || localTz == "local" {
+		localZone, _ := time.Now().Zone()
+		localTz += " - " + localZone
+	}
+
+	m += fmt.Sprintf("\nLocal Time Zone : %v \n", localTz)
+	m += banner1
+	m += "\n"
 
 	return m
 }
@@ -364,7 +408,7 @@ func (s SpecErr) New(prefix string, err error, errType SpecErrMsgType, errNo int
 		BaseInfo:   s.BaseInfo.DeepCopyBaseInfo(),
 	}
 
-	x.SetErrorMsg(prefix, err, errType, errNo)
+	x.SetError(prefix, err, errType, errNo)
 
 	return x
 }
@@ -389,9 +433,23 @@ func (s SpecErr) New(prefix string, err error, errType SpecErrMsgType, errNo int
 //									will be displayed in the final error message.
 //
 func (s SpecErr) NewErrorMsgString(prefix string, errMsg string, errType SpecErrMsgType, errNo int64 ) SpecErr {
+
+	if errType == SpecErrTypeERROR ||
+			errType == SpecErrTypeFATAL {
+
 		er := errors.New(errMsg)
 
 		return s.New(prefix, er, errType, errNo)
+	}
+
+	se := SpecErr{
+		ParentInfo: s.DeepCopyParentInfo(s.ParentInfo),
+		BaseInfo:   s.BaseInfo.DeepCopyBaseInfo(),
+	}
+
+	se.SetErrorWithMessage(prefix, errMsg, errType, errNo)
+
+	return se
 }
 
 // Panic - Executes 'panic' command
@@ -414,7 +472,10 @@ func (s *SpecErr) PanicOnSpecErr(eSpec SpecErr) {
 // SignalNoErrors - Returns a SpecErr
 // structure with IsErr set to false.
 func (s SpecErr) SignalNoErrors() SpecErr {
-	return SpecErr{IsErr: false, IsPanic: false}
+	//return SpecErr{IsErr: false, IsPanic: false}
+	se := SpecErr{}
+	se.SetSuccessfulCompletion()
+	return se
 }
 
 // SetBaseInfo - Sets the SpecErr ErrBaseInfo internal
@@ -424,10 +485,17 @@ func (s *SpecErr) SetBaseInfo(bi ErrBaseInfo) {
 	s.BaseInfo = bi.NewBaseInfo()
 }
 
-func (s *SpecErr) SetErrorMsg(prefix string, err error, errType SpecErrMsgType, errNo int64) {
+// SetError - Sets the error message for the current or host SpecErr object.
+func (s *SpecErr) SetError(prefix string, err error, errType SpecErrMsgType, errNo int64) {
+
+	if errType == SpecErrTypeSUCCESSFULCOMPLETION {
+		s.SetSuccessfulCompletion()
+		return
+	}
+
 	s.IsPanic = false
 
-	if errType == ErrTypeFATAL {
+	if errType == SpecErrTypeFATAL {
 		s.IsPanic = true
 	}
 
@@ -444,8 +512,8 @@ func (s *SpecErr) SetErrorMsg(prefix string, err error, errType SpecErrMsgType, 
 
 		s.ErrMsg = err.Error()
 
-		if errType == ErrTypeFATAL ||
-			errType == ErrTypeERROR {
+		if errType == SpecErrTypeFATAL ||
+			errType == SpecErrTypeERROR {
 			s.IsErr = true
 		} else {
 			s.IsErr = false
@@ -457,8 +525,51 @@ func (s *SpecErr) SetErrorMsg(prefix string, err error, errType SpecErrMsgType, 
 		s.IsPanic = false
 	}
 
+
 	s.SetTime("Local")
 
+}
+
+// SetErrorWithMessage - Configures the current or host SpecErr object according to
+// input parameters and an error message string.
+func (s *SpecErr) SetErrorWithMessage(prefix string, errMsg string, errType SpecErrMsgType, errNo int64 ) {
+
+	if errType == SpecErrTypeERROR || errType== SpecErrTypeFATAL {
+		err := errors.New(errMsg)
+		s.SetError(prefix, err, errType, errNo)
+		return
+	}
+
+	if errType == SpecErrTypeSUCCESSFULCOMPLETION {
+		s.SetSuccessfulCompletion()
+		return
+	}
+
+	s.ErrorMsgType = errType
+	s.IsErr = false
+	s.IsPanic = false
+	s.ErrMsg = errMsg
+	s.PrefixMsg = prefix
+
+	if errNo == 0 {
+		s.ErrNo = 0
+	} else {
+		s.ErrNo = errNo + s.BaseInfo.BaseErrorID
+	}
+
+}
+
+// SetSuccessfulCompletion - Sets values for the current
+// or host SpecErr object to reflect successful completion
+// of the operation.
+func (s *SpecErr) SetSuccessfulCompletion() {
+	s.IsErr = false
+	s.IsPanic = false
+	s.ErrorMsgType = SpecErrTypeSUCCESSFULCOMPLETION
+	s.ErrMsg = "Successful Completion!"
+	s.ErrNo = 0
+	s.PrefixMsg = ""
+	s.SetTime("Local")
 }
 
 // SetErrorLabel - If an Error Message Label is needed

@@ -9,7 +9,7 @@ func TestErrMsgType_String001(t *testing.T) {
 
 	var r SpecErrMsgType
 
-	r = ErrTypeNOERRORSALLCLEAR
+	r = SpecErrTypeNOERRORSALLCLEAR
 
 	var s string
 
@@ -25,7 +25,7 @@ func TestErrMsgType_String002(t *testing.T) {
 
 	var r SpecErrMsgType
 
-	r = ErrTypeFATAL
+	r = SpecErrTypeFATAL
 
 	var s string
 
@@ -41,7 +41,7 @@ func TestErrMsgType_String003(t *testing.T) {
 
 	var r SpecErrMsgType
 
-	r = ErrTypeERROR
+	r = SpecErrTypeERROR
 
 	var s string
 
@@ -57,7 +57,7 @@ func TestErrMsgType_String004(t *testing.T) {
 
 	var r SpecErrMsgType
 
-	r = ErrTypeWARNING
+	r = SpecErrTypeWARNING
 
 	var s string
 
@@ -73,7 +73,7 @@ func TestErrMsgType_String005(t *testing.T) {
 
 	var r SpecErrMsgType
 
-	r = ErrTypeInfo
+	r = SpecErrTypeINFO
 
 	var s string
 
@@ -85,6 +85,24 @@ func TestErrMsgType_String005(t *testing.T) {
 
 }
 
+func TestErrMsgType_String006(t *testing.T) {
+
+	var r SpecErrMsgType
+
+	r = SpecErrTypeSUCCESSFULCOMPLETION
+
+	var s string
+
+	s = r.String()
+
+	if s != "SUCCESS" {
+		t.Errorf("Expected string 'SUCCESS'. Instead got %v", s)
+	}
+
+}
+
+
+
 
 func TestErrMsgType_Value001(t *testing.T) {
 
@@ -92,12 +110,12 @@ func TestErrMsgType_Value001(t *testing.T) {
 
 	var i int
 
-	r = ErrTypeNOERRORSALLCLEAR
+	r = SpecErrTypeNOERRORSALLCLEAR
 
 	i = int(r)
 
 	if r != 0 {
-		t.Errorf("Expected ErrTypeNOERRORSALLCLEAR value = ZERO (0). Instead got %v", i)
+		t.Errorf("Expected SpecErrTypeNOERRORSALLCLEAR value = ZERO (0). Instead got %v", i)
 	}
 
 }
@@ -108,12 +126,12 @@ func TestErrMsgType_Value002(t *testing.T) {
 
 	var i int
 
-	r = ErrTypeFATAL
+	r = SpecErrTypeFATAL
 
 	i = int(r)
 
 	if r != 1 {
-		t.Errorf("Expected ErrTypeFATAL value = 1. Instead got %v", i)
+		t.Errorf("Expected SpecErrTypeFATAL value = 1. Instead got %v", i)
 	}
 
 }
@@ -124,12 +142,12 @@ func TestErrMsgType_Value003(t *testing.T) {
 
 	var i int
 
-	r = ErrTypeERROR
+	r = SpecErrTypeERROR
 
 	i = int(r)
 
 	if r != 2 {
-		t.Errorf("Expected ErrTypeERROR value = 2. Instead got %v", i)
+		t.Errorf("Expected SpecErrTypeERROR value = 2. Instead got %v", i)
 	}
 
 }
@@ -140,12 +158,12 @@ func TestErrMsgType_Value004(t *testing.T) {
 
 	var i int
 
-	r = ErrTypeWARNING
+	r = SpecErrTypeWARNING
 
 	i = int(r)
 
 	if r != 3 {
-		t.Errorf("Expected ErrTypeWARNING value = 3. Instead got %v", i)
+		t.Errorf("Expected SpecErrTypeWARNING value = 3. Instead got %v", i)
 	}
 
 }
@@ -156,12 +174,38 @@ func TestErrMsgType_Value005(t *testing.T) {
 
 	var i int
 
-	r = ErrTypeInfo
+	r = SpecErrTypeINFO
 
 	i = int(r)
 
 	if r != 4 {
-		t.Errorf("Expected ErrTypeInfo value = 4. Instead got %v", i)
+		t.Errorf("Expected SpecErrTypeINFO value = 4. Instead got %v", i)
 	}
 
 }
+
+func TestErrMsgType_Value006(t *testing.T) {
+
+	var r SpecErrMsgType
+
+	var i int
+
+	r = SpecErrTypeSUCCESSFULCOMPLETION
+
+	i = int(r)
+
+	if r != 5 {
+		t.Errorf("Expected SpecErrTypeSUCCESSFULCOMPLETION value = 5. Instead got %v", i)
+	}
+
+}
+
+func TestErrMsgType_Initialization001(t *testing.T) {
+	se := SpecErr{}
+
+	if se.ErrorMsgType != SpecErrTypeNOERRORSALLCLEAR {
+		t.Error("Exppected uninitialized SpecErr object to set se.ErrMsgType=='SpecErrTypeNOERRORSALLCLEAR'. It did NOT! ")
+	}
+
+}
+

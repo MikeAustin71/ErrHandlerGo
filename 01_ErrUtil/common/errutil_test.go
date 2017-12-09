@@ -23,7 +23,7 @@ func TestErrorUtility_01(t *testing.T) {
 	a := make([]ErrBaseInfo, 0, 10)
 	bi := ErrBaseInfo{}.New(ex1, ex1ParentObj, ex2, ex3)
 	se := SpecErr{}.InitializeBaseInfo(a, bi)
-	x := se.New(ex4, err, ErrTypeFATAL, ex5)
+	x := se.New(ex4, err, SpecErrTypeFATAL, ex5)
 
 	if x.PrefixMsg != ex4 {
 		t.Error(fmt.Sprintf("Expected '%v' got", ex4), x.PrefixMsg)
@@ -172,7 +172,7 @@ func TestSetErrDetail(t *testing.T) {
 	a := make([]ErrBaseInfo, 0, 10)
 	bi := ErrBaseInfo{}.New(ex1, ex1ParentObj, ex2, ex3)
 
-	x := SpecErr{}.InitializeBaseInfo(a, bi).New(ex4, err, ErrTypeFATAL, ex5)
+	x := SpecErr{}.InitializeBaseInfo(a, bi).New(ex4, err, SpecErrTypeFATAL, ex5)
 
 	if x.ErrNo != ex7 {
 		t.Error(fmt.Sprintf("Expected Err No '%v', got", ex7), x.ErrNo)
@@ -211,7 +211,7 @@ func TestIsSpecErrYes(t *testing.T) {
 
 	err := errors.New(ex99)
 
-	x := SpecErr{}.New(ex1, err, ErrTypeFATAL, ex4)
+	x := SpecErr{}.New(ex1, err, SpecErrTypeFATAL, ex4)
 
 	isErr := x.CheckIsSpecErr()
 
@@ -236,7 +236,7 @@ func TestQuickInitialize(t *testing.T) {
 	err := errors.New(ex2)
 	ex4 := int64(499)
 
-	x := SpecErr{}.New(ex1, err, ErrTypeERROR, ex4)
+	x := SpecErr{}.New(ex1, err, SpecErrTypeERROR, ex4)
 
 	if x.ErrNo != ex4 {
 		t.Error(fmt.Sprintf("Expected ErrNo: '%v', got", ex4), x.ErrNo)
@@ -279,7 +279,7 @@ func TestFullInitialize(t *testing.T) {
 	ex6 := int64(22)
 	ex7 := int64(16022)
 
-	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, ErrTypeERROR, ex6)
+	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, SpecErrTypeERROR, ex6)
 
 	pl := len(x.ParentInfo)
 
@@ -333,7 +333,7 @@ func TestBlankInitialize(t *testing.T) {
 	ex3 := false
 	ex4 := int64(22)
 
-	x := SpecErr{}.Initialize(blankParentInfo, blankErrBaseInfo, ex1, err, ErrTypeERROR, ex4)
+	x := SpecErr{}.Initialize(blankParentInfo, blankErrBaseInfo, ex1, err, SpecErrTypeERROR, ex4)
 
 	if x.PrefixMsg != ex1 {
 		t.Error(fmt.Sprintf("Expected PrefixMsg '%v', got", ex1), x.PrefixMsg)
@@ -392,7 +392,7 @@ func TestAddBaseInfoToParent(t *testing.T) {
 	ex5 := false
 	ex6 := int64(22)
 
-	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, ErrTypeERROR, ex6)
+	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, SpecErrTypeERROR, ex6)
 
 	pl := len(x.ParentInfo)
 
@@ -436,7 +436,7 @@ func TestSpecErr_CheckIsSpecErr(t *testing.T) {
 	err := errors.New(ex4)
 	ex6 := int64(22)
 
-	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, ErrTypeERROR, ex6)
+	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, SpecErrTypeERROR, ex6)
 
 	result := x.CheckIsSpecErr()
 
@@ -467,7 +467,7 @@ func TestSpecErr_CheckIsSpecErrPanic(t *testing.T) {
 	err := errors.New(ex4)
 	ex6 := int64(22)
 
-	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, ErrTypeERROR, ex6)
+	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, SpecErrTypeERROR, ex6)
 
 	x.IsPanic = true
 
@@ -485,7 +485,7 @@ func TestSpecErr_NewErrorMsgString_01(t *testing.T) {
 	isPanic := false
 	errNo := int64(22)
 
-	s :=  SpecErr{}.NewErrorMsgString(prefixString, errMsg, ErrTypeERROR, errNo)
+	s :=  SpecErr{}.NewErrorMsgString(prefixString, errMsg, SpecErrTypeERROR, errNo)
 
 	if s.ErrMsg != errMsg {
 		t.Errorf("Expected Error Message= '%v'.  Instead, Error Message = '%v'", errMsg, s.ErrMsg)
@@ -503,7 +503,7 @@ func TestSpecErr_NewErrorMsgString_02(t *testing.T) {
 	isPanic := false
 	errNo := int64(0)
 
-	s :=  SpecErr{}.NewErrorMsgString(prefixString, errMsg, ErrTypeERROR, errNo)
+	s :=  SpecErr{}.NewErrorMsgString(prefixString, errMsg, SpecErrTypeERROR, errNo)
 
 	if s.ErrMsg != errMsg {
 		t.Errorf("Expected Error Message= '%v'.  Instead, Error Message = '%v'", errMsg, s.ErrMsg)
@@ -529,7 +529,7 @@ func TestSpecErr_SetErrorMessageLabel(t *testing.T) {
 	errMsg := "This is the Error Msg!"
 	errNo := int64(0)
 
-	s :=  SpecErr{}.NewErrorMsgString(prefixString, errMsg, ErrTypeERROR, errNo)
+	s :=  SpecErr{}.NewErrorMsgString(prefixString, errMsg, SpecErrTypeERROR, errNo)
 
 	s.SetErrorMessageLabel("StdOut Error")
 
@@ -552,7 +552,7 @@ func TestSpecErr_ConfigureParentInfoFromParentSpecErr01(t *testing.T) {
 
 	e := errors.New("This is the error message")
 
-	se := SpecErr{}.Initialize(parentInfo, baseInfo,"Error Prefix", e, ErrTypeFATAL, 553 )
+	se := SpecErr{}.Initialize(parentInfo, baseInfo,"Error Prefix", e, SpecErrTypeFATAL, 553 )
 
 	baseInfo2 := bi.New("TestSrcFileName7", "TestObject7", "TestFuncName7", 7000)
 
@@ -564,7 +564,7 @@ func TestSpecErr_ConfigureParentInfoFromParentSpecErr01(t *testing.T) {
 
 	e2 := errors.New("This is Error Message # 2")
 
-	se2.SetErrorMsg("Prefix2", e2, ErrTypeERROR, 902)
+	se2.SetError("Prefix2", e2, SpecErrTypeERROR, 902)
 
 	if len(se2.ParentInfo) != 6 {
 

@@ -304,29 +304,29 @@ func (opsMsg *OpsMsgDto) NewMsgFromSpecErrMsg(se SpecErr) OpsMsgDto {
 
 	om := OpsMsgDto{}
 
-	if se.ErrorMsgType == ErrTypeFATAL {
+	if se.ErrorMsgType == SpecErrTypeFATAL {
 		om.MsgType = OpsMsgTypeERRORMSG
 		om.MsgClass = OpsMsgClassFATAL
 		om.ErrDto = se
 
-	} else if se.ErrorMsgType == ErrTypeERROR {
+	} else if se.ErrorMsgType == SpecErrTypeERROR {
 		om.MsgType = OpsMsgTypeERRORMSG
 		om.MsgClass = OpsMsgClassOPERROR
 		om.ErrDto = se
 
-	} else if se.ErrorMsgType == ErrTypeWARNING {
+	} else if se.ErrorMsgType == SpecErrTypeWARNING {
 
 		om.MsgType = OpsMsgTypeWARNINGMSG
 		om.MsgClass = OpsMsgClassWARNING
 		om.ErrDto = se
 
-	} else if se.ErrorMsgType == ErrTypeInfo {
+	} else if se.ErrorMsgType == SpecErrTypeINFO {
 
 		om.MsgType = OpsMsgTypeINFOMSG
 		om.MsgClass = OpsMsgClassINFO
 		om.ErrDto = se
 
-	} else if se.ErrorMsgType == ErrTypeNOERRORSALLCLEAR {
+	} else if se.ErrorMsgType == SpecErrTypeNOERRORSALLCLEAR {
 		om.MsgType = OpsMsgTypeNOERRORNOMSG
 		om.MsgClass = OpsMsgClassNOERRORSNOMESSAGES
 		om.ErrDto = se
