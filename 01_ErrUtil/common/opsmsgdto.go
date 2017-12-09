@@ -98,15 +98,29 @@ func (opsMsg *OpsMsgDto) AddParentContextHistory(parent []OpsMsgContextInfo) {
 	return
 }
 
-// AddParentContextHistoryFromOpsMsgDto - Receives an OpsMsgDto object as
-// an input parameter ('opsMsg2'). The parent context history from this second OpsMsgDto
-// object ('opsMsg2') is added to the parent history of the current or host OpsMsgDto
-// Object. In addition, the MsgContext object from 'opsMsg2' is also added to the
-// parent history of the current or host OpsMsgDto Object.
-func (opsMsg *OpsMsgDto) AddParentContextHistoryFromOpsMsgDto(opsMsg2 OpsMsgDto) {
-	opsMsg.AddParentContextHistory(opsMsg2.ParentContextHistory)
-	opsMsg.ParentContextHistory = append(opsMsg.ParentContextHistory, opsMsg2.DeepCopyMsgContext())
+// AddOpsMsgContextInfoToParentHistory - Adds an OpsMsgContextInfo object to the Parent
+// Context History maintained by the current or host OpsMsgDto object.
+func (opsMsg *OpsMsgDto) AddOpsMsgContextInfoToParentHistory(newContextInfo OpsMsgContextInfo) {
+	ci := newContextInfo.DeepCopyOpsMsgContextInfo()
+	opsMsg.ParentContextHistory = append(opsMsg.ParentContextHistory, ci)
+}
 
+// ConfigureContextHistoryFromParentOpsMsgDto - Receives an OpsMsgDto object as
+// an input parameter ('parentOpsMsgDto'). The parent context history from this
+// second OpsMsgDto object ('parentOpsMsgDto') is added to the parent history
+// of the current or host OpsMsgDto Object. In addition, the MsgContext object
+// from 'parentOpsMsgDto' is also added to the parent history of the current
+// or host OpsMsgDto Object.
+func (opsMsg *OpsMsgDto) ConfigureContextHistoryFromParentOpsMsgDto(parentOpsMsgDto OpsMsgDto) {
+	opsMsg.AddParentContextHistory(parentOpsMsgDto.ParentContextHistory)
+	opsMsg.ParentContextHistory = append(opsMsg.ParentContextHistory, parentOpsMsgDto.DeepCopyMsgContext())
+
+}
+
+// ConfigureMessageContext - Sets MsgContext for the current or host OpsMsgDto object
+// to the input parameter 'newMsgContext'
+func (opsMsg *OpsMsgDto) ConfigureMessageContext(newMsgContext OpsMsgContextInfo) {
+	opsMsg.MsgContext = newMsgContext.DeepCopyOpsMsgContextInfo()
 }
 
 // DeepCopyOpsMsgContextInfo - Returns a deep copy of the
