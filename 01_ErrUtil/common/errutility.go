@@ -167,6 +167,25 @@ func (s *SpecErr) CheckIsSpecErr() bool {
 
 }
 
+// ConfigureParentInfoFromParentSpecErr - Receives a SpecErr object
+// as input parameter ('parentSpecErr'). The ParentInfo array from
+// 'parentSpecErr' object is added to the current or host SpecErr
+// object. In addition the 'parentSpecErr' BaseInfo object is also
+// added to the current or host ParentInfo array
+func (s *SpecErr) ConfigureParentInfoFromParentSpecErr(parentSpecErr SpecErr) {
+
+	s.AddParentInfo(parentSpecErr.ParentInfo)
+
+	s.ParentInfo = append(s.ParentInfo, parentSpecErr.DeepCopyBaseInfo())
+
+}
+
+// ConfigureBaseInfo - Sets 'BaseInfo' for the current or host
+// SpecErr object to the input parameter 'newBaseInfo'
+func (s *SpecErr) ConfigureBaseInfo(newBaseInfo ErrBaseInfo) {
+	s.BaseInfo = newBaseInfo.DeepCopyBaseInfo()
+}
+
 // CheckIsSpecErrPanic - Returns 'true' if
 // SpecErr object is configured as a panic
 // error.
