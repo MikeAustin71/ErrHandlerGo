@@ -551,7 +551,7 @@ func TestSpecErr_ConfigureParentInfoFromParentSpecErr01(t *testing.T) {
 
 	baseInfo := bi.New("TestSrcFileName6", "TestObject6", "TestFuncName6", 6000)
 
-	parentInfo := createSpecErrParentBaseInfo5Elements()
+	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
 
 	e := errors.New("This is the error message")
 
@@ -600,7 +600,7 @@ func TestSpecErr_InitializeBaseInfoWithSpecErr01(t *testing.T) {
 
 	baseInfo := bi.New("TestSrcFileName6", "TestObject6", "TestFuncName6", 6000)
 
-	parentInfo := createSpecErrParentBaseInfo5Elements()
+	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
 
 	e := errors.New("This is the error message")
 
@@ -650,7 +650,7 @@ func TestSpecErr_NewInfoMsgString01(t *testing.T) {
 
 	baseInfo := bi.New("TestSrcFileName6", "TestObject6", "TestFuncName6", 6000)
 
-	parentInfo := createSpecErrParentBaseInfo5Elements()
+	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
 
 	e := errors.New("This is an error message #1")
 
@@ -700,7 +700,7 @@ func TestSpecErr_NewWarningMsgString01(t *testing.T) {
 
 	baseInfo := bi.New("TestSrcFileName6", "TestObject6", "TestFuncName6", 6000)
 
-	parentInfo := createSpecErrParentBaseInfo5Elements()
+	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
 
 	e := errors.New("This is an error message #1")
 
@@ -744,7 +744,45 @@ func TestSpecErr_NewWarningMsgString01(t *testing.T) {
 
 }
 
-func createSpecErrParentBaseInfo5Elements() []ErrBaseInfo {
+func TestSpecErr_SetStdError(t *testing.T) {
+	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
+	currBaseInfo := testCreateSpecErrBaseInfoObject()
+	xMsg := "This is error msg 1"
+	xPrefix := "Prefix1"
+	xType := SpecErrTypeERROR
+
+	se := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
+
+	se.SetStdError(xPrefix,xMsg, 822)
+
+	if len(se.ParentInfo) != 5 {
+		t.Errorf("Expected length of se.ParentInfo array == 5. Instead, array length == '%v'", len(se.ParentInfo))
+	}
+
+	if se.ParentInfo[4].ParentObjectName != "TestObject5" {
+		t.Errorf("Expected se2.ParentInfo[5].ParentObjectName != 'TestObject5'. Instead ObjectName='%v'", se.ParentInfo[4].ParentObjectName)
+	}
+
+	if se.ErrNo != 6822 {
+		t.Errorf("Expected se.ErrNo== 6822.  Instead, se.ErrNo== '%v'", se.ErrNo)
+	}
+
+	msg := se.Error()
+
+	if !strings.Contains(msg,xMsg){
+		t.Errorf("Expected final error message to contain '%v'.  Instead it did NOT!", xMsg)
+	}
+
+	if !strings.Contains(msg, xPrefix) {
+		t.Errorf("Expected final error message to contain '%v'.  Instead, it did NOT!", xPrefix)
+	}
+
+	if se.ErrorMsgType != xType {
+		t.Errorf("Expected SpeErrType= '%v'. Instead, got '%v'",xType, se.ErrorMsgType)
+	}
+}
+
+func testCreateSpecErrParentBaseInfo5Elements() []ErrBaseInfo {
 	parentBaseInfo := make([]ErrBaseInfo, 0, 10)
 	bi := ErrBaseInfo{}
 
@@ -758,4 +796,13 @@ func createSpecErrParentBaseInfo5Elements() []ErrBaseInfo {
 
 
 	return parentBaseInfo
+}
+
+
+func testCreateSpecErrBaseInfoObject() ErrBaseInfo {
+	bi := ErrBaseInfo{}
+
+	a := bi.New("TestSrcFileName6", "TestObject6", "TestFuncName6", 6000)
+
+	return a
 }

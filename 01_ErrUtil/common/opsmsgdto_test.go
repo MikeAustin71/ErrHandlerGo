@@ -31,7 +31,7 @@ func TestOpsMsgDto_ParentHistory_01(t *testing.T) {
 
 func TestOpsMsgDto_ParentHistory_02(t *testing.T) {
 
-	parent := createTestParentHistory()
+	parent := testCreateOpsMsgDtoParentHistory()
 
 	om := OpsMsgDto{}
 	om.AddParentContextHistory(parent)
@@ -53,7 +53,7 @@ func TestOpsMsgDto_ParentHistory_02(t *testing.T) {
 }
 
 
-func createTestParentHistory() []OpsMsgContextInfo {
+func testCreateOpsMsgDtoParentHistory() []OpsMsgContextInfo {
 	ci := OpsMsgContextInfo{}
 
 	x1 := ci.New("TSource01", "PObj01", "Func001", 1000)

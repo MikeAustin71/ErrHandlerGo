@@ -171,6 +171,9 @@ func (s *SpecErr) CheckIsSpecErr() bool {
 
 }
 
+// ConfigureContext - Receives a 'SpecErr' object and a 'ErrBaseInfo' object
+// which are used to populate the current SpecErr fields, 'ParentInfo'
+// and 'BaseInfo'.
 func (s *SpecErr) ConfigureContext(parentSpecErr SpecErr, newBaseInfo ErrBaseInfo) {
 	s.ConfigureParentInfoFromParentSpecErr(parentSpecErr)
 	s.ConfigureBaseInfo(newBaseInfo)
@@ -227,35 +230,83 @@ func (s *SpecErr) DeepCopyParentInfo(pi []ErrBaseInfo) []ErrBaseInfo {
 	return a
 }
 
+// Empty - Sets all data fields in the current or host SpecErr
+// object to an uninitialized or 'empty' state.
+func (s *SpecErr) Empty() {
+
+	s.ParentInfo  = make([]ErrBaseInfo, 0, 20)
+	s.BaseInfo 						= ErrBaseInfo{}
+	s.ErrorMsgTimeUTC 		= time.Time{}
+	s.ErrorMsgTimeLocal 	= time.Time{}
+	s.ErrorLocalTimeZone 	= ""
+	s.ErrorMsgType				= SpecErrTypeNOERRORSALLCLEAR
+	s.IsErr              	= false
+	s.IsPanic            	= false
+	s.PrefixMsg          	= ""
+	s.ErrMsgLabel        	= ""
+	s.ErrMsg             	= ""
+	s.ErrNo              	= int64(0)
+}
+
+// EmptyMsgData - Sets all data fields except 'ParentInfo'
+// and 'BaseInfo' to an uninitialized or 'empty' state.
+func (s *SpecErr) EmptyMsgData() {
+	s.ErrorMsgTimeUTC 		= time.Time{}
+	s.ErrorMsgTimeLocal 	= time.Time{}
+	s.ErrorLocalTimeZone 	= ""
+	s.ErrorMsgType				= SpecErrTypeNOERRORSALLCLEAR
+	s.IsErr              	= false
+	s.IsPanic            	= false
+	s.PrefixMsg          	= ""
+	s.ErrMsgLabel        	= ""
+	s.ErrMsg             	= ""
+	s.ErrNo              	= int64(0)
+}
+
+
 // Error - Implements Error Interface.
 // Call this method to produce the error
 // message as a string.
 func (s SpecErr) Error() string {
 
-	var banner1, banner2, mTitle, m string
+	var banner1, banner2, mTitle, noTitle, m string
 
 
 	if s.ErrorMsgType == SpecErrTypeNOERRORSALLCLEAR {
 		return "No Errors - No Messages"
+
 	} else if	s.ErrorMsgType == SpecErrTypeINFO {
 
 		banner1 = "\n" + strings.Repeat("*", 78)
 		banner2 = "\n" + strings.Repeat("=", 78)
 		mTitle = "Information Message"
+		noTitle = "InfoMsgNo"
 	} else if s.ErrorMsgType == SpecErrTypeERROR ||
 		s.ErrorMsgType == SpecErrTypeFATAL {
 
 		banner1 = "\n" + strings.Repeat("!", 78)
 		banner2 = "\n" + strings.Repeat("-", 78)
 		mTitle = "Error Message"
+		noTitle = "ErrNo"
 	} else if s.ErrorMsgType == SpecErrTypeWARNING {
 		banner1 = "\n" + strings.Repeat("?", 78)
 		banner2 = "\n" + strings.Repeat("_", 78)
 		mTitle = "Warning Message"
+		noTitle = "WarningMsgNo"
 
 	} else {
 		// Must be successful completion message
-		return "Successful Completion!"
+
+		if s.ErrNo != 0 {
+			m = "\nMsgNo: " + string(s.ErrNo) + " "
+		} else {
+			m = "\n"
+		}
+
+		m +=  "Successful Completion!"
+
+		return m
+
 	}
 
 	m = "\n" + banner1
@@ -263,7 +314,7 @@ func (s SpecErr) Error() string {
 	m += banner2
 
 	if s.ErrNo != 0 {
-		m += fmt.Sprintf("\n  ErrNo: %v", s.ErrNo)
+		m += fmt.Sprintf("\n  %v: %v", noTitle, s.ErrNo)
 	}
 
 	if s.PrefixMsg != "" {
@@ -416,14 +467,34 @@ func (s SpecErr) Initialize(parent []ErrBaseInfo, bi ErrBaseInfo, prefix string,
 func (s SpecErr) New(prefix string, err error, errType SpecErrMsgType, errNo int64) SpecErr {
 
 
-	x := SpecErr{
+	se := SpecErr{
 		ParentInfo: s.DeepCopyParentInfo(s.ParentInfo),
 		BaseInfo:   s.BaseInfo.DeepCopyBaseInfo(),
 	}
 
-	x.SetError(prefix, err, errType, errNo)
+	errMsg := err.Error()
 
-	return x
+	switch errType {
+	case SpecErrTypeERROR:
+		se.SetStdError(prefix, errMsg, errNo)
+
+	case SpecErrTypeFATAL:
+		se.SetFatalErrMsg(prefix, errMsg, errNo)
+
+	case SpecErrTypeINFO:
+		se.SetInfoMessage(prefix, errMsg, errNo)
+
+	case SpecErrTypeWARNING:
+		se.SetWarningMessage(prefix, errMsg, errNo)
+
+	case SpecErrTypeSUCCESSFULCOMPLETION:
+		se.SetSuccessfulCompletion()
+
+	case SpecErrTypeNOERRORSALLCLEAR:
+		se.EmptyMsgData()
+	}
+
+	return se
 }
 
 // NewErrorMsgString - Creates a new error message
@@ -447,20 +518,30 @@ func (s SpecErr) New(prefix string, err error, errType SpecErrMsgType, errNo int
 //
 func (s SpecErr) NewErrorMsgString(prefix string, errMsg string, errType SpecErrMsgType, errNo int64 ) SpecErr {
 
-	if errType == SpecErrTypeERROR ||
-			errType == SpecErrTypeFATAL {
-
-		er := errors.New(errMsg)
-
-		return s.New(prefix, er, errType, errNo)
-	}
-
 	se := SpecErr{
 		ParentInfo: s.DeepCopyParentInfo(s.ParentInfo),
 		BaseInfo:   s.BaseInfo.DeepCopyBaseInfo(),
 	}
 
-	se.SetErrorWithMessage(prefix, errMsg, errType, errNo)
+	switch errType {
+	case SpecErrTypeERROR:
+		se.SetStdError(prefix, errMsg, errNo)
+
+	case SpecErrTypeFATAL:
+		se.SetFatalErrMsg(prefix, errMsg, errNo)
+
+	case SpecErrTypeINFO:
+		se.SetInfoMessage(prefix, errMsg, errNo)
+
+	case SpecErrTypeWARNING:
+		se.SetWarningMessage(prefix, errMsg, errNo)
+
+	case SpecErrTypeSUCCESSFULCOMPLETION:
+		se.SetSuccessfulCompletion()
+
+	case SpecErrTypeNOERRORSALLCLEAR:
+		se.EmptyMsgData()
+	}
 
 	return se
 }
@@ -539,14 +620,28 @@ func (s *SpecErr) SetError(prefix string, err error, errType SpecErrMsgType, err
 		s.IsPanic = false
 	}
 
-
 	s.SetTime("Local")
-
 }
+
+// SetErrorMessageLabel - If an Error Message Label is needed
+// the Error message, set the value Error Message Label
+// here.  This method merely sets the SpecErr string field,
+// SpecErr.ErrMsgLabel. Of course this field can also be
+// set directly with the use of this method.
+//
+// If the SpecErr.ErrMsgLabel is set to "StdOut Err", the
+// error message will be formatted as :
+// 						"StdOut Err: Your Error Message"
+func (s *SpecErr) SetErrorMessageLabel(errorMsgLabel string) {
+	s.ErrMsgLabel = errorMsgLabel
+}
+
 
 // SetErrorWithMessage - Configures the current or host SpecErr object according to
 // input parameters and an error message string.
 func (s *SpecErr) SetErrorWithMessage(prefix string, errMsg string, errType SpecErrMsgType, errNo int64 ) {
+
+	s.EmptyMsgData()
 
 	if errType == SpecErrTypeERROR || errType== SpecErrTypeFATAL {
 		err := errors.New(errMsg)
@@ -571,6 +666,52 @@ func (s *SpecErr) SetErrorWithMessage(prefix string, errMsg string, errType Spec
 		s.ErrNo = errNo + s.BaseInfo.BaseErrorID
 	}
 
+	s.SetTime("Local")
+}
+
+// SetFatalErrMsg - Sets the value of the current or host SpecErr object
+// to a FATAL error.  Both IsPanic IsErr are set to 'true'.
+func (s *SpecErr) SetFatalErrMsg(prefix string, errMsg string, errNo int64) {
+
+	s.EmptyMsgData()
+	newErr := errors.New(errMsg)
+	s.SetError(prefix,newErr, SpecErrTypeFATAL, errNo)
+
+}
+
+// SetInfoMessage - Sets the value of the current or host SpecErr object
+// to an 'Information' message.  IsPanic and IsErr are both set to 'false'.
+func (s *SpecErr) SetInfoMessage(prefix string, warningMsg string, msgNo int64) {
+	s.EmptyMsgData()
+	s.ErrorMsgType	= SpecErrTypeINFO
+	s.IsErr  = false
+	s.IsPanic = false
+	s.PrefixMsg = prefix
+	s.ErrMsg = warningMsg
+	s.ErrNo  = msgNo
+	s.SetTime("Local")
+
+}
+
+// SetParentInfo - Sets the ParentInfo Slice for
+// the current SpecErr structure
+func (s *SpecErr) SetParentInfo(parent []ErrBaseInfo) {
+	if len(parent) == 0 {
+		return
+	}
+
+	s.ParentInfo = s.DeepCopyParentInfo(parent)
+}
+
+// SetStdError - Sets the value of the current or host SpecErr object
+// to a Standard or non-fatal error. IsPanic is set to 'false' IsErr is
+// set to 'true'.
+func (s *SpecErr) SetStdError(prefix string, errMsg string, errNo int64) {
+
+	s.EmptyMsgData()
+	newErr := errors.New(errMsg)
+	s.SetError(prefix,newErr, SpecErrTypeERROR, errNo)
+
 }
 
 // SetSuccessfulCompletion - Sets values for the current
@@ -584,28 +725,6 @@ func (s *SpecErr) SetSuccessfulCompletion() {
 	s.ErrNo = 0
 	s.PrefixMsg = ""
 	s.SetTime("Local")
-}
-
-// SetErrorLabel - If an Error Message Label is needed
-// the Error message, set the value Error Message Label
-// here.  This method merely sets the SpecErr string field,
-// SpecErr.ErrMsgLabel. Of course this field can also be
-// set directly with the use of this method.
-//
-// If the SpecErr.ErrMsgLabel is set to "StdOut Err", the
-// error message will be formatted as :
-// 						"StdOut Err: Your Error Message"
-func (s *SpecErr) SetErrorMessageLabel(errorMsgLabel string) {
-	s.ErrMsgLabel = errorMsgLabel
-}
-// SetParentInfo - Sets the ParentInfo Slice for
-// the current SpecErr structure
-func (s *SpecErr) SetParentInfo(parent []ErrBaseInfo) {
-	if len(parent) == 0 {
-		return
-	}
-
-	s.ParentInfo = s.DeepCopyParentInfo(parent)
 }
 
 // SetTime - Sets the time stamp for this Error
@@ -635,6 +754,19 @@ func(s *SpecErr)SetTime(localTimeZone string){
 	tzLocal, _ := tz.ConvertTz(s.ErrorMsgTimeUTC, s.ErrorLocalTimeZone)
 	s.ErrorMsgTimeLocal = tzLocal.TimeOut
 
+}
+
+// SetWarningMessage - Sets the value of the current SpecErr object to a
+// 'Warning' Message. Both IsPanic and IsErr are set to 'false'
+func (s *SpecErr) SetWarningMessage(prefix string, warningMsg string, msgNo int64) {
+	s.EmptyMsgData()
+	s.ErrorMsgType	= SpecErrTypeWARNING
+	s.IsErr  = false
+	s.IsPanic = false
+	s.PrefixMsg = prefix
+	s.ErrMsg = warningMsg
+	s.ErrNo  = msgNo
+	s.SetTime("Local")
 }
 
 // String - Returns the string message
