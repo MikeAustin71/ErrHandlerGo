@@ -87,6 +87,20 @@ func (b ErrBaseInfo) DeepCopyBaseInfo() ErrBaseInfo {
 	return ErrBaseInfo{SourceFileName: b.SourceFileName, ParentObjectName: b.ParentObjectName, FuncName: b.FuncName, BaseErrorID: b.BaseErrorID}
 }
 
+// Equal - Compares two ErrBaseInfo objectes to determine
+// if they are equivalent
+func (b *ErrBaseInfo) Equal(b2 *ErrBaseInfo) bool {
+
+	if b.SourceFileName != b2.SourceFileName ||
+		b.ParentObjectName != b2.ParentObjectName ||
+			b.FuncName != b2.FuncName ||
+				b.BaseErrorID != b2.BaseErrorID {
+					return false
+	}
+
+	return true
+}
+
 // GetBaseSpecErr - Returns an empty
 // SpecErr structure populated with
 // Base Error Info
@@ -171,6 +185,14 @@ func (s *SpecErr) CheckIsSpecErr() bool {
 
 }
 
+// CheckIsSpecErrPanic - Returns 'true' if
+// SpecErr object is configured as a panic
+// error.
+func (s *SpecErr) CheckIsSpecErrPanic() bool {
+
+	return s.IsPanic
+}
+
 // ConfigureContext - Receives a 'SpecErr' object and a 'ErrBaseInfo' object
 // which are used to populate the current SpecErr fields, 'ParentInfo'
 // and 'BaseInfo'.
@@ -198,12 +220,44 @@ func (s *SpecErr) ConfigureBaseInfo(newBaseInfo ErrBaseInfo) {
 	s.BaseInfo = newBaseInfo.DeepCopyBaseInfo()
 }
 
-// CheckIsSpecErrPanic - Returns 'true' if
-// SpecErr object is configured as a panic
-// error.
-func (s *SpecErr) CheckIsSpecErrPanic() bool {
+// CopyIn - Stores a copy of incoming SpecErr type.
+// Receives an incoming SpecErr type (s2),
+// creates a deep copy and stores the incoming
+// data in the current or host SpecErr object.
+func (s *SpecErr) CopyIn(s2 SpecErr) {
+	s.Empty()
+	s.ParentInfo         	= s2.DeepCopyParentInfo(s2.ParentInfo)
+	s.BaseInfo           	= s2.DeepCopyBaseInfo()
+	s.ErrorMsgTimeUTC    	= s2.ErrorMsgTimeUTC
+	s.ErrorMsgTimeLocal  	= s2.ErrorMsgTimeLocal
+	s.ErrorLocalTimeZone 	= s2.ErrorLocalTimeZone
+	s.ErrorMsgType				= s2.ErrorMsgType
+	s.IsErr              	= s2.IsErr
+	s.IsPanic            	= s2.IsPanic
+	s.PrefixMsg          	= s2.PrefixMsg
+	s.ErrMsgLabel        	= s2.ErrMsgLabel
+	s.ErrMsg             	= s2.ErrMsg
+	s.ErrNo              	= s2.ErrNo
+}
 
-	return s.IsPanic
+// CopyOut - Creates a deep copy of the
+// current or host SpecErr object and
+// returns the copy.
+func (s *SpecErr) CopyOut() SpecErr {
+
+	se := SpecErr{}.InitializeBaseInfo(s.ParentInfo, s.BaseInfo)
+	se.ErrorMsgTimeUTC    	= s.ErrorMsgTimeUTC
+	se.ErrorMsgTimeLocal  	= s.ErrorMsgTimeLocal
+	se.ErrorLocalTimeZone 	= s.ErrorLocalTimeZone
+	se.ErrorMsgType				= s.ErrorMsgType
+	se.IsErr              	= s.IsErr
+	se.IsPanic            	= s.IsPanic
+	se.PrefixMsg          	= s.PrefixMsg
+	se.ErrMsgLabel        	= s.ErrMsgLabel
+	se.ErrMsg             	= s.ErrMsg
+	se.ErrNo              	= s.ErrNo
+
+	return se
 }
 
 // DeepCopyOpsMsgContextInfo - Returns a deep copy of the
@@ -228,6 +282,41 @@ func (s *SpecErr) DeepCopyParentInfo(pi []ErrBaseInfo) []ErrBaseInfo {
 	}
 
 	return a
+}
+
+// Equal - Compares two SpecErr objects to
+// determine if they are equivalent.
+func (s *SpecErr) Equal( s2 *SpecErr) bool {
+
+	if len(s.ParentInfo) != len(s2.ParentInfo) {
+		return false
+	}
+
+	for i:= 0; i < len(s.ParentInfo); i++ {
+		if !s.ParentInfo[i].Equal(&s2.ParentInfo[i]) {
+			return false
+		}
+	}
+
+	if !s.BaseInfo.Equal(&s2.BaseInfo) {
+		return false
+	}
+
+	if 	s.ErrorMsgTimeUTC 		!= s2.ErrorMsgTimeUTC ||
+			s.ErrorMsgTimeLocal 	!= s2.ErrorMsgTimeLocal ||
+			s.ErrorLocalTimeZone 	!= s2.ErrorLocalTimeZone ||
+			s.ErrorMsgType 				!= s2.ErrorMsgType ||
+			s.IsErr								!= s2.IsErr ||
+			s.IsPanic							!= s2.IsPanic ||
+			s.PrefixMsg 					!= s2.PrefixMsg ||
+			s.ErrMsgLabel 				!= s2.ErrMsgLabel ||
+			s.ErrMsg 							!= s2.ErrMsg ||
+			s.ErrNo 							!= s2.ErrNo {
+
+				return false
+	}
+
+	return true
 }
 
 // Empty - Sets all data fields in the current or host SpecErr
@@ -268,6 +357,7 @@ func (s *SpecErr) EmptyMsgData() {
 // Call this method to produce the error
 // message as a string.
 func (s SpecErr) Error() string {
+
 
 	var banner1, banner2, mTitle, noTitle, m string
 
@@ -368,12 +458,10 @@ func (s SpecErr) Error() string {
 				m += fmt.Sprintf("  ErrorID: %v", bi.BaseErrorID)
 			}
 		}
-
-		//m += "\n"
 	}
 
 	m += banner2
-	m += "\n  Error Time"
+	m += "\n  Time Stamp"
 	m += banner2
 	dt := DateTimeUtility{}
 	dtfmt := "2006-01-02 Mon 15:04:05.000000000 -0700 MST"

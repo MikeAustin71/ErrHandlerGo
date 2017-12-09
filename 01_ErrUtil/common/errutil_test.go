@@ -870,6 +870,384 @@ func TestSpecErr_SetInfoMsg_01(t *testing.T) {
 	}
 }
 
+func TestSpecErr_SetWarningMsg_01(t *testing.T) {
+	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
+	currBaseInfo := testCreateSpecErrBaseInfoObject()
+	xMsg := "This is warning msg 1"
+	xPrefix := "Prefix1"
+	xType := SpecErrTypeWARNING
+
+	se := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
+
+	se.SetWarningMessage(xPrefix,xMsg, 822)
+
+	if len(se.ParentInfo) != 5 {
+		t.Errorf("Expected length of se.ParentInfo array == 5. Instead, array length == '%v'", len(se.ParentInfo))
+	}
+
+	if se.ParentInfo[4].ParentObjectName != "TestObject5" {
+		t.Errorf("Expected se2.ParentInfo[5].ParentObjectName != 'TestObject5'. Instead ObjectName='%v'", se.ParentInfo[4].ParentObjectName)
+	}
+
+	if se.ErrNo != 6822 {
+		t.Errorf("Expected se.ErrNo== 6822.  Instead, se.ErrNo== '%v'", se.ErrNo)
+	}
+
+	msg := se.Error()
+
+	if !strings.Contains(msg,xMsg){
+		t.Errorf("Expected final error message to contain '%v'.  Instead it did NOT!", xMsg)
+	}
+
+	if !strings.Contains(msg, xPrefix) {
+		t.Errorf("Expected final error message to contain '%v'.  Instead, it did NOT!", xPrefix)
+	}
+
+	str := se.String()
+
+	if str != msg {
+		t.Errorf("Compared Error() to String(). Results do not match. Error()= '%v' - String() = '%v'", msg, str)
+	}
+
+	if se.ErrorMsgType != xType {
+		t.Errorf("Expected SpeErrType= '%v'. Instead, got '%v'",xType, se.ErrorMsgType)
+	}
+}
+
+func TestSpecErr_CopyOut_01(t *testing.T) {
+
+	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
+	currBaseInfo := testCreateSpecErrBaseInfoObject()
+	xMsg := "This is information msg 1"
+	xPrefix := "Prefix1"
+
+	s := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
+
+	s.SetInfoMessage(xPrefix,xMsg, 822)
+
+	s2 := s.CopyOut()
+
+	if !s.Equal(&s2) {
+		t.Error("Expected after Copy Out s==s2. However, it did NOT!")
+	}
+
+}
+
+func TestSpecErr_CopyIn_01(t *testing.T) {
+
+	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
+	currBaseInfo := testCreateSpecErrBaseInfoObject()
+	xMsg := "This is information msg 1"
+	xPrefix := "Prefix1"
+
+	s := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
+
+	s.SetInfoMessage(xPrefix,xMsg, 822)
+
+	s2 := SpecErr{}
+
+	s2.CopyIn(s)
+
+	if !s.Equal(&s2) {
+		t.Error("Expected after CopyIn() s==s2. However, it did NOT!")
+	}
+
+}
+
+func TestSpecErr_Equal_01(t *testing.T) {
+
+	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
+	currBaseInfo := testCreateSpecErrBaseInfoObject()
+	xMsg := "This is information msg 1"
+	xPrefix := "Prefix1"
+
+	s := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
+
+	s.SetInfoMessage(xPrefix,xMsg, 822)
+
+	s2 := s.CopyOut()
+
+	s2.ParentInfo[1].FuncName = "XXXX"
+
+	if s.Equal(&s2) {
+		t.Error("Expected after changes to s2, s!=s2. However, s==s2!")
+	}
+
+}
+
+func TestSpecErr_Equal_02(t *testing.T) {
+
+	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
+	currBaseInfo := testCreateSpecErrBaseInfoObject()
+	xMsg := "This is information msg 1"
+	xPrefix := "Prefix1"
+
+	s := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
+
+	s.SetInfoMessage(xPrefix,xMsg, 822)
+
+	s2 := s.CopyOut()
+
+	s2.ParentInfo = s2.ParentInfo[0:2]
+
+	if s.Equal(&s2) {
+		t.Error("Expected after changes to s2, s!=s2. However, s==s2!")
+	}
+
+}
+
+func TestSpecErr_Equal_03(t *testing.T) {
+
+	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
+	currBaseInfo := testCreateSpecErrBaseInfoObject()
+	xMsg := "This is information msg 1"
+	xPrefix := "Prefix1"
+
+	s := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
+
+	s.SetInfoMessage(xPrefix,xMsg, 822)
+
+	s2 := s.CopyOut()
+
+	s2.BaseInfo.BaseErrorID = 90
+
+	if s.Equal(&s2) {
+		t.Error("Expected after changes to s2, s!=s2. However, s==s2!")
+	}
+
+}
+
+func TestSpecErr_Equal_04(t *testing.T) {
+
+	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
+	currBaseInfo := testCreateSpecErrBaseInfoObject()
+	xMsg := "This is information msg 1"
+	xPrefix := "Prefix1"
+
+	s := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
+
+	s.SetInfoMessage(xPrefix,xMsg, 822)
+
+	s2 := s.CopyOut()
+
+	s2.ErrorLocalTimeZone = "UTC"
+
+	if s.Equal(&s2) {
+		t.Error("Expected after changes to s2, s!=s2. However, s==s2!")
+	}
+
+}
+
+func TestSpecErr_Equal_05(t *testing.T) {
+
+	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
+	currBaseInfo := testCreateSpecErrBaseInfoObject()
+	xMsg := "This is information msg 1"
+	xPrefix := "Prefix1"
+
+	s := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
+
+	s.SetInfoMessage(xPrefix,xMsg, 822)
+
+	s2 := s.CopyOut()
+
+	s2.PrefixMsg = "xxx"
+
+	if s.Equal(&s2) {
+		t.Error("Expected after changes to s2, s!=s2. However, s==s2!")
+	}
+
+}
+
+func TestSpecErr_Equal_06(t *testing.T) {
+
+	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
+	currBaseInfo := testCreateSpecErrBaseInfoObject()
+	xMsg := "This is information msg 1"
+	xPrefix := "Prefix1"
+
+	s := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
+
+	s.SetInfoMessage(xPrefix,xMsg, 822)
+
+	s2 := s.CopyOut()
+
+	s2.ErrorMsgType = SpecErrTypeFATAL
+
+	if s.Equal(&s2) {
+		t.Error("Expected after changes to s2, s!=s2. However, s==s2!")
+	}
+
+}
+
+func TestSpecErr_Equal_07(t *testing.T) {
+
+	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
+	currBaseInfo := testCreateSpecErrBaseInfoObject()
+	xMsg := "This is information msg 1"
+	xPrefix := "Prefix1"
+
+	s := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
+
+	s.SetInfoMessage(xPrefix,xMsg, 822)
+
+	s2 := s.CopyOut()
+
+	s2.IsErr = true
+
+	if s.Equal(&s2) {
+		t.Error("Expected after changes to s2, s!=s2. However, s==s2!")
+	}
+
+}
+
+func TestSpecErr_Equal_08(t *testing.T) {
+
+	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
+	currBaseInfo := testCreateSpecErrBaseInfoObject()
+	xMsg := "This is information msg 1"
+	xPrefix := "Prefix1"
+
+	s := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
+
+	s.SetInfoMessage(xPrefix,xMsg, 822)
+
+	s2 := s.CopyOut()
+
+	s2.IsPanic = true
+
+	if s.Equal(&s2) {
+		t.Error("Expected after changes to s2, s!=s2. However, s==s2!")
+	}
+
+}
+
+func TestSpecErr_Equal_09(t *testing.T) {
+
+	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
+	currBaseInfo := testCreateSpecErrBaseInfoObject()
+	xMsg := "This is information msg 1"
+	xPrefix := "Prefix1"
+
+	s := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
+
+	s.SetInfoMessage(xPrefix,xMsg, 822)
+
+	s2 := s.CopyOut()
+
+	s2.ErrMsgLabel = "xxxx"
+
+	if s.Equal(&s2) {
+		t.Error("Expected after changes to s2, s!=s2. However, s==s2!")
+	}
+
+}
+
+func TestSpecErr_Equal_10(t *testing.T) {
+
+	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
+	currBaseInfo := testCreateSpecErrBaseInfoObject()
+	xMsg := "This is information msg 1"
+	xPrefix := "Prefix1"
+
+	s := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
+
+	s.SetInfoMessage(xPrefix,xMsg, 822)
+
+	s2 := s.CopyOut()
+
+	if !s.Equal(&s2) {
+		t.Error("Expected copying s to s2 , s==s2. However, s!=s2!")
+	}
+
+}
+
+
+func TestSpecErr_Empty_01(t *testing.T) {
+	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
+	currBaseInfo := testCreateSpecErrBaseInfoObject()
+	xMsg := "This is warning msg 1"
+	xPrefix := "Prefix1"
+
+	se := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
+
+	se.SetWarningMessage(xPrefix,xMsg, 822)
+
+	se.Empty()
+
+	if len(se.ParentInfo) != 0 {
+		t.Errorf("Expected length of se.ParentInfo array == 0. Instead, array length == '%v'", len(se.ParentInfo))
+	}
+
+	if se.ErrNo != 0 {
+		t.Errorf("Expected se.ErrNo== 0.  Instead, se.ErrNo== '%v'", se.ErrNo)
+	}
+
+	msg := se.Error()
+
+	if msg != "No Errors - No Messages"{
+		t.Errorf("Expected error message = 'No Errors - No Messages'.  Instead it did NOT! msg= '%v'", msg)
+	}
+
+
+	str := se.String()
+
+	if str != msg {
+		t.Errorf("Compared Error() to String(). Results do not match. Error()= '%v' - String() = '%v'", msg, str)
+	}
+
+	if se.ErrorMsgType != SpecErrTypeNOERRORSALLCLEAR {
+		t.Errorf("Expected SpeErrType= 'SpecErrTypeNOERRORSALLCLEAR'. Instead, got '%v'", se.ErrorMsgType)
+	}
+}
+
+func TestSpecErr_EmptyMsgData_01(t *testing.T) {
+	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
+	currBaseInfo := testCreateSpecErrBaseInfoObject()
+	xMsg := "This is warning msg 1"
+	xPrefix := "Prefix1"
+
+	se := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
+
+	se.SetWarningMessage(xPrefix,xMsg, 822)
+
+	se.EmptyMsgData()
+
+	if len(se.ParentInfo) != 5 {
+		t.Errorf("Expected length of se.ParentInfo array == 5. Instead, array length == '%v'", len(se.ParentInfo))
+	}
+
+	if se.ParentInfo[4].ParentObjectName != "TestObject5" {
+		t.Errorf("Expected se2.ParentInfo[5].ParentObjectName != 'TestObject5'. Instead ObjectName='%v'", se.ParentInfo[4].ParentObjectName)
+	}
+
+	if se.BaseInfo.FuncName != "TestFuncName6" {
+		t.Errorf("Expected se.BaseInfo.FuncName == 'TestFuncName6'. Instead FuncName= '%v'",se.BaseInfo.FuncName)
+	}
+
+	if se.ErrNo != 0 {
+		t.Errorf("Expected se.ErrNo== 0.  Instead, se.ErrNo== '%v'", se.ErrNo)
+	}
+
+	msg := se.Error()
+
+	if msg != "No Errors - No Messages"{
+		t.Errorf("Expected error message = 'No Errors - No Messages'.  Instead it did NOT! msg= '%v'", msg)
+	}
+
+
+	str := se.String()
+
+	if str != msg {
+		t.Errorf("Compared Error() to String(). Results do not match. Error()= '%v' - String() = '%v'", msg, str)
+	}
+
+	if se.ErrorMsgType != SpecErrTypeNOERRORSALLCLEAR {
+		t.Errorf("Expected SpeErrType= 'SpecErrTypeNOERRORSALLCLEAR'. Instead, got '%v'", se.ErrorMsgType)
+	}
+}
+
+
 func testCreateSpecErrParentBaseInfo5Elements() []ErrBaseInfo {
 	parentBaseInfo := make([]ErrBaseInfo, 0, 10)
 	bi := ErrBaseInfo{}
