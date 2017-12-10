@@ -368,6 +368,180 @@ func TestOpsMsgDto_SetInfoMessage_01(t *testing.T) {
 
 }
 
+func TestOpsMsgDto_SetWarningMessage_01(t *testing.T) {
+
+	om := testOpsMsgDtoCreateWarningMsg()
+
+	xMsg := "This is Warning Message for test object."
+	msgId := int64(67)
+	msgNo := int64(6067)
+	msgType := OpsMsgTypeWARNINGMSG
+	msgClass := OpsMsgClassWARNING
+
+	if om.MsgType != msgType {
+		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
+	}
+
+	if om.MsgClass != msgClass {
+		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om.MsgClass)
+	}
+
+	if om.IsError() != false {
+		t.Error("Expected Warning Message to generate IsError='false'. It did NOT! IsError='true'.")
+	}
+
+	if om.IsFatalError() != false {
+		t.Errorf("Expected Warning to generate IsFatalError()='false'. It did NOT! IsFatalError()='%v'", om.IsFatalError())
+	}
+
+	mId := om.GetMessageId()
+
+	if mId != msgId {
+		t.Errorf("Expected message id = '%v'. Instead message id = '%v'.", msgId, mId)
+	}
+
+	mNo := om.GetMessageNumber()
+
+	if msgNo != mNo {
+		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
+	}
+
+	actMsg := om.GetMessage()
+
+	if !strings.Contains(actMsg, xMsg) {
+		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
+	}
+
+	if om.MsgTimeUTC.IsZero()  {
+		t.Errorf("Error: om.MsgTimeUTC == Zero. om.MsgTimeUTC== '%v'", om.MsgTimeUTC)
+	}
+
+	if om.MsgTimeLocal.IsZero()  {
+		t.Errorf("Error: om.MsgTimeLocal == Zero. om.MsgTimeLocal== '%v'",om.MsgTimeLocal)
+	}
+
+	if om.MsgLocalTimeZone != "Local" {
+		t.Errorf("Error: om.MsgLocalTimeZone is NOT set to 'Local'. om.MsgLocalTimeZone== '%v' ", om.MsgLocalTimeZone)
+	}
+
+}
+
+func TestOpsMsgDto_SetDebugMessage_01(t *testing.T) {
+
+	om := testOpsMsgDtoCreateDebugMsg()
+
+	xMsg := "This is DEBUG Message for test object."
+	msgId := int64(238)
+	msgNo := int64(6238)
+	msgType := OpsMsgTypeDEBUGMSG
+	msgClass := OpsMsgClassDEBUG
+
+	if om.MsgType != msgType {
+		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
+	}
+
+	if om.MsgClass != msgClass {
+		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om.MsgClass)
+	}
+
+	if om.IsError() != false {
+		t.Error("Expected Debug Message to generate IsError='false'. It did NOT! IsError='true'.")
+	}
+
+	if om.IsFatalError() != false {
+		t.Errorf("Expected Debug to generate IsFatalError()='false'. It did NOT! IsFatalError()='%v'", om.IsFatalError())
+	}
+
+	mId := om.GetMessageId()
+
+	if mId != msgId {
+		t.Errorf("Expected message id = '%v'. Instead message id = '%v'.", msgId, mId)
+	}
+
+	mNo := om.GetMessageNumber()
+
+	if msgNo != mNo {
+		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
+	}
+
+	actMsg := om.GetMessage()
+
+	if !strings.Contains(actMsg, xMsg) {
+		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
+	}
+
+	if om.MsgTimeUTC.IsZero()  {
+		t.Errorf("Error: om.MsgTimeUTC == Zero. om.MsgTimeUTC== '%v'", om.MsgTimeUTC)
+	}
+
+	if om.MsgTimeLocal.IsZero()  {
+		t.Errorf("Error: om.MsgTimeLocal == Zero. om.MsgTimeLocal== '%v'",om.MsgTimeLocal)
+	}
+
+	if om.MsgLocalTimeZone != "Local" {
+		t.Errorf("Error: om.MsgLocalTimeZone is NOT set to 'Local'. om.MsgLocalTimeZone== '%v' ", om.MsgLocalTimeZone)
+	}
+
+}
+
+func TestOpsMsgDto_SetSuccessfulCompletionMessage_01(t *testing.T) {
+
+	om := testOpsMsgDtoCreateSuccessfulCompletionMsg()
+
+	xMsg := "Successful Completion"
+	msgId := int64(64)
+	msgNo := int64(6064)
+	msgType := OpsMsgTypeSUCCESSFULCOMPLETION
+	msgClass := OpsMsgClassSUCCESSFULCOMPLETION
+
+	if om.MsgType != msgType {
+		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
+	}
+
+	if om.MsgClass != msgClass {
+		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om.MsgClass)
+	}
+
+	if om.IsError() != false {
+		t.Error("Expected Successful Completion Message to generate IsError='false'. It did NOT! IsError='true'.")
+	}
+
+	if om.IsFatalError() != false {
+		t.Errorf("Expected Successful Completion to generate IsFatalError()='false'. It did NOT! IsFatalError()='%v'", om.IsFatalError())
+	}
+
+	mId := om.GetMessageId()
+
+	if mId != msgId {
+		t.Errorf("Expected message id = '%v'. Instead message id = '%v'.", msgId, mId)
+	}
+
+	mNo := om.GetMessageNumber()
+
+	if msgNo != mNo {
+		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
+	}
+
+	actMsg := om.GetMessage()
+
+	if !strings.Contains(actMsg, xMsg) {
+		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
+	}
+
+	if om.MsgTimeUTC.IsZero()  {
+		t.Errorf("Error: om.MsgTimeUTC == Zero. om.MsgTimeUTC== '%v'", om.MsgTimeUTC)
+	}
+
+	if om.MsgTimeLocal.IsZero()  {
+		t.Errorf("Error: om.MsgTimeLocal == Zero. om.MsgTimeLocal== '%v'",om.MsgTimeLocal)
+	}
+
+	if om.MsgLocalTimeZone != "Local" {
+		t.Errorf("Error: om.MsgLocalTimeZone is NOT set to 'Local'. om.MsgLocalTimeZone== '%v' ", om.MsgLocalTimeZone)
+	}
+
+}
+
 func TestOpsMsgClass_String(t *testing.T) {
 	om := testOpsMsgDtoCreateInfoMsg()
 
@@ -419,5 +593,23 @@ func testOpsMsgDtoCreateFatalErrorMsg() OpsMsgDto {
 func testOpsMsgDtoCreateInfoMsg() OpsMsgDto {
 	om := OpsMsgDto{}.InitializeContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
 	om.SetInfoMessage("This is Information Message for test object", 19)
+	return om
+}
+
+func testOpsMsgDtoCreateWarningMsg() OpsMsgDto {
+	om := OpsMsgDto{}.InitializeContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
+	om.SetWarningMessage("This is Warning Message for test object.", 67)
+	return om
+}
+
+func testOpsMsgDtoCreateDebugMsg() OpsMsgDto {
+	om := OpsMsgDto{}.InitializeContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
+	om.SetDebugMessage("This is DEBUG Message for test object.", 238)
+	return om
+}
+
+func testOpsMsgDtoCreateSuccessfulCompletionMsg() OpsMsgDto {
+	om := OpsMsgDto{}.InitializeContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
+	om.SetSuccessfulCompletionMessage( 64)
 	return om
 }
