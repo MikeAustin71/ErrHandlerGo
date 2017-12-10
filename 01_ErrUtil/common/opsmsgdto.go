@@ -373,6 +373,7 @@ func(opsMsg OpsMsgDto) InitializeContextWithParentOpsMsg(parentOpsMsg OpsMsgDto,
 
 	om.ParentContextHistory = om.DeepCopyParentContextHistory(parentOpsMsg.ParentContextHistory)
 	om.AddOpsMsgContextInfoToParentHistory(parentOpsMsg.MsgContext)
+	om.MsgContext = newMsgContext.DeepCopyOpsMsgContextInfo()
 
 	return om
 }

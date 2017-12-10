@@ -2,6 +2,7 @@ package common
 
 import (
 	"testing"
+	"strings"
 )
 
 func TestOpsMsgDto_ParentHistory_01(t *testing.T) {
@@ -107,22 +108,24 @@ func TestOpsMsgDto_InitializeContextInfo_01(t *testing.T) {
 	}
 }
 
-// TODO - fix this broken test
-/*
+
+
 func TestOpsMsgDto_InitializeContextWithParentOpsMsg_01(t *testing.T) {
 	parentInfo := testCreateOpsMsgDtoParentHistory()
 	contextInfo := testCreateOpsMsgContextInfoObj()
 
 	om := OpsMsgDto{}.InitializeContextInfo(parentInfo, contextInfo)
-	newMsg := "Information Message Text"
-	om.SetInfoMessage(newMsg, 122)
+	newMsg := "Information Message Text 2"
+	om.SetInfoMessage("Information Text 1", 122)
 
 
 	ci := OpsMsgContextInfo{SourceFileName:"TSource07", ParentObjectName:"PObj07", FuncName: "Func007", BaseMessageId: 7000}
 	
 	om2 := OpsMsgDto{}.InitializeContextWithParentOpsMsg(om, ci)
-	
-	l := len(om.ParentContextHistory)
+	om2.SetInfoMessage(newMsg, 122 )
+
+
+	l := len(om2.ParentContextHistory)
 
 	if l != 6 {
 		t.Errorf("Expected Parent Context History Length = 6. Instead, Parent Context History Lenth = '%v'", l)
@@ -187,7 +190,7 @@ func TestOpsMsgDto_InitializeContextWithParentOpsMsg_01(t *testing.T) {
 	}
 
 }
-*/
+
 
 func testCreateOpsMsgContextInfoObj() OpsMsgContextInfo {
 	ci := OpsMsgContextInfo{}
