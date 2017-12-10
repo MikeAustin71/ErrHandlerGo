@@ -507,7 +507,65 @@ func TestOpsMsgDto_SetSuccessfulCompletionMessage_01(t *testing.T) {
 	}
 
 	if om.IsFatalError() != false {
-		t.Errorf("Expected Successful Completion to generate IsFatalError()='false'. It did NOT! IsFatalError()='%v'", om.IsFatalError())
+		t.Errorf("Expected Successful Completion Message to generate IsFatalError()='false'. It did NOT! IsFatalError()='%v'", om.IsFatalError())
+	}
+
+	mId := om.GetMessageId()
+
+	if mId != msgId {
+		t.Errorf("Expected message id = '%v'. Instead message id = '%v'.", msgId, mId)
+	}
+
+	mNo := om.GetMessageNumber()
+
+	if msgNo != mNo {
+		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
+	}
+
+	actMsg := om.GetMessage()
+
+	if !strings.Contains(actMsg, xMsg) {
+		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
+	}
+
+	if om.MsgTimeUTC.IsZero()  {
+		t.Errorf("Error: om.MsgTimeUTC == Zero. om.MsgTimeUTC== '%v'", om.MsgTimeUTC)
+	}
+
+	if om.MsgTimeLocal.IsZero()  {
+		t.Errorf("Error: om.MsgTimeLocal == Zero. om.MsgTimeLocal== '%v'",om.MsgTimeLocal)
+	}
+
+	if om.MsgLocalTimeZone != "Local" {
+		t.Errorf("Error: om.MsgLocalTimeZone is NOT set to 'Local'. om.MsgLocalTimeZone== '%v' ", om.MsgLocalTimeZone)
+	}
+
+}
+
+func TestOpsMsgDto_SetNoErrorsNoMessages(t *testing.T) {
+
+	om := testOpsMsgDtoCreateNoErrorsNoMessagesMsg()
+
+	xMsg := "No Errors and No Messages"
+	msgId := int64(28)
+	msgNo := int64(6028)
+	msgType := OpsMsgTypeNOERRORNOMSG
+	msgClass := OpsMsgClassNOERRORSNOMESSAGES
+
+	if om.MsgType != msgType {
+		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
+	}
+
+	if om.MsgClass != msgClass {
+		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om.MsgClass)
+	}
+
+	if om.IsError() != false {
+		t.Error("Expected No Errors-No Messages Message to generate IsError='false'. It did NOT! IsError='true'.")
+	}
+
+	if om.IsFatalError() != false {
+		t.Errorf("Expected No Errors-No Messages Message to generate IsFatalError()='false'. It did NOT! IsFatalError()='%v'", om.IsFatalError())
 	}
 
 	mId := om.GetMessageId()
@@ -611,5 +669,11 @@ func testOpsMsgDtoCreateDebugMsg() OpsMsgDto {
 func testOpsMsgDtoCreateSuccessfulCompletionMsg() OpsMsgDto {
 	om := OpsMsgDto{}.InitializeContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
 	om.SetSuccessfulCompletionMessage( 64)
+	return om
+}
+
+func testOpsMsgDtoCreateNoErrorsNoMessagesMsg() OpsMsgDto {
+	om := OpsMsgDto{}.InitializeContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
+	om.SetNoErrorsNoMessages(28)
 	return om
 }

@@ -513,7 +513,7 @@ func (opsMsg *OpsMsgDto) NewMsgFromSpecErrMsg(se SpecErr) OpsMsgDto {
 	switch se.ErrorMsgType {
 
 	case SpecErrTypeNOERRORSALLCLEAR:
-		om.SetNoErrorsNoMessages()
+		om.SetNoErrorsNoMessages(seErrId)
 
 	case SpecErrTypeERROR:
 		om.SetStdErrorMessage(se.ErrMsg, seErrId)
@@ -568,13 +568,20 @@ func (opsMsg *OpsMsgDto) SetDebugMessage(msg string, msgNo int64){
 
 }
 
-func (opsMsg *OpsMsgDto) SetNoErrorsNoMessages() {
+func (opsMsg *OpsMsgDto) SetNoErrorsNoMessages(msgNo int64) {
 
 	opsMsg.EmptyMsgData()
 	opsMsg.MsgType = OpsMsgTypeNOERRORNOMSG
 	opsMsg.MsgClass = OpsMsgClassNOERRORSNOMESSAGES
-	opsMsg.msgId = 0
-	opsMsg.msgNumber = 0
+
+	if msgNo == 0 {
+		opsMsg.msgId = 0
+		opsMsg.msgNumber = 0
+	} else {
+		opsMsg.msgId = msgNo
+		opsMsg.msgNumber = msgNo + opsMsg.MsgContext.BaseMessageId
+	}
+
 	opsMsg.setTime("Local")
 	opsMsg.setMsgText("No Errors - No Messages")
 
