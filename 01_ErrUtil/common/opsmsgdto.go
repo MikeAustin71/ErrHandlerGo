@@ -685,6 +685,12 @@ func (opsMsg *OpsMsgDto) SetWarningMessage(msg string, msgNo int64) {
 
 }
 
+// String - returns the operations message as a
+// string.
+func (opsMsg *OpsMsgDto) String() string {
+	return opsMsg.GetMessage()
+}
+
 // ***********************************************
 // private methods
 // ***********************************************
