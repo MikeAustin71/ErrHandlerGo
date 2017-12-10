@@ -107,6 +107,88 @@ func TestOpsMsgDto_InitializeContextInfo_01(t *testing.T) {
 	}
 }
 
+// TODO - fix this broken test
+/*
+func TestOpsMsgDto_InitializeContextWithParentOpsMsg_01(t *testing.T) {
+	parentInfo := testCreateOpsMsgDtoParentHistory()
+	contextInfo := testCreateOpsMsgContextInfoObj()
+
+	om := OpsMsgDto{}.InitializeContextInfo(parentInfo, contextInfo)
+	newMsg := "Information Message Text"
+	om.SetInfoMessage(newMsg, 122)
+
+
+	ci := OpsMsgContextInfo{SourceFileName:"TSource07", ParentObjectName:"PObj07", FuncName: "Func007", BaseMessageId: 7000}
+	
+	om2 := OpsMsgDto{}.InitializeContextWithParentOpsMsg(om, ci)
+	
+	l := len(om.ParentContextHistory)
+
+	if l != 6 {
+		t.Errorf("Expected Parent Context History Length = 6. Instead, Parent Context History Lenth = '%v'", l)
+	}
+
+	if om2.ParentContextHistory[0].SourceFileName != "TSource01" {
+		t.Errorf("Expected 1st OpsMsgContextInfo object in Parent Context History SourceFileName= 'TSource01'. Instead, SourceFileName= '%v'",om2.ParentContextHistory[0].SourceFileName)
+	}
+
+	if om2.ParentContextHistory[0].ParentObjectName != "PObj01" {
+		t.Errorf("Expected 1st OpsMsgContextInfo object in Parent Context History ParentObjectName= 'PObj01'. Instead, ParentObjectName= '%v'",om2.ParentContextHistory[0].ParentObjectName)
+	}
+
+
+	if om2.ParentContextHistory[1].ParentObjectName != "PObj02" {
+		t.Errorf("Expected 2nd OpsMsgContextInfo object in Parent Context History ParentObjectName= 'PObj02'. Instead, ParentObjectName= '%v'",om2.ParentContextHistory[1].ParentObjectName)
+	}
+
+
+	if om2.ParentContextHistory[2].FuncName != "Func003" {
+		t.Errorf("Expected 3rd OpsMsgContextInfo object in Parent Context History FuncName= 'Func003'. Instead, FuncName= '%v'",om2.ParentContextHistory[2].FuncName)
+	}
+
+	if om2.ParentContextHistory[3].BaseMessageId != int64(4000) {
+		t.Errorf("Expected 4th OpsMsgContextInfo object in Parent Context History BaseMessageId = 4000. Instead, BaseMessageId = '%v'", om2.ParentContextHistory[3].BaseMessageId)
+	}
+
+	if om2.ParentContextHistory[4].ParentObjectName != "PObj05" {
+		t.Errorf("Expected 5th OpsMsgContextInfo object in Parent Context History ParentObjectName = 'PObj05'. Instead, ParentObjectName = '%v'", om2.ParentContextHistory[4].ParentObjectName)
+	}
+
+	if om2.ParentContextHistory[5].ParentObjectName != "PObj06" {
+		t.Errorf("Expected 6th OpsMsgContextInfo object in Parent Context History ParentObjectName = 'PObj06'. Instead, ParentObjectName = '%v'", om2.ParentContextHistory[5].ParentObjectName)
+	}
+
+	if om2.MsgContext.SourceFileName != "TSource07" {
+		t.Errorf("Expected MsgContext.SourceFileName == 'TSource07'. Instead, SourceFileName== '%v'", om2.MsgContext.SourceFileName)
+	}
+
+	if om2.MsgContext.ParentObjectName != "PObj07" {
+		t.Errorf("Expected MsgContext.ParentObjectName == 'PObj07'. Instead, ParentObjectName== '%v'", om2.MsgContext.ParentObjectName)
+	}
+
+	if om2.MsgContext.FuncName != "Func007" {
+		t.Errorf("Expected MsgContext.FuncName == 'Func007'. Instead, FuncName== '%v'", om2.MsgContext.FuncName)
+	}
+
+	if om2.MsgContext.BaseMessageId != 7000 {
+		t.Errorf("Expected MsgContext.BaseMessageId == '7000'. Instead, BaseMessageId== '%v'", om2.MsgContext.BaseMessageId)
+	}
+
+	actualMsg := om2.GetMessage()
+
+	if !strings.Contains(actualMsg, newMsg) {
+		t.Errorf("Expected actual message to contain string '%v'. It did NOT! actualMsg='%v'", newMsg, actualMsg)
+	}
+
+	msgNo := om2.GetMessageNumber()
+
+	if msgNo != 7122 {
+		t.Errorf("Expected om2.msgNumber == '7122'. Instead, om2.msgNumber == '%v'", msgNo)
+	}
+
+}
+*/
+
 func testCreateOpsMsgContextInfoObj() OpsMsgContextInfo {
 	ci := OpsMsgContextInfo{}
 	return ci.New("TSource06", "PObj06", "Func006", 6000)

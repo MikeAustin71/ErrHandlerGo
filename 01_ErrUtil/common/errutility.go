@@ -325,16 +325,7 @@ func (s *SpecErr) Empty() {
 
 	s.ParentInfo  = make([]ErrBaseInfo, 0, 20)
 	s.BaseInfo 						= ErrBaseInfo{}
-	s.ErrorMsgTimeUTC 		= time.Time{}
-	s.ErrorMsgTimeLocal 	= time.Time{}
-	s.ErrorLocalTimeZone 	= ""
-	s.ErrorMsgType				= SpecErrTypeNOERRORSALLCLEAR
-	s.IsErr              	= false
-	s.IsPanic            	= false
-	s.PrefixMsg          	= ""
-	s.ErrMsgLabel        	= ""
-	s.ErrMsg             	= ""
-	s.ErrNo              	= int64(0)
+	s.EmptyMsgData()
 }
 
 // EmptyMsgData - Sets all data fields except 'ParentInfo'
@@ -827,7 +818,7 @@ func (s *SpecErr) SetSuccessfulCompletion(msgNo int64) {
 	s.SetTime("Local")
 }
 
-// SetTime - Sets the time stamp for this Error
+// setTime - Sets the time stamp for this Error
 // Message. Notice that the input parameter 'localTimeZone'
 // is the Iana Time Zone for local time.
 //

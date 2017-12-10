@@ -4,6 +4,7 @@ import (
 	"time"
 	"strings"
 	"fmt"
+	"errors"
 )
 
 /*  'opsmsgdto.go' is located in source code
@@ -12,6 +13,82 @@ import (
 		https://github.com/MikeAustin71/ErrHandlerGo.git
 
 */
+
+// OpsMsgType - Designates type of Message being logged
+type OpsMsgType int
+
+// String - Method used to display the text
+// name of an Operations Message Type.
+func (opstype OpsMsgType) String() string {
+	return OpsMsgTypeNames[opstype]
+}
+
+const (
+
+	// OpsMsgTypeNOERRORNOMSG - 0 Uninitialized -
+	// no errors and no messages
+	OpsMsgTypeNOERRORNOMSG OpsMsgType = iota
+
+	// OpsMsgTypeERRORMSG - 1 Error Message
+	OpsMsgTypeERRORMSG
+
+	// OpsMsgTypeINFOMSG - 2 Information Message Type
+	OpsMsgTypeINFOMSG
+
+	// OpsMsgTypeWARNINGMSG - 3 Warning Message Type
+	OpsMsgTypeWARNINGMSG
+
+	// OpsMsgTypeDEBUGMSG - 4 Debug Message
+	OpsMsgTypeDEBUGMSG
+
+	// OpsMsgTypeSUCCESSFULCOMPLETION - 5 Message signalling
+	// successful completion of the operation.
+	OpsMsgTypeSUCCESSFULCOMPLETION
+
+)
+
+// OpsMsgTypeNames - String Array holding Message Type names.
+var OpsMsgTypeNames = [...]string{"NOERRORSNOMSGS","ERROR", "INFO", "WARNING", "DEBUG", "SUCCESS"}
+
+
+// OpsMsgClass - Holds the Message level indicating the relative importance of a specific log Message.
+type OpsMsgClass int
+
+// String - Returns the name of the OpsMsgClass element
+// formatted as a string.
+func (opsmsgclass OpsMsgClass) String() string {
+	return OpsMsgClassNames[opsmsgclass]
+}
+
+
+const (
+	// OpsMsgClassNOERRORSNOMESSAGES - 0 Signals uninitialized message
+	// with no errors and no messages
+	OpsMsgClassNOERRORSNOMESSAGES OpsMsgClass = iota
+
+	// OpsMsgClassOPERROR - 1 Message is an Error Message
+	OpsMsgClassOPERROR
+
+	// OpsMsgClassFATAL - 2 Message is a Fatal Error Message
+	OpsMsgClassFATAL
+
+	// OpsMsgClassINFO - 3 Message is an Informational Message
+	OpsMsgClassINFO
+
+	// OpsMsgClassWARNING - 4 Message is a warning Message
+	OpsMsgClassWARNING
+
+	// OpsMsgClassDEBUG - 5 Message is a Debug Message
+	OpsMsgClassDEBUG
+
+	// OpsMsgClassSUCCESSFULCOMPLETION - 6 Message signalling successful
+	// completion of the operation
+	OpsMsgClassSUCCESSFULCOMPLETION
+)
+
+// OpsMsgClassNames - string array containing names of Log Levels
+var OpsMsgClassNames = [...]string{"NOERRORSNOMESSAGES", "OPERROR", "FATAL", "INFO", "WARNING", "DEBUG", "SUCCESS"}
+
 
 // OpsMsgContextInfo - Contains context information describing
 // the current environment in which the message was generated.
@@ -77,7 +154,7 @@ type OpsMsgDto struct {
 	MsgTimeUTC           time.Time
 	MsgTimeLocal         time.Time
 	MsgLocalTimeZone     string
-	ErrDto               SpecErr
+
 }
 
 
@@ -148,6 +225,44 @@ func (opsMsg *OpsMsgDto) DeepCopyParentContextHistory(pi []OpsMsgContextInfo) []
 	return newHistory
 }
 
+// Empty - Resets the current OpsMsgDto object to
+// an uninitialized or 'empty' state.
+func (opsMsg *OpsMsgDto) Empty() {
+	opsMsg.ParentContextHistory = make([] OpsMsgContextInfo, 0, 20)
+	opsMsg.MsgContext = OpsMsgContextInfo{}
+	opsMsg.EmptyMsgData()
+}
+
+// EmptyMsgData - Resets all OpsMsgDto fields, with
+// the exception of ParentContextHistory and MsgContext,
+// to an uninitialized or 'empty' state.
+func (opsMsg *OpsMsgDto) EmptyMsgData() {
+	opsMsg.Message 					= make([]string, 0, 20)
+	opsMsg.msgId          	= int64(0) // The identifying number for this message
+	opsMsg.msgNumber      	= int64(0) //  Message Number = msgId + MsgContext.BaseMessageId. This is the number displayed in the message
+	opsMsg.MsgType        	= OpsMsgTypeNOERRORNOMSG
+	opsMsg.MsgClass       	= OpsMsgClassNOERRORSNOMESSAGES
+	opsMsg.MsgTimeUTC     	= time.Time{}
+	opsMsg.MsgTimeLocal   	= time.Time{}
+	opsMsg.MsgLocalTimeZone	= ""
+}
+
+// GetError - If the current OpsMsgDto is
+// configured as either a Standard Error or
+// Fatal Error, this method will return
+// an 'error' type containing the error
+// message. If OpsMsgDto is configured as
+// a non-error type message, this method
+// will return 'nil'.
+func (opsMsg *OpsMsgDto) GetError() error {
+
+	if opsMsg.IsError() {
+		return errors.New(opsMsg.GetMessage())
+	}
+
+	return nil
+
+}
 
 // GetMessage - Returns the Operations Message
 // stored in this object. Note that the underling
@@ -170,16 +285,124 @@ func (opsMsg *OpsMsgDto) GetMessage() string {
 	return output
 }
 
+// GetMessageId - returns data field 'msgId' for
+// the current OpsMsgDto object.
+func (opsMsg *OpsMsgDto) GetMessageId() int64 {
+	return opsMsg.msgId
+}
+
+// GetMessageNumber - returns the data field 'msgNumber'
+// for the current OpsMsgDto object. The 'msgNumber' is
+// equal to 'msgId' plus 'opsMsg.MsgContext.BaseMessageId'
+func (opsMsg *OpsMsgDto) GetMessageNumber() int64 {
+
+	return opsMsg.msgNumber
+}
+
 // InitializeContextInfo - Initializes Parent Context History and Message Context Info for a new
 // OpsMsgDto object.
 //
-// Example Usage: oMsg := OpsMsgDto{}.InitializeContextInfo(parentHistory, msgContext)
+// Input Parameters:
+// =================
+//
+// parentHistory []OpsMsgContextInfo - An array of OpsMsgContextInfo objects
+// 											documenting execution path that led to the generation
+//											of this method.
+//
+// msgContext OpsMsgContextInfo - This object records the current context in
+//											which the new OpsMsgDto returned by this method will
+//											will be operating.
+//
+// 											It allows the newly created OpsMsgDto to return data
+// 											on the execution path which	led to the generation of
+// 											the Operations Message.
+//
+// Example Usage:
+// ==============
+//
+// oMsg := OpsMsgDto{}.InitializeContextInfo(parentHistory, msgContext)
+//
+// Parent Context History and current Message Context serve as an important
+// purpose. It allows one to maintain a record of the function execution tree
+// that led to the generation of this message.
+//
 func(opsMsg OpsMsgDto) InitializeContextInfo(parentHistory []OpsMsgContextInfo, msgContext OpsMsgContextInfo) OpsMsgDto {
 	om := OpsMsgDto{}
 	om.ParentContextHistory = om.DeepCopyParentContextHistory(parentHistory)
 	om.MsgContext = msgContext.DeepCopyOpsMsgContextInfo()
 
 	return om
+}
+
+// InitializeContextWithParentOpsMsg - Initialize a new OpsMsgDto
+// object with Parent History data extracted from another OpsMsgDto
+// object.
+//
+// Input Parameters:
+// =================
+//
+//	parentOpsMsg OpsMsgDto 	- The Parent History context from the incoming
+//														OpsMsgDto will be added to the new OpsMsgDto
+//														object being created by this method. In addition,
+//														the Parent OpsMsgDto MsgContext will be added to
+//														current OpsMsgDto ParentContextHistory.
+//
+//	newMsgContext OpsMsgContextInfo - This new OpsMsgContextInfo object will
+//										be configured as the 'MsgContext' field in the new
+// 										OpsMsgDto object created by this method.
+//
+//										It allows the newly created OpsMsgDto to return data
+// 										on the execution path which	led to the generation of
+// 										the Operations Message.
+//
+//	Example Usage:
+//  ==============
+//
+//	parentOpsMsgDto // OpsMsgDto object created in the parent function
+//	currentMsgContext = OpsMsgContextInfo{SourceFileName:"xray.go",
+// 											ParentObjectName: "stringutil", FuncName:"DoSomeWork",
+//											BaseMessgeId:int64(8000)
+//
+// Parent Context History and current Message Context serve as an important
+// purpose. It allows one to maintain a record of the function execution tree
+// that led to the generation of this message.
+//
+func(opsMsg OpsMsgDto) InitializeContextWithParentOpsMsg(parentOpsMsg OpsMsgDto, newMsgContext OpsMsgContextInfo) OpsMsgDto {
+
+	om := OpsMsgDto{}
+
+	om.ParentContextHistory = om.DeepCopyParentContextHistory(parentOpsMsg.ParentContextHistory)
+	om.AddOpsMsgContextInfoToParentHistory(parentOpsMsg.MsgContext)
+
+	return om
+}
+
+// IsFatalError - If the current OpsMsgDto object is configured
+// as a fatal error, this method will return true.
+func (opsMsg *OpsMsgDto) IsFatalError() bool {
+
+	if opsMsg.MsgClass == OpsMsgClassFATAL {
+		return true
+	}
+
+	return false
+
+}
+
+// IsError - Returns a boolean value signaling
+// whether the current OpsMsgDto is an 'error'
+// message.
+//
+// If the return value is true, the OpsMsgDto
+// will be configured as either a Standard Error
+// or a Fatal Error. (See Method IsFatalError())
+func (opsMsg *OpsMsgDto) IsError() bool {
+
+	if opsMsg.MsgType == OpsMsgTypeERRORMSG {
+		return true
+	}
+
+	return false
 }
 
 // NewDebugMsg - Create a new Debug Message
@@ -196,18 +419,7 @@ func(opsMsg OpsMsgDto) InitializeContextInfo(parentHistory []OpsMsgContextInfo, 
 func(opsMsg OpsMsgDto) NewDebugMsg(msg string, msgNo int64) OpsMsgDto {
 
 	om := OpsMsgDto{}
-	om.MsgType = OpsMsgTypeDEBUGMSG
-	om.MsgClass = OpsMsgClassDEBUG
-
-	if msgNo == 0 {
-		om.msgId = 0
-	} else {
-		om.msgId = msgNo
-		om.msgNumber = msgNo + om.MsgContext.BaseMessageId
-	}
-
-	om.SetTime("Local")
-	om.setDebugMsg(msg)
+	om.SetDebugMessage(msg, msgNo)
 
 	return om
 }
@@ -228,18 +440,7 @@ func(opsMsg OpsMsgDto) NewDebugMsg(msg string, msgNo int64) OpsMsgDto {
 func(opsMsg OpsMsgDto) NewInfoMsg(msg string, msgNo int64) OpsMsgDto {
 
 	om := OpsMsgDto{}
-	om.MsgType = OpsMsgTypeINFOMSG
-	om.MsgClass = OpsMsgClassINFO
-
-	if msgNo == 0 {
-		om.msgId = 0
-	} else {
-		om.msgId = msgNo
-		om.msgNumber = msgNo + om.MsgContext.BaseMessageId
-	}
-
-	om.SetTime("Local")
-	om.setMsg(msg)
+	om.SetInfoMessage(msg, msgNo)
 
 	return om
 }
@@ -258,19 +459,7 @@ func(opsMsg OpsMsgDto) NewInfoMsg(msg string, msgNo int64) OpsMsgDto {
 func (opsMsg OpsMsgDto) NewFatalErrorMsg(errMsg string, errNo int64) OpsMsgDto {
 
 	om := OpsMsgDto{}
-	om.MsgType = OpsMsgTypeERRORMSG
-	om.MsgClass = OpsMsgClassFATAL
-
-	if errNo == 0 {
-		om.msgId = 0
-	} else {
-		om.msgId = errNo
-		om.msgNumber = errNo + om.MsgContext.BaseMessageId
-	}
-
-	om.SetTime("Local")
-	om.setMsg(errMsg)
-
+	om.SetFatalErrorMessage(errMsg, errNo)
 	return om
 
 }
@@ -286,23 +475,10 @@ func (opsMsg OpsMsgDto) NewFatalErrorMsg(errMsg string, errNo int64) OpsMsgDto {
 //									this message. If 'errNo' is equal to zero,
 //									no error number will be displayed in the
 //									final error message
-func (opsMsg OpsMsgDto) NewStdErrorMsg(msg string, errNo int64) OpsMsgDto {
+func (opsMsg OpsMsgDto) NewStdErrorMsg(errMsg string, errNo int64) OpsMsgDto {
 
 	om := OpsMsgDto{}
-	om.MsgType = OpsMsgTypeERRORMSG
-	om.MsgClass = OpsMsgClassOPERROR
-
-	if errNo == 0 {
-		om.msgId = 0
-		om.msgNumber = 0
-	} else {
-		om.msgId = errNo
-		om.msgNumber = errNo + om.MsgContext.BaseMessageId
-	}
-
-	om.SetTime("Local")
-	om.setMsg(msg)
-
+	om.SetStdErrorMessage(errMsg, errNo)
 	return om
 
 }
@@ -315,52 +491,6 @@ func (opsMsg *OpsMsgDto) NewMsgFromSpecErrMsg(se SpecErr) OpsMsgDto {
 
 	om := OpsMsgDto{}
 
-	if se.ErrorMsgType == SpecErrTypeFATAL {
-		om.MsgType = OpsMsgTypeERRORMSG
-		om.MsgClass = OpsMsgClassFATAL
-		om.ErrDto = se
-
-	} else if se.ErrorMsgType == SpecErrTypeERROR {
-		om.MsgType = OpsMsgTypeERRORMSG
-		om.MsgClass = OpsMsgClassOPERROR
-		om.ErrDto = se
-
-	} else if se.ErrorMsgType == SpecErrTypeWARNING {
-
-		om.MsgType = OpsMsgTypeWARNINGMSG
-		om.MsgClass = OpsMsgClassWARNING
-		om.ErrDto = se
-
-	} else if se.ErrorMsgType == SpecErrTypeINFO {
-
-		om.MsgType = OpsMsgTypeINFOMSG
-		om.MsgClass = OpsMsgClassINFO
-		om.ErrDto = se
-
-	} else if se.ErrorMsgType == SpecErrTypeNOERRORSALLCLEAR {
-		om.MsgType = OpsMsgTypeNOERRORNOMSG
-		om.MsgClass = OpsMsgClassNOERRORSNOMESSAGES
-		om.ErrDto = se
-
-	} else {
-		om.MsgType = OpsMsgTypeINFOMSG
-		om.MsgClass = OpsMsgClassINFO
-		om.ErrDto = se
-	}
-
-	if se.ErrNo == 0 {
-		om.msgId = 0
-		om.msgNumber = 0
-	} else {
-		om.msgId = se.ErrNo
-		om.msgNumber = se.ErrNo
-	}
-
-	om.MsgTimeUTC = se.ErrorMsgTimeUTC
-	om.MsgTimeLocal = se.ErrorMsgTimeLocal
-	om.MsgLocalTimeZone = se.ErrorLocalTimeZone
-	om.Message = append(opsMsg.Message, se.Error())
-
 	x := se.DeepCopyParentInfo(se.ParentInfo)
 
 	for _, bi := range x {
@@ -372,115 +502,319 @@ func (opsMsg *OpsMsgDto) NewMsgFromSpecErrMsg(se SpecErr) OpsMsgDto {
 
 	om.MsgContext = OpsMsgContextInfo{SourceFileName:y.SourceFileName, ParentObjectName: y.ParentObjectName, FuncName: y.FuncName, BaseMessageId: y.BaseErrorId}
 
+	seErrId := int64(0)
+
+	if se.ErrNo != 0 {
+		seErrId = se.ErrNo - se.BaseInfo.BaseErrorId
+	}
+
+
+	switch se.ErrorMsgType {
+
+	case SpecErrTypeNOERRORSALLCLEAR:
+		om.SetNoErrorsNoMessages()
+
+	case SpecErrTypeERROR:
+		om.SetStdErrorMessage(se.ErrMsg, seErrId)
+
+	case SpecErrTypeFATAL:
+		om.SetFatalErrorMessage(se.ErrMsg, seErrId)
+
+	case SpecErrTypeINFO:
+		om.SetInfoMessage(se.ErrMsg, seErrId)
+
+	case SpecErrTypeWARNING:
+		om.SetWarningMessage(se.ErrMsg, seErrId )
+
+	case SpecErrTypeSUCCESSFULCOMPLETION:
+		om.SetSuccessfulCompletionMessage(seErrId)
+	}
+
 	return om
 }
 
 
 // NewWarningMsg - Creates a new Warning Message
+// and returns it as a new OpsMsgDto object.
 func (opsMsg OpsMsgDto) NewWarningMsg(msg string, msgNo int64) OpsMsgDto {
 
 	om := OpsMsgDto{}
-	om.MsgType = OpsMsgTypeWARNINGMSG
-	om.MsgClass = OpsMsgClassWARNING
-	if msgNo == 0 {
-		om.msgId = 0
-		om.msgNumber = 0
-	} else {
-		om.msgId = msgNo
-		om.msgNumber = msgNo + om.MsgContext.BaseMessageId
-	}
-	om.SetTime("Local")
-	om.setMsg(msg)
+
+	om.SetWarningMessage(msg, msgNo)
 
 	return om
 
 }
 
+// SetDebugMessage - Configures the current or host
+// OpsMsgDto object as a 'DEBUG' message.
+func (opsMsg *OpsMsgDto) SetDebugMessage(msg string, msgNo int64){
+	opsMsg.EmptyMsgData()
+	opsMsg.MsgType = OpsMsgTypeDEBUGMSG
+	opsMsg.MsgClass = OpsMsgClassDEBUG
+
+	if msgNo == 0 {
+		opsMsg.msgId = 0
+		opsMsg.msgNumber = 0
+	} else {
+		opsMsg.msgId = msgNo
+		opsMsg.msgNumber = msgNo + opsMsg.MsgContext.BaseMessageId
+	}
+
+	opsMsg.setTime("Local")
+
+	opsMsg.setMsgText(msg)
+
+}
+
+func (opsMsg *OpsMsgDto) SetNoErrorsNoMessages() {
+
+	opsMsg.EmptyMsgData()
+	opsMsg.MsgType = OpsMsgTypeNOERRORNOMSG
+	opsMsg.MsgClass = OpsMsgClassNOERRORSNOMESSAGES
+	opsMsg.msgId = 0
+	opsMsg.msgNumber = 0
+	opsMsg.setTime("Local")
+	opsMsg.setMsgText("No Errors - No Messages")
+
+}
+
+// SetFatalErrorMessage - Configures the current or host
+// OpsMsgDto object as an information message.
+func (opsMsg *OpsMsgDto) SetFatalErrorMessage(errMsg string, errNo int64) {
+
+	opsMsg.EmptyMsgData()
+	opsMsg.MsgType = OpsMsgTypeERRORMSG
+	opsMsg.MsgClass = OpsMsgClassFATAL
+
+	if errNo == 0 {
+		opsMsg.msgId = 0
+		opsMsg.msgNumber = 0
+	} else {
+		opsMsg.msgId = errNo
+		opsMsg.msgNumber = errNo + opsMsg.MsgContext.BaseMessageId
+	}
+
+	opsMsg.setTime("Local")
+
+	opsMsg.setMsgText(errMsg)
+
+}
+
+// SetInfoMessage - Configures the current or host
+// OpsMsgDto object as an information message.
+func (opsMsg *OpsMsgDto) SetInfoMessage(msg string, msgNo int64) {
+	opsMsg.EmptyMsgData()
+	opsMsg.MsgType = OpsMsgTypeINFOMSG
+	opsMsg.MsgClass = OpsMsgClassINFO
+
+	if msgNo == 0 {
+		opsMsg.msgId = 0
+		opsMsg.msgNumber = 0
+	} else {
+		opsMsg.msgId = msgNo
+		opsMsg.msgNumber = msgNo + opsMsg.MsgContext.BaseMessageId
+	}
+
+	opsMsg.setTime("Local")
+
+	opsMsg.setMsgText(msg)
+}
+
+// SetStdErrorMessage - Configures the current or host
+// OpsMsgDto object as a standard error message.
+func (opsMsg *OpsMsgDto) SetStdErrorMessage(errMsg string, errNo int64){
+	opsMsg.EmptyMsgData()
+	opsMsg.MsgType = OpsMsgTypeERRORMSG
+	opsMsg.MsgClass = OpsMsgClassOPERROR
+
+	if errNo == 0 {
+		opsMsg.msgId = 0
+		opsMsg.msgNumber = 0
+	} else {
+		opsMsg.msgId = errNo
+		opsMsg.msgNumber = errNo + opsMsg.MsgContext.BaseMessageId
+	}
+
+	opsMsg.setTime("Local")
+
+	opsMsg.setMsgText(errMsg)
+
+}
+
+// SetSuccessfulCompletionMessage - Configures the current or host
+// OpsMsgDto object as a Successful Completion Message.
+func (opsMsg *OpsMsgDto) SetSuccessfulCompletionMessage(msgNo int64){
+	opsMsg.EmptyMsgData()
+	opsMsg.MsgType = OpsMsgTypeSUCCESSFULCOMPLETION
+	opsMsg.MsgClass = OpsMsgClassSUCCESSFULCOMPLETION
+
+	if msgNo == 0 {
+		opsMsg.msgId = 0
+		opsMsg.msgNumber = 0
+	} else {
+		opsMsg.msgId = msgNo
+		opsMsg.msgNumber = msgNo + opsMsg.MsgContext.BaseMessageId
+	}
+
+	opsMsg.setTime("Local")
+
+	opsMsg.setMsgText("Successful Completion")
+
+}
+
+// SetWarningMessage - Configures the current or host
+// OpsMsgDto object as a Warning Message.
+func (opsMsg *OpsMsgDto) SetWarningMessage(msg string, msgNo int64) {
+	opsMsg.EmptyMsgData()
+	opsMsg.MsgType = OpsMsgTypeWARNINGMSG
+	opsMsg.MsgClass = OpsMsgClassWARNING
+
+	if msgNo == 0 {
+		opsMsg.msgId = 0
+		opsMsg.msgNumber = 0
+	} else {
+		opsMsg.msgId = msgNo
+		opsMsg.msgNumber = msgNo + opsMsg.MsgContext.BaseMessageId
+	}
+
+	opsMsg.setTime("Local")
+
+	opsMsg.setMsgText(msg)
+
+}
+
+// ***********************************************
+// private methods
+// ***********************************************
+
 // getMsgTitle - Returns the Message title, message number and the
 // banner line separator based on value of OpsMsgDto.MsgClass
-func (opsMsg *OpsMsgDto) getMsgTitle() (string, string, string) {
-	var title string
-	var banner string
-	var msgNo	string
+func (opsMsg *OpsMsgDto) getMsgTitle() (banner1, banner2, title, numTitle string, ) {
 
-	i := int(opsMsg.MsgClass)
+	switch opsMsg.MsgClass {
 
-	msgPrefix := "Message Number: "
+	case OpsMsgClassNOERRORSNOMESSAGES:
+		// OpsMsgClassNOERRORSNOMESSAGES - 0 Signals uninitialized message
+		// with no errors and no messages
+		title = "Empty Message - No Errors and No Messages"
+		numTitle = "Msg Number"
+		banner1 = strings.Repeat("%", 78)
+		banner2 = strings.Repeat("-", 78)
 
-	switch i {
-
-	case 0:
-		// OpsMsgClassDEBUG - 0 Message is a Debug Message
-		title = "DEBUG Message"
-		banner = strings.Repeat("*", 75)
-	case 1:
+	case OpsMsgClassOPERROR:
 		// OpsMsgClassOPERROR - 1 Message is an Error Message
 		title = "Standard ERROR Message"
-		msgPrefix = "Error Number: "
-		banner = strings.Repeat("X", 75)
-	case 2:
+		numTitle = "Error Number: "
+		banner1 = strings.Repeat("#", 78)
+		banner2 = strings.Repeat("-", 78)
+
+	case OpsMsgClassFATAL:
 		// OpsMsgClassFATAL - 2 Message is a Fatal Error Message
 		title = "FATAL ERROR Message"
-		msgPrefix = "Error Number: "
-		banner = strings.Repeat("!", 75)
-	case 3:
+		numTitle = "Error Number: "
+		banner1 = strings.Repeat("!", 78)
+		banner2 = strings.Repeat("-", 78)
+
+	case OpsMsgClassINFO:
 		// OpsMsgClassINFO - 3 Message is an Informational Message
 		title = "Information Message"
-		banner = strings.Repeat("_", 75)
-case 4:
+		numTitle = "Info Msg Number"
+		banner1 = strings.Repeat("*", 78)
+		banner2 = strings.Repeat("-", 78)
+
+	case OpsMsgClassWARNING:
 		// OpsMsgClassWARNING - 4 Message is a warning Message
 		title = "WARNING Message"
-		banner = strings.Repeat("?", 75)
+		numTitle = "Warning Msg Number"
+		banner1 = strings.Repeat("?", 78)
+		banner2 = strings.Repeat("-", 78)
+
+	case OpsMsgClassDEBUG:
+		// OpsMsgClassDEBUG - 5 Message is a Debug Message
+		title = "DEBUG Message"
+		numTitle = "DEBUG - Message Number"
+		banner1 = strings.Repeat("@", 78)
+		banner2 = strings.Repeat("-", 78)
+
+	case OpsMsgClassSUCCESSFULCOMPLETION:
+		// OpsMsgClassSUCCESSFULCOMPLETION - 6 Message signalling successful
+		// completion of the operation
+		title = "Successful Completion"
+		numTitle = "Successful Completion Msg Number"
+		banner1 = strings.Repeat("&", 78)
+		banner2 = strings.Repeat("-", 78)
+
 	default:
-		title = "Message"
-		banner = strings.Repeat("_", 75)
+		// This should never happen
+		panic("OpsMsgDto.getMsgTitle() - Invalid opsMsg.MsgClass")
 	}
 
-	if opsMsg.msgId != 0 {
-		msgNo = msgPrefix + ": " + string(opsMsg.msgNumber)
-	} else {
-		msgNo = ""
-	}
-
-
-	return title, msgNo, banner
+	return banner1, banner2, title, numTitle
 }
 
 
-func(opsMsg *OpsMsgDto) setDebugMsg(msg string) {
-	banner := "\n" + strings.Repeat("+", 75)
+func(opsMsg *OpsMsgDto) setDebugMsgText(banner1, banner2, title, numTitle, msg string) {
+
 	m := "\n\n"
-	m += banner
+	m += "\n" + banner1
+	m += "\n" + title
 	// FmtDateTimeTzNanoYMD
 	dt := DateTimeUtility{}
 	timeStamp := "Local Time: " + dt.GetDateTimeTzNanoSecText(opsMsg.MsgTimeLocal)
-	timeStamp += "     UTC Time: " + dt.GetDateTimeTzNanoSecText(opsMsg.MsgTimeUTC)
-	m += "\nDEBUG Message: "
-	m += timeStamp
-	m += "\n" + msg
-	m += banner
+	timeStamp += "    UTC Time: " + dt.GetDateTimeTzNanoSecText(opsMsg.MsgTimeUTC)
+
+	m += "\n"
+	if opsMsg.msgId != 0 {
+		m+= numTitle + ": " + string(opsMsg.msgNumber)
+		m+= "    Time Stamp: " + timeStamp
+	} else {
+		m+= "Time Stamp: " + timeStamp
+	}
+
+	m += "\nMessage: " + msg
+	m += "\n" + banner1
+
 
 	opsMsg.Message = append(opsMsg.Message, m)
 }
 
-func(opsMsg *OpsMsgDto) setMsg(msg string) {
+func(opsMsg *OpsMsgDto) setMsgText(msg string) {
+	var m string
+	banner1, banner2, title, numTitle := opsMsg.getMsgTitle()
 
-  title, banner, msgNo := opsMsg.getMsgTitle()
-
-	m:= "\n\n"
-	m += "\n" + banner
-	m += "\n                " + title
-	m += "\n" + banner
-	m += "\n" + msg
-	m += "\n" + banner
-
-	if msgNo != "" {
-		m += "\n" + msgNo
+	if opsMsg.MsgClass == OpsMsgClassSUCCESSFULCOMPLETION {
+		opsMsg.setSuccessfulCompletionMsgText(banner1, banner2, title, numTitle)
+		return
 	}
 
+	if opsMsg.MsgClass == OpsMsgClassNOERRORSNOMESSAGES {
+		opsMsg.setEmptyMessageText(banner1, banner2, title, numTitle)
+		return
+	}
+
+
+	if opsMsg.MsgClass == OpsMsgClassDEBUG {
+		opsMsg.setDebugMsgText(banner1, banner2, title, numTitle, msg)
+		return
+	}
+
+	m= "\n\n"
+	m += "\n" + banner1
+	m += "\n     " + title
+	m += "\n" + banner1
+	if opsMsg.msgNumber != 0 {
+		m+= "\n"  + numTitle + ": " + string(opsMsg.msgNumber)
+	}
+	m += "\n" + msg
+	m += "\n" + banner2
+
+
 	m += "\n Message Type: " + opsMsg.MsgType.String()
-	m += "\nMessage Level: " + opsMsg.MsgClass.String()
-	m += "\n" + banner
+	m += "\nMessage Class: " + opsMsg.MsgClass.String()
+	m += "\n" + banner2
+	m += "\n" + "Time Stamp:"
+	m += "\n" + banner2
 	dt := DateTimeUtility{}
 	dtFmt := "2006-01-02 Mon 15:04:05.000000000 -0700 MST"
 	m += fmt.Sprintf("\n  Message Time UTC: %v ", dt.GetDateTimeCustomFmt(opsMsg.MsgTimeUTC, dtFmt))
@@ -494,13 +828,73 @@ func(opsMsg *OpsMsgDto) setMsg(msg string) {
 	}
 
 	m += localTz
-	m += "\n" + banner
+	m += "\n" + banner1
+
+	opsMsg.Message = append(opsMsg.Message, m)
+}
+
+func (opsMsg *OpsMsgDto) setEmptyMessageText(banner1, banner2, title, numTitle string) {
+	m := "\n\n"
+	m += "\n" + banner1
+	m += "\n     " + title
+	m += "\n" + banner1
+	if opsMsg.msgNumber != 0 {
+		m+= "\n"  + numTitle + ": " + string(opsMsg.msgNumber)
+	}
+	m += "\n" + banner2
+	m += "\n" + "Time Stamp:"
+	m += "\n" + banner2
+	dt := DateTimeUtility{}
+	dtFmt := "2006-01-02 Mon 15:04:05.000000000 -0700 MST"
+	m += fmt.Sprintf("\n  Message Time UTC: %v ", dt.GetDateTimeCustomFmt(opsMsg.MsgTimeUTC, dtFmt))
+	m += fmt.Sprintf("\nMessage Time Local: %v ", dt.GetDateTimeCustomFmt(opsMsg.MsgTimeLocal, dtFmt))
+	m += "\n   Local Time Zone:"
+	localTz := opsMsg.MsgLocalTimeZone
+
+	if localTz == "Local" || localTz == "local" {
+		localZone, _ := time.Now().Zone()
+		localTz += " - " + localZone
+	}
+
+	m += localTz
+	m += "\n" + banner1
 
 	opsMsg.Message = append(opsMsg.Message, m)
 
 }
 
-// SetTime - Sets the time stamp for this Operations
+func (opsMsg *OpsMsgDto) setSuccessfulCompletionMsgText(banner1, banner2, title, numTitle string) {
+	m := "\n\n"
+	m += "\n" + banner1
+	m += "\n     " + title
+	m += "\n" + banner1
+	if opsMsg.msgNumber != 0 {
+		m+= "\n"  + numTitle + ": " + string(opsMsg.msgNumber)
+	}
+	m += "\n" + banner2
+	m += "\n" + "Time Stamp:"
+	m += "\n" + banner2
+	dt := DateTimeUtility{}
+	dtFmt := "2006-01-02 Mon 15:04:05.000000000 -0700 MST"
+	m += fmt.Sprintf("\n  Message Time UTC: %v ", dt.GetDateTimeCustomFmt(opsMsg.MsgTimeUTC, dtFmt))
+	m += fmt.Sprintf("\nMessage Time Local: %v ", dt.GetDateTimeCustomFmt(opsMsg.MsgTimeLocal, dtFmt))
+	m += "\n   Local Time Zone:"
+	localTz := opsMsg.MsgLocalTimeZone
+
+	if localTz == "Local" || localTz == "local" {
+		localZone, _ := time.Now().Zone()
+		localTz += " - " + localZone
+	}
+
+	m += localTz
+	m += "\n" + banner1
+
+	opsMsg.Message = append(opsMsg.Message, m)
+
+}
+
+
+// setTime - Sets the time stamp for this Operations
 // Message. Notice that the input parameter 'localTimeZone'
 // is the Iana Time Zone for local time.
 //
@@ -509,7 +903,7 @@ func(opsMsg *OpsMsgDto) setMsg(msg string) {
 // If the 'localTimeZone' parameter string is empty or an
 // invalid time zone, local time zone will default to 'Local'.
 // The 'Local' time zone is determined by the host computer.
-func(opsMsg *OpsMsgDto)SetTime(localTimeZone string){
+func(opsMsg *OpsMsgDto) setTime(localTimeZone string){
 
 	tz := TimeZoneUtility{}
 
@@ -526,3 +920,4 @@ func(opsMsg *OpsMsgDto)SetTime(localTimeZone string){
 	opsMsg.MsgTimeLocal = tzLocal.TimeOut
 
 }
+
