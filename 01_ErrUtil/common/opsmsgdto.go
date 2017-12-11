@@ -120,6 +120,18 @@ func (ci OpsMsgContextInfo) DeepCopyOpsMsgContextInfo() OpsMsgContextInfo {
 	return OpsMsgContextInfo{SourceFileName: ci.SourceFileName, ParentObjectName: ci.ParentObjectName, FuncName: ci.FuncName, BaseMessageId: ci.BaseMessageId}
 }
 
+func (ci *OpsMsgContextInfo) Equal(ci2 *OpsMsgContextInfo) bool {
+	if ci.SourceFileName 		!= ci2.SourceFileName 	||
+			ci.ParentObjectName != ci2.ParentObjectName ||
+			ci.FuncName 				!= ci2.FuncName					||
+			ci.BaseMessageId    != ci2.BaseMessageId		{
+
+				return false
+	}
+
+	return true
+}
+
 // GetBaseOpsMsgDto - Returns an empty
 // OpsMsgDto structure populated with
 // Base Message Context Information
@@ -201,6 +213,46 @@ func (opsMsg *OpsMsgDto) ConfigureMessageContext(newMsgContext OpsMsgContextInfo
 	opsMsg.MsgContext = newMsgContext.DeepCopyOpsMsgContextInfo()
 }
 
+// CopyIn - Receives an OpsMsgDto object as input.
+// Then a deep copy is created and used to populate
+// the current OpsMsgDto object.
+func (opsMsg *OpsMsgDto) CopyIn(opsMsg2 *OpsMsgDto) {
+	opsMsg.Empty()
+	opsMsg.ParentContextHistory = opsMsg2.DeepCopyParentContextHistory(opsMsg2.ParentContextHistory)
+	opsMsg.MsgContext = opsMsg2.MsgContext.DeepCopyOpsMsgContextInfo()
+
+	opsMsg.Message       		= opsMsg2.Message
+	opsMsg.FmtMessage				= opsMsg2.FmtMessage
+	opsMsg.msgId            = opsMsg2.GetMessageId()
+	opsMsg.msgNumber        = opsMsg2.GetMessageNumber()
+	opsMsg.MsgType          = opsMsg2.MsgType
+	opsMsg.MsgClass         = opsMsg2.MsgClass
+	opsMsg.MsgTimeUTC       = opsMsg2.MsgTimeUTC
+	opsMsg.MsgTimeLocal     = opsMsg2.MsgTimeLocal
+	opsMsg.MsgLocalTimeZone = opsMsg2.MsgLocalTimeZone
+
+}
+
+func (opsMsg *OpsMsgDto) CopyOut() OpsMsgDto {
+	
+	opsMsg2 := OpsMsgDto{}
+
+	opsMsg2.ParentContextHistory = opsMsg.DeepCopyParentContextHistory(opsMsg.ParentContextHistory)
+	opsMsg2.MsgContext = opsMsg.MsgContext.DeepCopyOpsMsgContextInfo()
+
+	opsMsg2.Message       	= opsMsg.Message
+	opsMsg2.FmtMessage			= opsMsg.FmtMessage
+	opsMsg2.msgId            = opsMsg.GetMessageId()
+	opsMsg2.msgNumber        = opsMsg.GetMessageNumber()
+	opsMsg2.MsgType          = opsMsg.MsgType
+	opsMsg2.MsgClass         = opsMsg.MsgClass
+	opsMsg2.MsgTimeUTC       = opsMsg.MsgTimeUTC
+	opsMsg2.MsgTimeLocal     = opsMsg.MsgTimeLocal
+	opsMsg2.MsgLocalTimeZone = opsMsg.MsgLocalTimeZone
+	
+	return opsMsg2
+}
+
 // DeepCopyOpsMsgContextInfo - Returns a deep copy of the
 // current MsgContext (OpsMsgContextInfo structure).
 func (opsMsg *OpsMsgDto) DeepCopyMsgContext() OpsMsgContextInfo {
@@ -247,6 +299,42 @@ func (opsMsg *OpsMsgDto) EmptyMsgData() {
 	opsMsg.MsgTimeUTC     	= time.Time{}
 	opsMsg.MsgTimeLocal   	= time.Time{}
 	opsMsg.MsgLocalTimeZone	= ""
+}
+
+func (opsMsg *OpsMsgDto) Equal(opsMsg2 *OpsMsgDto) bool {
+
+	l1 := len(opsMsg.ParentContextHistory)
+	l2 := len(opsMsg2.ParentContextHistory)
+
+	if l1 != l2 {
+		return false
+	}
+
+	for i:= 0; i < l1; i++ {
+		if opsMsg.ParentContextHistory[i].Equal(&opsMsg2.ParentContextHistory[i]) {
+			return false
+		}
+	}
+
+	if !opsMsg.MsgContext.Equal(&opsMsg2.MsgContext) {
+		return false
+	}
+
+	if opsMsg.Message      	!= opsMsg2.Message 								||
+			opsMsg.FmtMessage				!= opsMsg2.FmtMessage					||
+			opsMsg.msgId            != opsMsg2.GetMessageId()			||
+			opsMsg.msgNumber        != opsMsg2.GetMessageNumber()	||
+			opsMsg.MsgType          != opsMsg2.MsgType						||
+			opsMsg.MsgClass         != opsMsg2.MsgClass						||
+			opsMsg.MsgTimeUTC       != opsMsg2.MsgTimeUTC					||
+			opsMsg.MsgTimeLocal     != opsMsg2.MsgTimeLocal				||
+			opsMsg.MsgLocalTimeZone != opsMsg2.MsgLocalTimeZone {
+
+		return false
+	}
+
+	return true
+
 }
 
 // GetError - If the current OpsMsgDto is
