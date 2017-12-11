@@ -511,38 +511,24 @@ func (opsMsg OpsMsgDto) NewWarningMsg(msg string, msgNo int64) OpsMsgDto {
 
 // SetDebugMessage - Configures the current or host
 // OpsMsgDto object as a 'DEBUG' message.
-func (opsMsg *OpsMsgDto) SetDebugMessage(msg string, msgNo int64){
+func (opsMsg *OpsMsgDto) SetDebugMessage(msg string, msgId int64){
 	opsMsg.EmptyMsgData()
 	opsMsg.MsgType = OpsMsgTypeDEBUGMSG
 	opsMsg.MsgClass = OpsMsgClassDEBUG
 
-	if msgNo == 0 {
-		opsMsg.msgId = 0
-		opsMsg.msgNumber = 0
-	} else {
-		opsMsg.msgId = msgNo
-		opsMsg.msgNumber = msgNo + opsMsg.MsgContext.BaseMessageId
-	}
-
-	opsMsg.setTime("Local")
-
-	opsMsg.setMsgText(msg)
+	opsMsg.setMsgText(msg, msgId)
 
 }
 
 // SetFatalErrorMessage - Configures the current or host
 // OpsMsgDto object as an information message.
-func (opsMsg *OpsMsgDto) SetFatalErrorMessage(errMsg string, errNo int64) {
+func (opsMsg *OpsMsgDto) SetFatalErrorMessage(errMsg string, errId int64) {
 
 	opsMsg.EmptyMsgData()
 	opsMsg.MsgType = OpsMsgTypeERRORMSG
 	opsMsg.MsgClass = OpsMsgClassFATAL
 
-	opsMsg.setMsgIdAndMsgNumber(errNo)
-
-	opsMsg.setTime("Local")
-
-	opsMsg.setMsgText(errMsg)
+	opsMsg.setMsgText(errMsg, errId)
 
 }
 
@@ -563,31 +549,29 @@ func (opsMsg *OpsMsgDto) SetFromSpecErrMessage(se SpecErr) {
 
 	opsMsg.MsgContext = OpsMsgContextInfo{SourceFileName:y.SourceFileName, ParentObjectName: y.ParentObjectName, FuncName: y.FuncName, BaseMessageId: y.BaseErrorId}
 
-	seErrId := int64(0)
-
-	if se.ErrNo != 0 {
-		seErrId = se.ErrNo - se.BaseInfo.BaseErrorId
-	}
 
 	switch se.ErrorMsgType {
 
 	case SpecErrTypeNOERRORSALLCLEAR:
-		opsMsg.SetNoErrorsNoMessages(seErrId)
+		opsMsg.SetNoErrorsNoMessages(se.ErrId)
 
 	case SpecErrTypeERROR:
-		opsMsg.SetStdErrorMessage(se.ErrMsg, seErrId)
+		opsMsg.SetStdErrorMessage(se.ErrMsg, se.ErrId)
 
 	case SpecErrTypeFATAL:
-		opsMsg.SetFatalErrorMessage(se.ErrMsg, seErrId)
+		opsMsg.SetFatalErrorMessage(se.ErrMsg, se.ErrId)
 
 	case SpecErrTypeINFO:
-		opsMsg.SetInfoMessage(se.ErrMsg, seErrId)
+		opsMsg.SetInfoMessage(se.ErrMsg, se.ErrId)
 
 	case SpecErrTypeWARNING:
-		opsMsg.SetWarningMessage(se.ErrMsg, seErrId )
+		opsMsg.SetWarningMessage(se.ErrMsg, se.ErrId )
 
 	case SpecErrTypeSUCCESSFULCOMPLETION:
-		opsMsg.SetSuccessfulCompletionMessage(seErrId)
+		opsMsg.SetSuccessfulCompletionMessage(se.ErrId)
+
+	default:
+		panic("OpsMsgDto.SetFromSpecErrMessage() - INVALID SpecErrType Code")
 	}
 
 }
@@ -599,25 +583,17 @@ func (opsMsg *OpsMsgDto) SetInfoMessage(msg string, msgId int64) {
 	opsMsg.MsgType = OpsMsgTypeINFOMSG
 	opsMsg.MsgClass = OpsMsgClassINFO
 
-	opsMsg.setMsgIdAndMsgNumber(msgId)
-	
-	opsMsg.setTime("Local")
-
-	opsMsg.setMsgText(msg)
+	opsMsg.setMsgText(msg, msgId)
 }
 
 // SetStdErrorMessage - Configures the current or host
 // OpsMsgDto object as a standard error message.
-func (opsMsg *OpsMsgDto) SetStdErrorMessage(errMsg string, errNo int64){
+func (opsMsg *OpsMsgDto) SetStdErrorMessage(errMsg string, errId int64){
 	opsMsg.EmptyMsgData()
 	opsMsg.MsgType = OpsMsgTypeERRORMSG
 	opsMsg.MsgClass = OpsMsgClassOPERROR
 
-	opsMsg.setMsgIdAndMsgNumber(errNo)
-
-	opsMsg.setTime("Local")
-
-	opsMsg.setMsgText(errMsg)
+	opsMsg.setMsgText(errMsg, errId)
 
 }
 
@@ -630,40 +606,29 @@ func (opsMsg *OpsMsgDto) SetNoErrorsNoMessages(msgId int64) {
 	opsMsg.MsgType = OpsMsgTypeNOERRORNOMSG
 	opsMsg.MsgClass = OpsMsgClassNOERRORSNOMESSAGES
 
-	opsMsg.setMsgIdAndMsgNumber(msgId)
-
-	opsMsg.setTime("Local")
-	opsMsg.setMsgText("No Errors - No Messages")
+	opsMsg.setMsgText("No Errors - No Messages", msgId)
 
 }
 
 // SetSuccessfulCompletionMessage - Configures the current or host
 // OpsMsgDto object as a Successful Completion Message.
-func (opsMsg *OpsMsgDto) SetSuccessfulCompletionMessage(msgNo int64){
+func (opsMsg *OpsMsgDto) SetSuccessfulCompletionMessage(msgId int64){
 	opsMsg.EmptyMsgData()
 	opsMsg.MsgType = OpsMsgTypeSUCCESSFULCOMPLETION
 	opsMsg.MsgClass = OpsMsgClassSUCCESSFULCOMPLETION
 
-	opsMsg.setMsgIdAndMsgNumber(msgNo)
-	
-	opsMsg.setTime("Local")
-
-	opsMsg.setMsgText("Successful Completion")
+	opsMsg.setMsgText("Successful Completion", msgId)
 
 }
 
 // SetWarningMessage - Configures the current or host
 // OpsMsgDto object as a Warning Message.
-func (opsMsg *OpsMsgDto) SetWarningMessage(msg string, msgNo int64) {
+func (opsMsg *OpsMsgDto) SetWarningMessage(msg string, msgId int64) {
 	opsMsg.EmptyMsgData()
 	opsMsg.MsgType = OpsMsgTypeWARNINGMSG
 	opsMsg.MsgClass = OpsMsgClassWARNING
 
-	opsMsg.setMsgIdAndMsgNumber(msgNo)
-
-	opsMsg.setTime("Local")
-
-	opsMsg.setMsgText(msg)
+	opsMsg.setMsgText(msg, msgId)
 
 }
 
@@ -768,7 +733,12 @@ func(opsMsg *OpsMsgDto) setDebugMsgText(banner1, banner2, title, numTitle, msg s
 	opsMsg.Message = append(opsMsg.Message, m)
 }
 
-func(opsMsg *OpsMsgDto) setMsgText(msg string) {
+func(opsMsg *OpsMsgDto) setMsgText(msg string, msgId int64) {
+
+	opsMsg.setMsgIdAndMsgNumber(msgId)
+
+	opsMsg.setTime("Local")
+
 	var m string
 	banner1, banner2, title, numTitle := opsMsg.getMsgTitle()
 
