@@ -658,7 +658,6 @@ func TestOpsMsgDto_GetError_03(t *testing.T) {
 		t.Error("Expected 'nil' to be returned from information message om.GetError(). It was non nil 'nil'!")
 	}
 
-
 }
 
 func testOpsMsgDtoCreateContextInfoObj() OpsMsgContextInfo {

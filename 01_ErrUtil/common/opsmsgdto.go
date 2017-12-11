@@ -146,7 +146,8 @@ func (ci OpsMsgContextInfo) GetNewParentInfo(srcFile, parentObject, funcName str
 type OpsMsgDto struct {
 	ParentContextHistory [] OpsMsgContextInfo // Function tree showing the execution path leading to this method
 	MsgContext           OpsMsgContextInfo
-	Message              []string
+	Message              string // The original message sent to OpsMsgDto
+	FmtMessage					 string // The formatted message
 	msgId                int64 // The identifying number for this message
 	msgNumber            int64 //  Message Number = msgId + MsgContext.BaseMessageId. This is the number displayed in the message
 	MsgType              OpsMsgType
@@ -237,7 +238,8 @@ func (opsMsg *OpsMsgDto) Empty() {
 // the exception of ParentContextHistory and MsgContext,
 // to an uninitialized or 'empty' state.
 func (opsMsg *OpsMsgDto) EmptyMsgData() {
-	opsMsg.Message 					= make([]string, 0, 20)
+	opsMsg.Message 					= ""
+	opsMsg.FmtMessage   		= ""
 	opsMsg.msgId          	= int64(0) // The identifying number for this message
 	opsMsg.msgNumber      	= int64(0) //  Message Number = msgId + MsgContext.BaseMessageId. This is the number displayed in the message
 	opsMsg.MsgType        	= OpsMsgTypeNOERRORNOMSG
@@ -270,19 +272,7 @@ func (opsMsg *OpsMsgDto) GetError() error {
 // therefore accommodate multiple messages.
 func (opsMsg *OpsMsgDto) GetMessage() string {
 
-	output := ""
-
-	for i:=0; i < len(opsMsg.Message); i++ {
-		if i==0 {
-			output = opsMsg.Message[i]
-		} else {
-			output += "\n"
-			output += opsMsg.Message[i]
-		}
-
-	}
-
-	return output
+	return opsMsg.FmtMessage
 }
 
 // GetMessageId - returns data field 'msgId' for
@@ -708,7 +698,7 @@ func (opsMsg *OpsMsgDto) getMsgTitle() (banner1, banner2, title, numTitle string
 }
 
 
-func(opsMsg *OpsMsgDto) setDebugMsgText(banner1, banner2, title, numTitle, msg string) {
+func(opsMsg *OpsMsgDto) setDebugMsgText(banner1, banner2, title, numTitle string) {
 
 	m := "\n\n"
 	m += "\n" + banner1
@@ -726,11 +716,11 @@ func(opsMsg *OpsMsgDto) setDebugMsgText(banner1, banner2, title, numTitle, msg s
 		m+= "Time Stamp: " + timeStamp
 	}
 
-	m += "\nMessage: " + msg
+	m += "\nMessage: " + opsMsg.Message
 	m += "\n" + banner1
 
 
-	opsMsg.Message = append(opsMsg.Message, m)
+	opsMsg.FmtMessage =  m
 }
 
 func(opsMsg *OpsMsgDto) setMsgText(msg string, msgId int64) {
@@ -738,6 +728,8 @@ func(opsMsg *OpsMsgDto) setMsgText(msg string, msgId int64) {
 	opsMsg.setMsgIdAndMsgNumber(msgId)
 
 	opsMsg.setTime("Local")
+
+	opsMsg.Message = msg
 
 	var m string
 	banner1, banner2, title, numTitle := opsMsg.getMsgTitle()
@@ -754,7 +746,7 @@ func(opsMsg *OpsMsgDto) setMsgText(msg string, msgId int64) {
 
 
 	if opsMsg.MsgClass == OpsMsgClassDEBUG {
-		opsMsg.setDebugMsgText(banner1, banner2, title, numTitle, msg)
+		opsMsg.setDebugMsgText(banner1, banner2, title, numTitle)
 		return
 	}
 
@@ -789,7 +781,7 @@ func(opsMsg *OpsMsgDto) setMsgText(msg string, msgId int64) {
 	m += localTz
 	m += "\n" + banner1
 
-	opsMsg.Message = append(opsMsg.Message, m)
+	opsMsg.FmtMessage =  m
 }
 
 func (opsMsg *OpsMsgDto) setEmptyMessageText(banner1, banner2, title, numTitle string) {
@@ -818,7 +810,7 @@ func (opsMsg *OpsMsgDto) setEmptyMessageText(banner1, banner2, title, numTitle s
 	m += localTz
 	m += "\n" + banner1
 
-	opsMsg.Message = append(opsMsg.Message, m)
+	opsMsg.FmtMessage =  m
 
 }
 
@@ -861,7 +853,7 @@ func (opsMsg *OpsMsgDto) setSuccessfulCompletionMsgText(banner1, banner2, title,
 	m += localTz
 	m += "\n" + banner1
 
-	opsMsg.Message = append(opsMsg.Message, m)
+	opsMsg.FmtMessage =  m
 
 }
 
