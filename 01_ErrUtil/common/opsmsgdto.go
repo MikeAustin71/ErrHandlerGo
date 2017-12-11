@@ -679,6 +679,18 @@ func (opsMsg *OpsMsgDto) SetMessageContext(msgContext OpsMsgContextInfo) {
 	opsMsg.MsgContext = msgContext.DeepCopyOpsMsgContextInfo()
 }
 
+// SetParentMessageContextHistory - Deletes the current opsMsg.ParentContextHistory
+// and replaeces it with the input parameter, 'parentHistory',
+func (opsMsg *OpsMsgDto) SetParentMessageContextHistory( parentHistory []OpsMsgContextInfo) {
+	opsMsg.ParentContextHistory = make([] OpsMsgContextInfo, 0, 30)
+	l1 := len(parentHistory)
+
+	for i:= 0; i < l1; i++ {
+		opsMsg.ParentContextHistory = append(opsMsg.ParentContextHistory, parentHistory[i])
+	}
+
+}
+
 // SetStdErrorMessage - Configures the current or host
 // OpsMsgDto object as a standard error message.
 func (opsMsg *OpsMsgDto) SetStdErrorMessage(errMsg string, errId int64){
