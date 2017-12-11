@@ -120,6 +120,8 @@ func (ci OpsMsgContextInfo) DeepCopyOpsMsgContextInfo() OpsMsgContextInfo {
 	return OpsMsgContextInfo{SourceFileName: ci.SourceFileName, ParentObjectName: ci.ParentObjectName, FuncName: ci.FuncName, BaseMessageId: ci.BaseMessageId}
 }
 
+// Equal - Compares two OpsMsgContextInfo objects
+// to determine if they are equivalent.
 func (ci *OpsMsgContextInfo) Equal(ci2 *OpsMsgContextInfo) bool {
 	if ci.SourceFileName 		!= ci2.SourceFileName 	||
 			ci.ParentObjectName != ci2.ParentObjectName ||
@@ -233,6 +235,9 @@ func (opsMsg *OpsMsgDto) CopyIn(opsMsg2 *OpsMsgDto) {
 
 }
 
+// CopyOut - Makes a deep copy of the current OpsMsgDto
+// and returns it as a new OpsMsgDto with equivalent
+// field values.
 func (opsMsg *OpsMsgDto) CopyOut() OpsMsgDto {
 	
 	opsMsg2 := OpsMsgDto{}
@@ -301,6 +306,9 @@ func (opsMsg *OpsMsgDto) EmptyMsgData() {
 	opsMsg.MsgLocalTimeZone	= ""
 }
 
+// Equal - Compares an incoming OpsMsgDto object
+// with the current OpsMsgDto object to determine
+// if they are equivalent.
 func (opsMsg *OpsMsgDto) Equal(opsMsg2 *OpsMsgDto) bool {
 
 	l1 := len(opsMsg.ParentContextHistory)
