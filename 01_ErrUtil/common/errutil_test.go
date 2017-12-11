@@ -14,7 +14,7 @@ func TestErrorUtility_01(t *testing.T) {
 	ex2 := "TestErrorUtility"
 	ex3 := int64(10000)
 
-	ex4 := "errprefix"
+
 	ex5 := int64(334)
 	ex6 := "Test Error #1"
 	ex7 := ex5 + ex3
@@ -23,11 +23,8 @@ func TestErrorUtility_01(t *testing.T) {
 	a := make([]ErrBaseInfo, 0, 10)
 	bi := ErrBaseInfo{}.New(ex1, ex1ParentObj, ex2, ex3)
 	se := SpecErr{}.InitializeBaseInfo(a, bi)
-	x := se.New(ex4, err, SpecErrTypeFATAL, ex5)
+	x := se.New(err, SpecErrTypeFATAL, ex5)
 
-	if x.PrefixMsg != ex4 {
-		t.Error(fmt.Sprintf("Expected '%v' got", ex4), x.PrefixMsg)
-	}
 
 	if x.ErrMsg != ex6 {
 		t.Error(fmt.Sprintf("Expected '%v' got", ex6), x.ErrMsg)
@@ -163,7 +160,7 @@ func TestSetErrDetail(t *testing.T) {
 	ex2 := "TestErrorUtility"
 	ex3 := int64(10000)
 
-	ex4 := "errprefix"
+
 	ex5 := int64(338)
 	ex6 := "Test Error #21"
 	ex7 := ex5 + ex3
@@ -172,7 +169,7 @@ func TestSetErrDetail(t *testing.T) {
 	a := make([]ErrBaseInfo, 0, 10)
 	bi := ErrBaseInfo{}.New(ex1, ex1ParentObj, ex2, ex3)
 
-	x := SpecErr{}.InitializeBaseInfo(a, bi).New(ex4, err, SpecErrTypeFATAL, ex5)
+	x := SpecErr{}.InitializeBaseInfo(a, bi).New(err, SpecErrTypeFATAL, ex5)
 
 	if x.ErrNo != ex7 {
 		t.Error(fmt.Sprintf("Expected Err No '%v', got", ex7), x.ErrNo)
@@ -208,13 +205,13 @@ func TestIsSpecErrNo(t *testing.T) {
 }
 
 func TestIsSpecErrYes(t *testing.T) {
-	ex1 := "errprefix"
+
 	ex4 := int64(334)
 	ex99 := "Test Error #1"
 
 	err := errors.New(ex99)
 
-	x := SpecErr{}.New(ex1, err, SpecErrTypeFATAL, ex4)
+	x := SpecErr{}.New(err, SpecErrTypeFATAL, ex4)
 
 	isErr := x.CheckIsSpecErr()
 
@@ -234,19 +231,14 @@ func TestSetNoErr(t *testing.T) {
 
 func TestQuickInitialize(t *testing.T) {
 
-	ex1 := "prefixMsg"
 	ex2 := "Error Msg X"
 	err := errors.New(ex2)
 	ex4 := int64(499)
 
-	x := SpecErr{}.New(ex1, err, SpecErrTypeERROR, ex4)
+	x := SpecErr{}.New(err, SpecErrTypeERROR, ex4)
 
 	if x.ErrNo != ex4 {
 		t.Error(fmt.Sprintf("Expected ErrNo: '%v', got", ex4), x.ErrNo)
-	}
-
-	if x.PrefixMsg != ex1 {
-		t.Error(fmt.Sprintf("Expected PrefixMsg == '%v', got", ex1), x.PrefixMsg)
 	}
 
 	if x.ErrMsg != ex2 {
@@ -275,23 +267,18 @@ func TestFullInitialize(t *testing.T) {
 	ex23 := int64(16000)
 	ex2 := bi.New(ex21, ex21ParentObj, ex22, ex23)
 
-	ex3 := "prefixString"
 	ex4 := "Error Msg 99"
 	err := errors.New(ex4)
 	ex5 := false
 	ex6 := int64(22)
 	ex7 := int64(16022)
 
-	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, SpecErrTypeERROR, ex6)
+	x := SpecErr{}.Initialize(ex1, ex2, err, SpecErrTypeERROR, ex6)
 
 	pl := len(x.ParentInfo)
 
 	if pl != 3 {
 		t.Error("Expected ParentInfo length == 3, got", pl)
-	}
-
-	if x.PrefixMsg != ex3 {
-		t.Error(fmt.Sprintf("Expected PrefixMsg '%v', got", ex3), x.PrefixMsg)
 	}
 
 	if x.ErrMsg != ex4 {
@@ -330,17 +317,12 @@ func TestFullInitialize(t *testing.T) {
 
 func TestBlankInitialize(t *testing.T) {
 
-	ex1 := "prefixString"
 	ex2 := "Error Msg 99"
 	err := errors.New(ex2)
 	ex3 := false
 	ex4 := int64(22)
 
-	x := SpecErr{}.Initialize(blankParentInfo, blankErrBaseInfo, ex1, err, SpecErrTypeERROR, ex4)
-
-	if x.PrefixMsg != ex1 {
-		t.Error(fmt.Sprintf("Expected PrefixMsg '%v', got", ex1), x.PrefixMsg)
-	}
+	x := SpecErr{}.Initialize(blankParentInfo, blankErrBaseInfo, err, SpecErrTypeERROR, ex4)
 
 	if x.ErrMsg != ex2 {
 		t.Error(fmt.Sprintf("Expected ErrMsg '%v', got", ex2), x.ErrMsg)
@@ -389,13 +371,12 @@ func TestAddBaseInfoToParent(t *testing.T) {
 	ex23 := int64(16000)
 	ex2 := bi.New(ex21, ex21ParentObj, ex22, ex23)
 
-	ex3 := "prefixString"
 	ex4 := "Error Msg 99"
 	err := errors.New(ex4)
 	ex5 := false
 	ex6 := int64(22)
 
-	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, SpecErrTypeERROR, ex6)
+	x := SpecErr{}.Initialize(ex1, ex2, err, SpecErrTypeERROR, ex6)
 
 	pl := len(x.ParentInfo)
 
@@ -434,12 +415,11 @@ func TestSpecErr_CheckIsSpecErr(t *testing.T) {
 	ex23 := int64(16000)
 	ex2 := bi.New(ex21, ex21ParentObj, ex22, ex23)
 
-	ex3 := "prefixString"
 	ex4 := "Error Msg 99"
 	err := errors.New(ex4)
 	ex6 := int64(22)
 
-	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, SpecErrTypeERROR, ex6)
+	x := SpecErr{}.Initialize(ex1, ex2, err, SpecErrTypeERROR, ex6)
 
 	result := x.CheckIsSpecErr()
 
@@ -465,12 +445,11 @@ func TestSpecErr_CheckIsSpecErrPanic(t *testing.T) {
 	ex23 := int64(16000)
 	ex2 := bi.New(ex21, ex21ParentObj, ex22, ex23)
 
-	ex3 := "prefixString"
 	ex4 := "Error Msg 99"
 	err := errors.New(ex4)
 	ex6 := int64(22)
 
-	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, SpecErrTypeERROR, ex6)
+	x := SpecErr{}.Initialize(ex1, ex2, err, SpecErrTypeERROR, ex6)
 
 	x.IsPanic = true
 
@@ -483,12 +462,12 @@ func TestSpecErr_CheckIsSpecErrPanic(t *testing.T) {
 }
 
 func TestSpecErr_NewErrorMsgString_01(t *testing.T) {
-	prefixString := "prefixString"
+
 	errMsg := "This is the Error Msg!"
 	isPanic := false
 	errNo := int64(22)
 
-	s :=  SpecErr{}.NewErrorMsgString(prefixString, errMsg, SpecErrTypeERROR, errNo)
+	s :=  SpecErr{}.NewErrorMsgString(errMsg, SpecErrTypeERROR, errNo)
 
 	if s.ErrMsg != errMsg {
 		t.Errorf("Expected Error Message= '%v'.  Instead, Error Message = '%v'", errMsg, s.ErrMsg)
@@ -501,12 +480,11 @@ func TestSpecErr_NewErrorMsgString_01(t *testing.T) {
 }
 
 func TestSpecErr_NewErrorMsgString_02(t *testing.T) {
-	prefixString := "prefixString"
 	errMsg := "This is the Error Msg!"
 	isPanic := false
 	errNo := int64(0)
 
-	s :=  SpecErr{}.NewErrorMsgString(prefixString, errMsg, SpecErrTypeERROR, errNo)
+	s :=  SpecErr{}.NewErrorMsgString(errMsg, SpecErrTypeERROR, errNo)
 
 	if s.ErrMsg != errMsg {
 		t.Errorf("Expected Error Message= '%v'.  Instead, Error Message = '%v'", errMsg, s.ErrMsg)
@@ -528,15 +506,13 @@ func TestSpecErr_NewErrorMsgString_02(t *testing.T) {
 
 func TestSpecErr_SetErrorMessageLabel(t *testing.T) {
 
-	prefixString := "prefixString"
 	errMsg := "This is the Error Msg!"
 	errNo := int64(0)
 
-	s :=  SpecErr{}.NewErrorMsgString(prefixString, errMsg, SpecErrTypeERROR, errNo)
+	s :=  SpecErr{}.NewErrorMsgString(errMsg, SpecErrTypeERROR, errNo)
 
-	s.SetErrorMessageLabel("StdOut Error")
 
-	expectedErrMsg := "StdOut Error: " + errMsg
+	expectedErrMsg := errMsg
 	actualErrMsg := s.Error()
 
 	if strings.Contains(actualErrMsg, expectedErrMsg) == false {
@@ -555,7 +531,7 @@ func TestSpecErr_ConfigureParentInfoFromParentSpecErr01(t *testing.T) {
 
 	e := errors.New("This is the error message")
 
-	se := SpecErr{}.Initialize(parentInfo, baseInfo,"Error Prefix", e, SpecErrTypeFATAL, 553 )
+	se := SpecErr{}.Initialize(parentInfo, baseInfo, e, SpecErrTypeFATAL, 553 )
 
 	baseInfo2 := bi.New("TestSrcFileName7", "TestObject7", "TestFuncName7", 7000)
 
@@ -567,7 +543,7 @@ func TestSpecErr_ConfigureParentInfoFromParentSpecErr01(t *testing.T) {
 
 	e2 := errors.New("This is Error Message # 2")
 
-	se2.SetError("Prefix2", e2, SpecErrTypeERROR, 902)
+	se2.SetError(e2, SpecErrTypeERROR, 902)
 
 	if len(se2.ParentInfo) != 6 {
 
@@ -589,9 +565,6 @@ func TestSpecErr_ConfigureParentInfoFromParentSpecErr01(t *testing.T) {
 		t.Error("Expected final error message to contain 'This is Error Message # 2'.  Instead it did NOT!")
 	}
 
-	if !strings.Contains(msg, "Prefix2") {
-		t.Error("Expected final error message to contain 'Prefix2'.  Instead it did NOT!")
-	}
 }
 
 func TestSpecErr_InitializeBaseInfoWithSpecErr01(t *testing.T) {
@@ -604,7 +577,7 @@ func TestSpecErr_InitializeBaseInfoWithSpecErr01(t *testing.T) {
 
 	e := errors.New("This is the error message")
 
-	se := SpecErr{}.Initialize(parentInfo, baseInfo,"Error Prefix", e, SpecErrTypeFATAL, 553 )
+	se := SpecErr{}.Initialize(parentInfo, baseInfo, e, SpecErrTypeFATAL, 553 )
 
 	baseInfo2 := bi.New("TestSrcFileName7", "TestObject7", "TestFuncName7", 7000)
 
@@ -612,7 +585,7 @@ func TestSpecErr_InitializeBaseInfoWithSpecErr01(t *testing.T) {
 
 	e2 := errors.New("This is Error Message # 2")
 
-	se2.SetError("Prefix2", e2, SpecErrTypeERROR, 902)
+	se2.SetError(e2, SpecErrTypeERROR, 902)
 
 	if len(se2.ParentInfo) != 6 {
 
@@ -632,10 +605,6 @@ func TestSpecErr_InitializeBaseInfoWithSpecErr01(t *testing.T) {
 
 	if !strings.Contains(msg,"This is Error Message # 2"){
 		t.Error("Expected final error message to contain 'This is Error Message # 2'.  Instead it did NOT!")
-	}
-
-	if !strings.Contains(msg, "Prefix2") {
-		t.Error("Expected final error message to contain 'Prefix2'.  Instead it did NOT!")
 	}
 
 	if se2.ErrorMsgType != SpecErrTypeERROR {
@@ -654,7 +623,7 @@ func TestSpecErr_NewInfoMsgString01(t *testing.T) {
 
 	e := errors.New("This is an error message #1")
 
-	se := SpecErr{}.Initialize(parentInfo, baseInfo,"Error Prefix", e, SpecErrTypeFATAL, 553 )
+	se := SpecErr{}.Initialize(parentInfo, baseInfo, e, SpecErrTypeFATAL, 553 )
 
 	baseInfo2 := bi.New("TestSrcFileName7", "TestObject7", "TestFuncName7", 7000)
 
@@ -662,7 +631,7 @@ func TestSpecErr_NewInfoMsgString01(t *testing.T) {
 
 	iMsg := "This is Information Message # 2"
 
-	se2.SetErrorWithMessage("Prefix2", iMsg, SpecErrTypeINFO, 902)
+	se2.SetErrorWithMessage(iMsg, SpecErrTypeINFO, 902)
 
 	if len(se2.ParentInfo) != 6 {
 
@@ -682,10 +651,6 @@ func TestSpecErr_NewInfoMsgString01(t *testing.T) {
 
 	if !strings.Contains(msg,iMsg){
 		t.Errorf("Expected final error message to contain '%v'.  Instead it did NOT!", iMsg)
-	}
-
-	if !strings.Contains(msg, "Prefix2") {
-		t.Error("Expected final error message to contain 'Prefix2'.  Instead, it did NOT!")
 	}
 
 	if se2.ErrorMsgType != SpecErrTypeINFO {
@@ -704,7 +669,7 @@ func TestSpecErr_NewWarningMsgString01(t *testing.T) {
 
 	e := errors.New("This is an error message #1")
 
-	se := SpecErr{}.Initialize(parentInfo, baseInfo,"Error Prefix", e, SpecErrTypeFATAL, 553 )
+	se := SpecErr{}.Initialize(parentInfo, baseInfo, e, SpecErrTypeFATAL, 553 )
 
 	baseInfo2 := bi.New("TestSrcFileName7", "TestObject7", "TestFuncName7", 7000)
 
@@ -712,7 +677,7 @@ func TestSpecErr_NewWarningMsgString01(t *testing.T) {
 
 	iMsg := "This is Warning Message # 2"
 
-	se2.SetErrorWithMessage("Prefix2", iMsg, SpecErrTypeWARNING, 902)
+	se2.SetErrorWithMessage(iMsg, SpecErrTypeWARNING, 902)
 
 	if len(se2.ParentInfo) != 6 {
 
@@ -734,10 +699,6 @@ func TestSpecErr_NewWarningMsgString01(t *testing.T) {
 		t.Errorf("Expected final error message to contain '%v'.  Instead it did NOT!", iMsg)
 	}
 
-	if !strings.Contains(msg, "Prefix2") {
-		t.Error("Expected final error message to contain 'Prefix2'.  Instead, it did NOT!")
-	}
-
 	if se2.ErrorMsgType != SpecErrTypeWARNING {
 		t.Errorf("Expected 'SpecErrTypeINFO'. Instead, got '%v'", se2.ErrorMsgType)
 	}
@@ -748,12 +709,11 @@ func TestSpecErr_SetStdError_01(t *testing.T) {
 	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
 	currBaseInfo := testCreateSpecErrBaseInfoObject()
 	xMsg := "This is error msg 1"
-	xPrefix := "Prefix1"
 	xType := SpecErrTypeERROR
 
 	se := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
 
-	se.SetStdError(xPrefix,xMsg, 822)
+	se.SetStdError(xMsg, 822)
 
 	if len(se.ParentInfo) != 5 {
 		t.Errorf("Expected length of se.ParentInfo array == 5. Instead, array length == '%v'", len(se.ParentInfo))
@@ -771,10 +731,6 @@ func TestSpecErr_SetStdError_01(t *testing.T) {
 
 	if !strings.Contains(msg,xMsg){
 		t.Errorf("Expected final error message to contain '%v'.  Instead it did NOT!", xMsg)
-	}
-
-	if !strings.Contains(msg, xPrefix) {
-		t.Errorf("Expected final error message to contain '%v'.  Instead, it did NOT!", xPrefix)
 	}
 
 	if se.ErrorMsgType != xType {
@@ -786,12 +742,11 @@ func TestSpecErr_SetFatalError_01(t *testing.T) {
 	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
 	currBaseInfo := testCreateSpecErrBaseInfoObject()
 	xMsg := "This is fatal error msg 1"
-	xPrefix := "Prefix1"
 	xType := SpecErrTypeFATAL
 
 	se := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
 
-	se.SetFatalError(xPrefix,xMsg, 822)
+	se.SetFatalError(xMsg, 822)
 
 	if len(se.ParentInfo) != 5 {
 		t.Errorf("Expected length of se.ParentInfo array == 5. Instead, array length == '%v'", len(se.ParentInfo))
@@ -809,10 +764,6 @@ func TestSpecErr_SetFatalError_01(t *testing.T) {
 
 	if !strings.Contains(msg,xMsg){
 		t.Errorf("Expected final error message to contain '%v'.  Instead it did NOT!", xMsg)
-	}
-
-	if !strings.Contains(msg, xPrefix) {
-		t.Errorf("Expected final error message to contain '%v'.  Instead, it did NOT!", xPrefix)
 	}
 
 	str := se.String()
@@ -830,12 +781,11 @@ func TestSpecErr_SetInfoMsg_01(t *testing.T) {
 	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
 	currBaseInfo := testCreateSpecErrBaseInfoObject()
 	xMsg := "This is information msg 1"
-	xPrefix := "Prefix1"
 	xType := SpecErrTypeINFO
 
 	se := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
 
-	se.SetInfoMessage(xPrefix,xMsg, 822)
+	se.SetInfoMessage(xMsg, 822)
 
 	if len(se.ParentInfo) != 5 {
 		t.Errorf("Expected length of se.ParentInfo array == 5. Instead, array length == '%v'", len(se.ParentInfo))
@@ -853,10 +803,6 @@ func TestSpecErr_SetInfoMsg_01(t *testing.T) {
 
 	if !strings.Contains(msg,xMsg){
 		t.Errorf("Expected final error message to contain '%v'.  Instead it did NOT!", xMsg)
-	}
-
-	if !strings.Contains(msg, xPrefix) {
-		t.Errorf("Expected final error message to contain '%v'.  Instead, it did NOT!", xPrefix)
 	}
 
 	str := se.String()
@@ -874,12 +820,11 @@ func TestSpecErr_SetWarningMsg_01(t *testing.T) {
 	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
 	currBaseInfo := testCreateSpecErrBaseInfoObject()
 	xMsg := "This is warning msg 1"
-	xPrefix := "Prefix1"
 	xType := SpecErrTypeWARNING
 
 	se := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
 
-	se.SetWarningMessage(xPrefix,xMsg, 822)
+	se.SetWarningMessage(xMsg, 822)
 
 	if len(se.ParentInfo) != 5 {
 		t.Errorf("Expected length of se.ParentInfo array == 5. Instead, array length == '%v'", len(se.ParentInfo))
@@ -897,10 +842,6 @@ func TestSpecErr_SetWarningMsg_01(t *testing.T) {
 
 	if !strings.Contains(msg,xMsg){
 		t.Errorf("Expected final error message to contain '%v'.  Instead it did NOT!", xMsg)
-	}
-
-	if !strings.Contains(msg, xPrefix) {
-		t.Errorf("Expected final error message to contain '%v'.  Instead, it did NOT!", xPrefix)
 	}
 
 	str := se.String()
@@ -919,11 +860,10 @@ func TestSpecErr_CopyOut_01(t *testing.T) {
 	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
 	currBaseInfo := testCreateSpecErrBaseInfoObject()
 	xMsg := "This is information msg 1"
-	xPrefix := "Prefix1"
 
 	s := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
 
-	s.SetInfoMessage(xPrefix,xMsg, 822)
+	s.SetInfoMessage(xMsg, 822)
 
 	s2 := s.CopyOut()
 
@@ -938,11 +878,10 @@ func TestSpecErr_CopyIn_01(t *testing.T) {
 	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
 	currBaseInfo := testCreateSpecErrBaseInfoObject()
 	xMsg := "This is information msg 1"
-	xPrefix := "Prefix1"
 
 	s := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
 
-	s.SetInfoMessage(xPrefix,xMsg, 822)
+	s.SetInfoMessage(xMsg, 822)
 
 	s2 := SpecErr{}
 
@@ -959,11 +898,10 @@ func TestSpecErr_Equal_01(t *testing.T) {
 	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
 	currBaseInfo := testCreateSpecErrBaseInfoObject()
 	xMsg := "This is information msg 1"
-	xPrefix := "Prefix1"
 
 	s := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
 
-	s.SetInfoMessage(xPrefix,xMsg, 822)
+	s.SetInfoMessage(xMsg, 822)
 
 	s2 := s.CopyOut()
 
@@ -980,11 +918,10 @@ func TestSpecErr_Equal_02(t *testing.T) {
 	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
 	currBaseInfo := testCreateSpecErrBaseInfoObject()
 	xMsg := "This is information msg 1"
-	xPrefix := "Prefix1"
 
 	s := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
 
-	s.SetInfoMessage(xPrefix,xMsg, 822)
+	s.SetInfoMessage(xMsg, 822)
 
 	s2 := s.CopyOut()
 
@@ -1001,11 +938,10 @@ func TestSpecErr_Equal_03(t *testing.T) {
 	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
 	currBaseInfo := testCreateSpecErrBaseInfoObject()
 	xMsg := "This is information msg 1"
-	xPrefix := "Prefix1"
 
 	s := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
 
-	s.SetInfoMessage(xPrefix,xMsg, 822)
+	s.SetInfoMessage(xMsg, 822)
 
 	s2 := s.CopyOut()
 
@@ -1022,11 +958,10 @@ func TestSpecErr_Equal_04(t *testing.T) {
 	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
 	currBaseInfo := testCreateSpecErrBaseInfoObject()
 	xMsg := "This is information msg 1"
-	xPrefix := "Prefix1"
 
 	s := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
 
-	s.SetInfoMessage(xPrefix,xMsg, 822)
+	s.SetInfoMessage(xMsg, 822)
 
 	s2 := s.CopyOut()
 
@@ -1043,15 +978,14 @@ func TestSpecErr_Equal_05(t *testing.T) {
 	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
 	currBaseInfo := testCreateSpecErrBaseInfoObject()
 	xMsg := "This is information msg 1"
-	xPrefix := "Prefix1"
 
 	s := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
 
-	s.SetInfoMessage(xPrefix,xMsg, 822)
+	s.SetInfoMessage(xMsg, 822)
 
 	s2 := s.CopyOut()
 
-	s2.PrefixMsg = "xxx"
+	s2.ErrNo = 47
 
 	if s.Equal(&s2) {
 		t.Error("Expected after changes to s2, s!=s2. However, s==s2!")
@@ -1064,11 +998,10 @@ func TestSpecErr_Equal_06(t *testing.T) {
 	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
 	currBaseInfo := testCreateSpecErrBaseInfoObject()
 	xMsg := "This is information msg 1"
-	xPrefix := "Prefix1"
 
 	s := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
 
-	s.SetInfoMessage(xPrefix,xMsg, 822)
+	s.SetInfoMessage(xMsg, 822)
 
 	s2 := s.CopyOut()
 
@@ -1085,11 +1018,10 @@ func TestSpecErr_Equal_07(t *testing.T) {
 	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
 	currBaseInfo := testCreateSpecErrBaseInfoObject()
 	xMsg := "This is information msg 1"
-	xPrefix := "Prefix1"
 
 	s := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
 
-	s.SetInfoMessage(xPrefix,xMsg, 822)
+	s.SetInfoMessage(xMsg, 822)
 
 	s2 := s.CopyOut()
 
@@ -1106,11 +1038,10 @@ func TestSpecErr_Equal_08(t *testing.T) {
 	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
 	currBaseInfo := testCreateSpecErrBaseInfoObject()
 	xMsg := "This is information msg 1"
-	xPrefix := "Prefix1"
 
 	s := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
 
-	s.SetInfoMessage(xPrefix,xMsg, 822)
+	s.SetInfoMessage(xMsg, 822)
 
 	s2 := s.CopyOut()
 
@@ -1127,15 +1058,14 @@ func TestSpecErr_Equal_09(t *testing.T) {
 	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
 	currBaseInfo := testCreateSpecErrBaseInfoObject()
 	xMsg := "This is information msg 1"
-	xPrefix := "Prefix1"
 
 	s := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
 
-	s.SetInfoMessage(xPrefix,xMsg, 822)
+	s.SetInfoMessage(xMsg, 822)
 
 	s2 := s.CopyOut()
 
-	s2.ErrMsgLabel = "xxxx"
+	s2.BaseInfo.ParentObjectName = "X25"
 
 	if s.Equal(&s2) {
 		t.Error("Expected after changes to s2, s!=s2. However, s==s2!")
@@ -1148,11 +1078,10 @@ func TestSpecErr_Equal_10(t *testing.T) {
 	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
 	currBaseInfo := testCreateSpecErrBaseInfoObject()
 	xMsg := "This is information msg 1"
-	xPrefix := "Prefix1"
 
 	s := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
 
-	s.SetInfoMessage(xPrefix,xMsg, 822)
+	s.SetInfoMessage(xMsg, 822)
 
 	s2 := s.CopyOut()
 
@@ -1167,11 +1096,10 @@ func TestSpecErr_Empty_01(t *testing.T) {
 	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
 	currBaseInfo := testCreateSpecErrBaseInfoObject()
 	xMsg := "This is warning msg 1"
-	xPrefix := "Prefix1"
 
 	se := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
 
-	se.SetWarningMessage(xPrefix,xMsg, 822)
+	se.SetWarningMessage(xMsg, 822)
 
 	se.Empty()
 
@@ -1205,11 +1133,10 @@ func TestSpecErr_EmptyMsgData_01(t *testing.T) {
 	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
 	currBaseInfo := testCreateSpecErrBaseInfoObject()
 	xMsg := "This is warning msg 1"
-	xPrefix := "Prefix1"
 
 	se := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
 
-	se.SetWarningMessage(xPrefix,xMsg, 822)
+	se.SetWarningMessage(xMsg, 822)
 
 	se.EmptyMsgData()
 

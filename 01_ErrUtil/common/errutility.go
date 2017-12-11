@@ -131,8 +131,6 @@ type SpecErr struct {
 	ErrorMsgType				SpecErrMsgType
 	IsErr              	bool
 	IsPanic            	bool
-	PrefixMsg          	string
-	ErrMsgLabel        	string
 	ErrMsg             	string
 	ErrNo              	int64
 }
@@ -234,8 +232,6 @@ func (s *SpecErr) CopyIn(s2 SpecErr) {
 	s.ErrorMsgType				= s2.ErrorMsgType
 	s.IsErr              	= s2.IsErr
 	s.IsPanic            	= s2.IsPanic
-	s.PrefixMsg          	= s2.PrefixMsg
-	s.ErrMsgLabel        	= s2.ErrMsgLabel
 	s.ErrMsg             	= s2.ErrMsg
 	s.ErrNo              	= s2.ErrNo
 }
@@ -252,8 +248,6 @@ func (s *SpecErr) CopyOut() SpecErr {
 	se.ErrorMsgType				= s.ErrorMsgType
 	se.IsErr              	= s.IsErr
 	se.IsPanic            	= s.IsPanic
-	se.PrefixMsg          	= s.PrefixMsg
-	se.ErrMsgLabel        	= s.ErrMsgLabel
 	se.ErrMsg             	= s.ErrMsg
 	se.ErrNo              	= s.ErrNo
 
@@ -308,8 +302,6 @@ func (s *SpecErr) Equal( s2 *SpecErr) bool {
 			s.ErrorMsgType 				!= s2.ErrorMsgType ||
 			s.IsErr								!= s2.IsErr ||
 			s.IsPanic							!= s2.IsPanic ||
-			s.PrefixMsg 					!= s2.PrefixMsg ||
-			s.ErrMsgLabel 				!= s2.ErrMsgLabel ||
 			s.ErrMsg 							!= s2.ErrMsg ||
 			s.ErrNo 							!= s2.ErrNo {
 
@@ -337,8 +329,6 @@ func (s *SpecErr) EmptyMsgData() {
 	s.ErrorMsgType				= SpecErrTypeNOERRORSALLCLEAR
 	s.IsErr              	= false
 	s.IsPanic            	= false
-	s.PrefixMsg          	= ""
-	s.ErrMsgLabel        	= ""
 	s.ErrMsg             	= ""
 	s.ErrNo              	= int64(0)
 }
@@ -398,16 +388,9 @@ func (s SpecErr) Error() string {
 		m += fmt.Sprintf("\n  %v: %v", noTitle, s.ErrNo)
 	}
 
-	if s.PrefixMsg != "" {
-		m += "\n"
-		m += s.PrefixMsg
-	}
 
 	m+= "\n"
 
-	if s.ErrMsgLabel != "" {
-		m+= s.ErrMsgLabel + ": "
-	}
 
 	m += s.ErrMsg
 	m += banner2
@@ -504,9 +487,6 @@ func (s SpecErr) InitializeBaseInfo(parent []ErrBaseInfo, currentBaseInfo ErrBas
 // bi ErrBaseInfo 			 -	This represents the base information associated with the
 //													current function in which the error occurred.
 //
-// prefix string - 	This string will be prefixed and printed before the error
-//									message.
-//
 // err error		 - 	Type Error containing the error message which will be associated
 //									with this SpecErr object.
 //
@@ -517,8 +497,8 @@ func (s SpecErr) InitializeBaseInfo(parent []ErrBaseInfo, currentBaseInfo ErrBas
 //									error message. If 'errNo' is set to zero - no error number will be
 //									will be displayed in the final error message.
 //
-func (s SpecErr) Initialize(parent []ErrBaseInfo, bi ErrBaseInfo, prefix string, err error, errType SpecErrMsgType, errNo int64) SpecErr {
-	return s.InitializeBaseInfo(parent, bi).New(prefix, err, errType, errNo)
+func (s SpecErr) Initialize(parent []ErrBaseInfo, bi ErrBaseInfo, err error, errType SpecErrMsgType, errNo int64) SpecErr {
+	return s.InitializeBaseInfo(parent, bi).New(err, errType, errNo)
 
 }
 
@@ -530,8 +510,6 @@ func (s SpecErr) Initialize(parent []ErrBaseInfo, bi ErrBaseInfo, prefix string,
 // in the error message.
 //
 // Input Parameters:
-// prefix string - 	This string will be prefixed and printed before the error
-//									message.
 //
 // err error		 - 	Type Error containing the error message which will be associated
 //									with this SpecErr object.
@@ -543,7 +521,7 @@ func (s SpecErr) Initialize(parent []ErrBaseInfo, bi ErrBaseInfo, prefix string,
 //									error message. If 'errNo' is set to zero - no error number will be
 //									will be displayed in the final error message.
 //
-func (s SpecErr) New(prefix string, err error, errType SpecErrMsgType, errNo int64) SpecErr {
+func (s SpecErr) New(err error, errType SpecErrMsgType, errNo int64) SpecErr {
 
 
 	se := SpecErr{
@@ -555,16 +533,16 @@ func (s SpecErr) New(prefix string, err error, errType SpecErrMsgType, errNo int
 
 	switch errType {
 	case SpecErrTypeERROR:
-		se.SetStdError(prefix, errMsg, errNo)
+		se.SetStdError(errMsg, errNo)
 
 	case SpecErrTypeFATAL:
-		se.SetFatalError(prefix, errMsg, errNo)
+		se.SetFatalError(errMsg, errNo)
 
 	case SpecErrTypeINFO:
-		se.SetInfoMessage(prefix, errMsg, errNo)
+		se.SetInfoMessage(errMsg, errNo)
 
 	case SpecErrTypeWARNING:
-		se.SetWarningMessage(prefix, errMsg, errNo)
+		se.SetWarningMessage(errMsg, errNo)
 
 	case SpecErrTypeSUCCESSFULCOMPLETION:
 		se.SetSuccessfulCompletion(errNo)
@@ -582,9 +560,6 @@ func (s SpecErr) New(prefix string, err error, errType SpecErrMsgType, errNo int
 // Note: If you set errNo == zero, no error number will be displayed in the
 // in the error message.
 // Input Parameters:
-// prefix string - 	This string will be prefixed and printed before the error
-//									message.
-//
 // errMsg string - 	This strings contains the error message which will be associated
 //									with this SpecErr object.
 //
@@ -595,7 +570,7 @@ func (s SpecErr) New(prefix string, err error, errType SpecErrMsgType, errNo int
 //									error message. If 'errNo' is set to zero - no error number will be
 //									will be displayed in the final error message.
 //
-func (s SpecErr) NewErrorMsgString(prefix string, errMsg string, errType SpecErrMsgType, errNo int64 ) SpecErr {
+func (s SpecErr) NewErrorMsgString(errMsg string, errType SpecErrMsgType, errNo int64 ) SpecErr {
 
 	se := SpecErr{
 		ParentInfo: s.DeepCopyParentInfo(s.ParentInfo),
@@ -604,16 +579,16 @@ func (s SpecErr) NewErrorMsgString(prefix string, errMsg string, errType SpecErr
 
 	switch errType {
 	case SpecErrTypeERROR:
-		se.SetStdError(prefix, errMsg, errNo)
+		se.SetStdError(errMsg, errNo)
 
 	case SpecErrTypeFATAL:
-		se.SetFatalError(prefix, errMsg, errNo)
+		se.SetFatalError(errMsg, errNo)
 
 	case SpecErrTypeINFO:
-		se.SetInfoMessage(prefix, errMsg, errNo)
+		se.SetInfoMessage(errMsg, errNo)
 
 	case SpecErrTypeWARNING:
-		se.SetWarningMessage(prefix, errMsg, errNo)
+		se.SetWarningMessage(errMsg, errNo)
 
 	case SpecErrTypeSUCCESSFULCOMPLETION:
 		se.SetSuccessfulCompletion(errNo)
@@ -660,7 +635,7 @@ func (s *SpecErr) SetBaseInfo(bi ErrBaseInfo) {
 }
 
 // SetError - Sets the error message for the current or host SpecErr object.
-func (s *SpecErr) SetError(prefix string, err error, errType SpecErrMsgType, errNo int64) {
+func (s *SpecErr) SetError(err error, errType SpecErrMsgType, errNo int64) {
 
 	if errType == SpecErrTypeSUCCESSFULCOMPLETION {
 		s.SetSuccessfulCompletion(errNo)
@@ -674,7 +649,7 @@ func (s *SpecErr) SetError(prefix string, err error, errType SpecErrMsgType, err
 	}
 
 	s.ErrorMsgType = errType
-	s.PrefixMsg = prefix
+
 
 	if errNo != 0 {
 		s.ErrNo = errNo + s.BaseInfo.BaseErrorId
@@ -702,29 +677,15 @@ func (s *SpecErr) SetError(prefix string, err error, errType SpecErrMsgType, err
 	s.SetTime("Local")
 }
 
-// SetErrorMessageLabel - If an Error Message Label is needed
-// the Error message, set the value Error Message Label
-// here.  This method merely sets the SpecErr string field,
-// SpecErr.ErrMsgLabel. Of course this field can also be
-// set directly with the use of this method.
-//
-// If the SpecErr.ErrMsgLabel is set to "StdOut Err", the
-// error message will be formatted as :
-// 						"StdOut Err: Your Error Message"
-func (s *SpecErr) SetErrorMessageLabel(errorMsgLabel string) {
-	s.ErrMsgLabel = errorMsgLabel
-}
-
-
 // SetErrorWithMessage - Configures the current or host SpecErr object according to
 // input parameters and an error message string.
-func (s *SpecErr) SetErrorWithMessage(prefix string, errMsg string, errType SpecErrMsgType, errNo int64 ) {
+func (s *SpecErr) SetErrorWithMessage(errMsg string, errType SpecErrMsgType, errNo int64 ) {
 
 	s.EmptyMsgData()
 
 	if errType == SpecErrTypeERROR || errType== SpecErrTypeFATAL {
 		err := errors.New(errMsg)
-		s.SetError(prefix, err, errType, errNo)
+		s.SetError(err, errType, errNo)
 		return
 	}
 
@@ -737,7 +698,7 @@ func (s *SpecErr) SetErrorWithMessage(prefix string, errMsg string, errType Spec
 	s.IsErr = false
 	s.IsPanic = false
 	s.ErrMsg = errMsg
-	s.PrefixMsg = prefix
+
 
 	if errNo == 0 {
 		s.ErrNo = 0
@@ -750,22 +711,21 @@ func (s *SpecErr) SetErrorWithMessage(prefix string, errMsg string, errType Spec
 
 // SetFatalError - Sets the value of the current or host SpecErr object
 // to a FATAL error.  Both IsPanic IsErr are set to 'true'.
-func (s *SpecErr) SetFatalError(prefix string, errMsg string, errNo int64) {
+func (s *SpecErr) SetFatalError(errMsg string, errNo int64) {
 
 	s.EmptyMsgData()
 	newErr := errors.New(errMsg)
-	s.SetError(prefix,newErr, SpecErrTypeFATAL, errNo)
+	s.SetError(newErr, SpecErrTypeFATAL, errNo)
 
 }
 
 // SetInfoMessage - Sets the value of the current or host SpecErr object
 // to an 'Information' message.  IsPanic and IsErr are both set to 'false'.
-func (s *SpecErr) SetInfoMessage(prefix string, warningMsg string, msgNo int64) {
+func (s *SpecErr) SetInfoMessage(warningMsg string, msgNo int64) {
 	s.EmptyMsgData()
 	s.ErrorMsgType	= SpecErrTypeINFO
 	s.IsErr  = false
 	s.IsPanic = false
-	s.PrefixMsg = prefix
 	s.ErrMsg = warningMsg
 
 	if msgNo == 0 {
@@ -791,11 +751,11 @@ func (s *SpecErr) SetParentInfo(parent []ErrBaseInfo) {
 // SetStdError - Sets the value of the current or host SpecErr object
 // to a Standard or non-fatal error. IsPanic is set to 'false' IsErr is
 // set to 'true'.
-func (s *SpecErr) SetStdError(prefix string, errMsg string, errNo int64) {
+func (s *SpecErr) SetStdError(errMsg string, errNo int64) {
 
 	s.EmptyMsgData()
 	newErr := errors.New(errMsg)
-	s.SetError(prefix,newErr, SpecErrTypeERROR, errNo)
+	s.SetError(newErr, SpecErrTypeERROR, errNo)
 
 }
 
@@ -814,7 +774,6 @@ func (s *SpecErr) SetSuccessfulCompletion(msgNo int64) {
 		s.ErrNo = msgNo + s.BaseInfo.BaseErrorId
 	}
 
-	s.PrefixMsg = ""
 	s.SetTime("Local")
 }
 
@@ -849,12 +808,11 @@ func(s *SpecErr)SetTime(localTimeZone string){
 
 // SetWarningMessage - Sets the value of the current SpecErr object to a
 // 'Warning' Message. Both IsPanic and IsErr are set to 'false'
-func (s *SpecErr) SetWarningMessage(prefix string, warningMsg string, msgNo int64) {
+func (s *SpecErr) SetWarningMessage(warningMsg string, msgNo int64) {
 	s.EmptyMsgData()
 	s.ErrorMsgType	= SpecErrTypeWARNING
 	s.IsErr  = false
 	s.IsPanic = false
-	s.PrefixMsg = prefix
 	s.ErrMsg = warningMsg
 	s.ErrNo  = msgNo + s.BaseInfo.BaseErrorId
 	s.SetTime("Local")

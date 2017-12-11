@@ -24,12 +24,11 @@ func TestErrUtilityExample001() {
 	ex23 := int64(16000)
 	ex2 := bi.New(ex21, ex21ParentObj, ex22, ex23)
 
-	ex3 := "prefixString"
 	ex4 := "This is the Error Message"
 	err := errors.New(ex4)
 	ex6 := int64(22)
 
-	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, SpecErrTypeERROR, ex6)
+	x := SpecErr{}.Initialize(ex1, ex2, err, SpecErrTypeERROR, ex6)
 
 	fmt.Println(x.Error())
 
@@ -54,12 +53,11 @@ func TestErrorUtilityExample002() {
 	ex23 := int64(16000)
 	ex2 := bi.New(ex21, ex21ParentObj, ex22, ex23)
 
-	ex3 := "prefixString"
 	ex4 := "This is the Error Msg"
 	err := errors.New(ex4)
 	ex6 := int64(22)
 
-	x := SpecErr{}.Initialize(ex1, ex2, ex3, err, SpecErrTypeFATAL, ex6)
+	x := SpecErr{}.Initialize(ex1, ex2, err, SpecErrTypeFATAL, ex6)
 
 	panic(x)
 }
