@@ -672,6 +672,13 @@ func (opsMsg *OpsMsgDto) SetInfoMessage(msg string, msgId int64) {
 	opsMsg.setMsgText(msg, msgId)
 }
 
+// SetMsgContext - Receives an OpsMsgContextInfo object as
+// an input parameter and configures the current OpsMsgDto
+// MessageContext.
+func (opsMsg *OpsMsgDto) SetMessageContext(msgContext OpsMsgContextInfo) {
+	opsMsg.MsgContext = msgContext.DeepCopyOpsMsgContextInfo()
+}
+
 // SetStdErrorMessage - Configures the current or host
 // OpsMsgDto object as a standard error message.
 func (opsMsg *OpsMsgDto) SetStdErrorMessage(errMsg string, errId int64){
