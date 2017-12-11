@@ -319,7 +319,7 @@ func (opsMsg *OpsMsgDto) Equal(opsMsg2 *OpsMsgDto) bool {
 	}
 
 	for i:= 0; i < l1; i++ {
-		if opsMsg.ParentContextHistory[i].Equal(&opsMsg2.ParentContextHistory[i]) {
+		if !opsMsg.ParentContextHistory[i].Equal(&opsMsg2.ParentContextHistory[i]) {
 			return false
 		}
 	}
@@ -328,7 +328,7 @@ func (opsMsg *OpsMsgDto) Equal(opsMsg2 *OpsMsgDto) bool {
 		return false
 	}
 
-	if opsMsg.Message      	!= opsMsg2.Message 								||
+	if  opsMsg.Message     			!= opsMsg2.Message 						||
 			opsMsg.FmtMessage				!= opsMsg2.FmtMessage					||
 			opsMsg.msgId            != opsMsg2.GetMessageId()			||
 			opsMsg.msgNumber        != opsMsg2.GetMessageNumber()	||

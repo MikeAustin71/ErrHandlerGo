@@ -660,6 +660,79 @@ func TestOpsMsgDto_GetError_03(t *testing.T) {
 
 }
 
+func TestOpsMsgDto_CopyIn_01(t *testing.T) {
+	
+	om1 := testOpsMsgDtoCreateFatalErrorMsg()
+	
+	om2 := testOpsMsgDtoCreateInfoMsg()
+	
+	om1.CopyIn(&om2)
+
+	xMsg := "This is Information Message for test object"
+	msgId := int64(19)
+	msgNo := int64(6019)
+	msgType := OpsMsgTypeINFOMSG
+	msgClass := OpsMsgClassINFO
+
+	if om1.MsgType != msgType {
+		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om1.MsgType)
+	}
+
+	if om1.MsgClass != msgClass {
+		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om1.MsgClass)
+	}
+
+	if om1.IsError() != false {
+		t.Error("Expected Information Message to generate IsError='false'. It did NOT! IsError='true'.")
+	}
+
+	if om1.IsFatalError() != false {
+		t.Errorf("Expected Information to generate IsFatalError()='false'. It did NOT! IsFatalError()='%v'", om1.IsFatalError())
+	}
+
+	mId := om1.GetMessageId()
+
+	if mId != msgId {
+		t.Errorf("Expected message id = '%v'. Instead message id = '%v'.", msgId, mId)
+	}
+
+	mNo := om1.GetMessageNumber()
+
+	if msgNo != mNo {
+		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
+	}
+
+	actMsg := om1.GetMessage()
+
+	if !strings.Contains(actMsg, xMsg) {
+		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
+	}
+
+	if om1.MsgTimeUTC.IsZero()  {
+		t.Errorf("Error: om1.MsgTimeUTC == Zero. om1.MsgTimeUTC== '%v'", om1.MsgTimeUTC)
+	}
+
+	if om1.MsgTimeLocal.IsZero()  {
+		t.Errorf("Error: om1.MsgTimeLocal == Zero. om1.MsgTimeLocal== '%v'",om1.MsgTimeLocal)
+	}
+
+	if om1.MsgLocalTimeZone != "Local" {
+		t.Errorf("Error: om1.MsgLocalTimeZone is NOT set to 'Local'. om1.MsgLocalTimeZone== '%v' ", om1.MsgLocalTimeZone)
+	}
+	
+	if !om2.Equal(&om1) {
+		t.Error("om1 should equal om2. It did NOT!")
+	}
+	
+}
+
+
+/*
+=======================================================================================================
+								Private Methods
+=======================================================================================================
+ */
+
 func testOpsMsgDtoCreateContextInfoObj() OpsMsgContextInfo {
 	ci := OpsMsgContextInfo{}
 	return ci.New("TSource06", "PObj06", "Func006", 6000)
