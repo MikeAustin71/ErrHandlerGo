@@ -504,22 +504,6 @@ func TestSpecErr_NewErrorMsgString_02(t *testing.T) {
 
 }
 
-func TestSpecErr_SetErrorMessageLabel(t *testing.T) {
-
-	errMsg := "This is the Error Msg!"
-	errNo := int64(0)
-
-	s :=  SpecErr{}.NewErrorMsgString(errMsg, SpecErrTypeERROR, errNo)
-
-
-	expectedErrMsg := errMsg
-	actualErrMsg := s.Error()
-
-	if strings.Contains(actualErrMsg, expectedErrMsg) == false {
-		t.Errorf("Expected Error Message= '%v'.  Instead, Actual Error Message = '%v'", expectedErrMsg, actualErrMsg)
-	}
-
-}
 
 func TestSpecErr_ConfigureParentInfoFromParentSpecErr01(t *testing.T) {
 
@@ -1113,7 +1097,7 @@ func TestSpecErr_Empty_01(t *testing.T) {
 
 	msg := se.Error()
 
-	if msg != "No Errors - No Messages"{
+	if msg != ""{
 		t.Errorf("Expected error message = 'No Errors - No Messages'.  Instead it did NOT! msg= '%v'", msg)
 	}
 
@@ -1158,7 +1142,7 @@ func TestSpecErr_EmptyMsgData_01(t *testing.T) {
 
 	msg := se.Error()
 
-	if msg != "No Errors - No Messages"{
+	if msg != ""{
 		t.Errorf("Expected error message = 'No Errors - No Messages'.  Instead it did NOT! msg= '%v'", msg)
 	}
 
