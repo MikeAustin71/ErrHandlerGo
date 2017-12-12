@@ -575,6 +575,18 @@ func (opsMsg OpsMsgDto) NewFatalErrorMsg(errMsg string, errNo int64) OpsMsgDto {
 
 }
 
+// NewMsgFromSpecErrMsg - Create a new Operations Message based on
+// the error information contained in a Type SpecErr passed
+// into the method. The new message will be designated as
+// an error message.
+func (opsMsg *OpsMsgDto) NewMsgFromSpecErrMsg(se SpecErr) OpsMsgDto {
+
+	om := OpsMsgDto{}
+	om.SetFromSpecErrMessage(se)
+
+	return om
+}
+
 // NewStdErrorMsg - Creates a new non-fatal error message
 //
 // Input Parameters
@@ -593,21 +605,17 @@ func (opsMsg OpsMsgDto) NewStdErrorMsg(errMsg string, errNo int64) OpsMsgDto {
 	om.SetMessageContext(opsMsg.MsgContext)
 	om.SetStdErrorMessage(errMsg, errNo)
 	return om
-
 }
 
-// NewMsgFromSpecErrMsg - Create a new Operations Message based on
-// the error information contained in a Type SpecErr passed
-// into the method. The new message will be designated as
-// an error message.
-func (opsMsg *OpsMsgDto) NewMsgFromSpecErrMsg(se SpecErr) OpsMsgDto {
-
+// NewSuccessfulCompletionMsg - Creates a new Successful Completion
+// Message and returns it as a new OpsMsgDto object.
+func (opsMsg OpsMsgDto) NewSuccessfulCompletionMsg(msgId int64) OpsMsgDto {
 	om := OpsMsgDto{}
-	om.SetFromSpecErrMessage(se)
-
+	om.SetParentMessageContextHistory(opsMsg.ParentContextHistory)
+	om.SetMessageContext(opsMsg.MsgContext)
+	om.SetSuccessfulCompletionMessage(msgId)
 	return om
 }
-
 
 // NewWarningMsg - Creates a new Warning Message
 // and returns it as a new OpsMsgDto object.
