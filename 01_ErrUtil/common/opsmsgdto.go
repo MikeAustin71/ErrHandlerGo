@@ -814,14 +814,14 @@ func (opsMsg *OpsMsgDto) getMsgTitle() (banner1, banner2, title, numTitle string
 	case OpsMsgClassOPERROR:
 		// OpsMsgClassOPERROR - 1 Message is an Error Message
 		title = "Standard ERROR Message"
-		numTitle = "Error Number: "
+		numTitle = "Error Number"
 		banner1 = strings.Repeat("#", 78)
 		banner2 = strings.Repeat("-", 78)
 
 	case OpsMsgClassFATAL:
 		// OpsMsgClassFATAL - 2 Message is a Fatal Error Message
 		title = "FATAL ERROR Message"
-		numTitle = "Error Number: "
+		numTitle = "Error Number"
 		banner1 = strings.Repeat("!", 78)
 		banner2 = strings.Repeat("-", 78)
 
@@ -914,28 +914,8 @@ func(opsMsg *OpsMsgDto) setMsgText(msg string, msgId int64) {
 		opsMsg.setDebugMsgText(banner1, banner2, title, numTitle)
 		return
 	}
-
-	m= "\n\n"
-	m += "\n" + banner1
-	m += "\n     " + title
-	m += "\n" + banner1
-	if opsMsg.msgNumber != 0 {
-		m+= "\n"  + numTitle + ": " + string(opsMsg.msgNumber)
-	}
-	m += "\n" + msg
-	m += "\n" + banner2
-
-
-	m += "\n Message Type: " + opsMsg.MsgType.String()
-	m += "\nMessage Class: " + opsMsg.MsgClass.String()
-	m += "\n" + banner2
-	m += "\n" + "Time Stamp:"
-	m += "\n" + banner2
 	dt := DateTimeUtility{}
 	dtFmt := "2006-01-02 Mon 15:04:05.000000000 -0700 MST"
-	m += fmt.Sprintf("\n  Message Time UTC: %v ", dt.GetDateTimeCustomFmt(opsMsg.MsgTimeUTC, dtFmt))
-	m += fmt.Sprintf("\nMessage Time Local: %v ", dt.GetDateTimeCustomFmt(opsMsg.MsgTimeLocal, dtFmt))
-	m += "\n   Local Time Zone:"
 	localTz := opsMsg.MsgLocalTimeZone
 
 	if localTz == "Local" || localTz == "local" {
@@ -943,7 +923,51 @@ func(opsMsg *OpsMsgDto) setMsgText(msg string, msgId int64) {
 		localTz += " - " + localZone
 	}
 
-	m += localTz
+	m= "\n\n"
+	m += "\n" + banner1
+	m += "\n " + title +" -"
+	m += "  Msg Type: " + opsMsg.MsgType.String()
+	m += "  Msg Class: " + opsMsg.MsgClass.String()
+	m += "\n" + banner1
+	if opsMsg.msgNumber != 0 {
+		m+= fmt.Sprintf("\n %v: %v", numTitle, opsMsg.msgNumber)
+	}
+	m += "\n " + msg
+
+	l1 := len(opsMsg.ParentContextHistory)
+	if l1 > 0 {
+		m += "\n" + banner2
+		m += "\n Parent Context History:"
+		for i:=0; i < l1; i++ {
+			m+= "\n   Src File: " + opsMsg.ParentContextHistory[i].SourceFileName
+			m+= "   Parent Obj: " + opsMsg.ParentContextHistory[i].ParentObjectName
+			m+= "   Func Name: " + opsMsg.ParentContextHistory[i].FuncName
+		}
+
+	}
+
+	if opsMsg.MsgContext.SourceFileName != "" ||
+			opsMsg.MsgContext.ParentObjectName != "" ||
+				opsMsg.MsgContext.FuncName != "" {
+		m += "\n" + banner2
+		m += "\n Current Message Context:"
+		if opsMsg.MsgContext.SourceFileName != "" {
+			m+= "\n  Src File: " + opsMsg.MsgContext.SourceFileName
+		}
+
+		if opsMsg.MsgContext.ParentObjectName != "" {
+			m+= "   Parent Obj: " + opsMsg.MsgContext.ParentObjectName
+		}
+
+		if opsMsg.MsgContext.FuncName != "" {
+			m+= "   Func Name: " + opsMsg.MsgContext.FuncName
+		}
+	}
+	m += "\n" + banner2
+	m += fmt.Sprintf("\n Time Stamp - Local Time Zone: %v", localTz)
+	m += "\n" + banner2
+	m += fmt.Sprintf("\n   Message Time UTC: %v ", dt.GetDateTimeCustomFmt(opsMsg.MsgTimeUTC, dtFmt))
+	m += fmt.Sprintf("\n Message Time Local: %v ", dt.GetDateTimeCustomFmt(opsMsg.MsgTimeLocal, dtFmt))
 	m += "\n" + banner1
 
 	opsMsg.FmtMessage =  m

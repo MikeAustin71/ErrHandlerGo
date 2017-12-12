@@ -2,7 +2,7 @@ package main
 
 import (
 	"MikeAustin71/ErrHandlerGo/01_ErrUtil/common"
-	"fmt"
+
 )
 
 /*
@@ -17,7 +17,7 @@ import (
 
 func main() {
 
-	common.TestErrUtilityExample001()
+	common.TestOpsMsgDto_Example001_NewWarningMsg()
 
 }
 
