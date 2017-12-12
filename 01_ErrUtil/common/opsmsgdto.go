@@ -394,7 +394,7 @@ func (opsMsg *OpsMsgDto) GetMessageNumber() int64 {
 	return opsMsg.msgNumber
 }
 
-// InitializeContextInfo - Initializes Parent Context History and Message Context Info for a new
+// InitializeAllContextInfo - Initializes Parent Context History and Message Context Info for a new
 // OpsMsgDto object.
 //
 // Input Parameters:
@@ -415,13 +415,13 @@ func (opsMsg *OpsMsgDto) GetMessageNumber() int64 {
 // Example Usage:
 // ==============
 //
-// oMsg := OpsMsgDto{}.InitializeContextInfo(parentHistory, msgContext)
+// oMsg := OpsMsgDto{}.InitializeAllContextInfo(parentHistory, msgContext)
 //
 // Parent Context History and current Message Context serve as an important
 // purpose. It allows one to maintain a record of the function execution tree
 // that led to the generation of this message.
 //
-func(opsMsg OpsMsgDto) InitializeContextInfo(parentHistory []OpsMsgContextInfo, msgContext OpsMsgContextInfo) OpsMsgDto {
+func(opsMsg OpsMsgDto) InitializeAllContextInfo(parentHistory []OpsMsgContextInfo, msgContext OpsMsgContextInfo) OpsMsgDto {
 	om := OpsMsgDto{}
 	om.ParentContextHistory = om.DeepCopyParentContextHistory(parentHistory)
 	om.MsgContext = msgContext.DeepCopyOpsMsgContextInfo()
@@ -429,9 +429,18 @@ func(opsMsg OpsMsgDto) InitializeContextInfo(parentHistory []OpsMsgContextInfo, 
 	return om
 }
 
-// InitializeContextWithParentOpsMsg - Initialize a new OpsMsgDto
-// object with Parent History data extracted from another OpsMsgDto
-// object.
+
+// InitializeWithMessageContext - Initialize a new OpsMsgDto object
+// with only a Message Context - No ParentHistory.
+func(opsMsg OpsMsgDto) InitializeWithMessageContext(msgContext OpsMsgContextInfo) OpsMsgDto {
+	om := OpsMsgDto{}
+	om.MsgContext = msgContext.DeepCopyOpsMsgContextInfo()
+	return om
+}
+
+// InitializeContextWithParentHistoryPlusMsgContext - Initialize a new OpsMsgDto
+// object with Parent History plus the OpsMsgContextInfo object passed as an input
+// parameter, 'newMsgContext'.
 //
 // Input Parameters:
 // =================
@@ -462,7 +471,7 @@ func(opsMsg OpsMsgDto) InitializeContextInfo(parentHistory []OpsMsgContextInfo, 
 // purpose. It allows one to maintain a record of the function execution tree
 // that led to the generation of this message.
 //
-func(opsMsg OpsMsgDto) InitializeContextWithParentOpsMsg(parentOpsMsg OpsMsgDto, newMsgContext OpsMsgContextInfo) OpsMsgDto {
+func(opsMsg OpsMsgDto) InitializeContextWithParentHistoryPlusMsgContext(parentOpsMsg OpsMsgDto, newMsgContext OpsMsgContextInfo) OpsMsgDto {
 
 	om := OpsMsgDto{}
 
@@ -515,6 +524,8 @@ func (opsMsg *OpsMsgDto) IsError() bool {
 func(opsMsg OpsMsgDto) NewDebugMsg(msg string, msgNo int64) OpsMsgDto {
 
 	om := OpsMsgDto{}
+	om.SetParentMessageContextHistory(opsMsg.ParentContextHistory)
+	om.SetMessageContext(opsMsg.MsgContext)
 	om.SetDebugMessage(msg, msgNo)
 
 	return om
@@ -536,6 +547,8 @@ func(opsMsg OpsMsgDto) NewDebugMsg(msg string, msgNo int64) OpsMsgDto {
 func(opsMsg OpsMsgDto) NewInfoMsg(msg string, msgNo int64) OpsMsgDto {
 
 	om := OpsMsgDto{}
+	om.SetParentMessageContextHistory(opsMsg.ParentContextHistory)
+	om.SetMessageContext(opsMsg.MsgContext)
 	om.SetInfoMessage(msg, msgNo)
 
 	return om
@@ -555,6 +568,8 @@ func(opsMsg OpsMsgDto) NewInfoMsg(msg string, msgNo int64) OpsMsgDto {
 func (opsMsg OpsMsgDto) NewFatalErrorMsg(errMsg string, errNo int64) OpsMsgDto {
 
 	om := OpsMsgDto{}
+	om.SetParentMessageContextHistory(opsMsg.ParentContextHistory)
+	om.SetMessageContext(opsMsg.MsgContext)
 	om.SetFatalErrorMessage(errMsg, errNo)
 	return om
 
@@ -574,6 +589,8 @@ func (opsMsg OpsMsgDto) NewFatalErrorMsg(errMsg string, errNo int64) OpsMsgDto {
 func (opsMsg OpsMsgDto) NewStdErrorMsg(errMsg string, errNo int64) OpsMsgDto {
 
 	om := OpsMsgDto{}
+	om.SetParentMessageContextHistory(opsMsg.ParentContextHistory)
+	om.SetMessageContext(opsMsg.MsgContext)
 	om.SetStdErrorMessage(errMsg, errNo)
 	return om
 
@@ -597,8 +614,24 @@ func (opsMsg *OpsMsgDto) NewMsgFromSpecErrMsg(se SpecErr) OpsMsgDto {
 func (opsMsg OpsMsgDto) NewWarningMsg(msg string, msgNo int64) OpsMsgDto {
 
 	om := OpsMsgDto{}
+	om.SetParentMessageContextHistory(opsMsg.ParentContextHistory)
+	om.SetMessageContext(opsMsg.MsgContext)
 
 	om.SetWarningMessage(msg, msgNo)
+
+	return om
+
+}
+
+// NewNoErrorsNoMessagesMsg - Creates a new No Errors and No
+// Messages Message and returns it as a new OpsMsgDto object.
+func (opsMsg OpsMsgDto) NewNoErrorsNoMessagesMsg(msgNo int64) OpsMsgDto {
+
+	om := OpsMsgDto{}
+	om.SetParentMessageContextHistory(opsMsg.ParentContextHistory)
+	om.SetMessageContext(opsMsg.MsgContext)
+
+	om.SetNoErrorsNoMessages(msgNo)
 
 	return om
 

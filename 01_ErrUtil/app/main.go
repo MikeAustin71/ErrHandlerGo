@@ -45,43 +45,43 @@ func testOpsMsgDtoCreateParentHistory() []common.OpsMsgContextInfo {
 }
 
 func testOpsMsgDtoCreateStdErrorMsg() common.OpsMsgDto {
-	om := common.OpsMsgDto{}.InitializeContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
+	om := common.OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
 	om.SetStdErrorMessage("This is Standard Error Msg for test object", 429)
 	return om
 }
 
 func testOpsMsgDtoCreateFatalErrorMsg() common.OpsMsgDto {
-	om := common.OpsMsgDto{}.InitializeContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
+	om := common.OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
 	om.SetFatalErrorMessage("This is FATAL Error Msg for test object", 152)
 	return om
 }
 
 func testOpsMsgDtoCreateInfoMsg() common.OpsMsgDto {
-	om := common.OpsMsgDto{}.InitializeContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
+	om := common.OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
 	om.SetInfoMessage("This is Information Message for test object", 19)
 	return om
 }
 
 func testOpsMsgDtoCreateWarningMsg() common.OpsMsgDto {
-	om := common.OpsMsgDto{}.InitializeContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
+	om := common.OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
 	om.SetWarningMessage("This is Warning Message for test object.", 67)
 	return om
 }
 
 func testOpsMsgDtoCreateDebugMsg() common.OpsMsgDto {
-	om := common.OpsMsgDto{}.InitializeContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
+	om := common.OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
 	om.SetDebugMessage("This is DEBUG Message for test object.", 238)
 	return om
 }
 
 func testOpsMsgDtoCreateSuccessfulCompletionMsg() common.OpsMsgDto {
-	om := common.OpsMsgDto{}.InitializeContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
+	om := common.OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
 	om.SetSuccessfulCompletionMessage( 64)
 	return om
 }
 
 func testOpsMsgDtoCreateNoErrorsNoMessagesMsg() common.OpsMsgDto {
-	om := common.OpsMsgDto{}.InitializeContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
+	om := common.OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
 	om.SetNoErrorsNoMessages(28)
 	return om
 }

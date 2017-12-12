@@ -58,7 +58,7 @@ func TestOpsMsgDto_InitializeContextInfo_01(t *testing.T) {
 	parentInfo := testOpsMsgDtoCreateParentHistory()
 	contextInfo := testOpsMsgDtoCreateContextInfoObj()
 
-	om := OpsMsgDto{}.InitializeContextInfo(parentInfo, contextInfo)
+	om := OpsMsgDto{}.InitializeAllContextInfo(parentInfo, contextInfo)
 
 	l := len(om.ParentContextHistory)
 
@@ -115,14 +115,14 @@ func TestOpsMsgDto_InitializeContextWithParentOpsMsg_01(t *testing.T) {
 	parentInfo := testOpsMsgDtoCreateParentHistory()
 	contextInfo := testOpsMsgDtoCreateContextInfoObj()
 
-	om := OpsMsgDto{}.InitializeContextInfo(parentInfo, contextInfo)
+	om := OpsMsgDto{}.InitializeAllContextInfo(parentInfo, contextInfo)
 	newMsg := "Information Message Text 2"
 	om.SetInfoMessage("Information Text 1", 122)
 
 
 	ci := OpsMsgContextInfo{SourceFileName:"TSource07", ParentObjectName:"PObj07", FuncName: "Func007", BaseMessageId: 7000}
 	
-	om2 := OpsMsgDto{}.InitializeContextWithParentOpsMsg(om, ci)
+	om2 := OpsMsgDto{}.InitializeContextWithParentHistoryPlusMsgContext(om, ci)
 	om2.SetInfoMessage(newMsg, 122 )
 
 
@@ -192,9 +192,216 @@ func TestOpsMsgDto_InitializeContextWithParentOpsMsg_01(t *testing.T) {
 
 }
 
+func TestOpsMsgDto_NewStdErrorMsg_01 (t *testing.T) {
+
+	testParentHistory := testOpsMsgDtoCreateParentHistory()
+	testMsgContext := testOpsMsgDtoCreateContextInfoObj()
+
+	xMsg := "This is Standard Error Msg for test object"
+	msgId := int64(429)
+	msgNo := int64(6429)
+	msgType := OpsMsgTypeERRORMSG
+	msgClass := OpsMsgClassOPERROR
+
+	om := OpsMsgDto{}.InitializeAllContextInfo(testParentHistory, testMsgContext).NewStdErrorMsg(xMsg, msgId)
+
+
+	l1 := len(testParentHistory)
+
+	l2 := len(om.ParentContextHistory)
+
+	if l1 != l2 {
+		t.Errorf("Expected om.ParentContextHistory to equal length= '%v'. It did NOT! actual length= '%v'",l1, l2)
+	}
+
+	for i:=0; i<l1; i++ {
+		if !testParentHistory[i].Equal(&om.ParentContextHistory[i]) {
+			t.Errorf("Expected om.ParentContextHistory to Equal testParentContext History. It did NOT!. i= '%v'",i)
+		}
+	}
+
+  if !testMsgContext.Equal(&om.MsgContext) {
+  	t.Error("Expected testMsgContext to EQUAL om.MsgContext. It did NOT!")
+	}
+
+	if om.MsgType != msgType {
+		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
+	}
+
+	if om.MsgClass != msgClass {
+		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om.MsgClass)
+	}
+
+	if om.IsError() != true {
+		t.Error("Expected error msg to generate IsError='true'. It did NOT! IsError='false'.")
+	}
+
+	if om.IsFatalError() == true {
+		t.Error("Expected standard error msg to generate IsFatalError()='false'. It did NOT! IsFatalError()='true'")
+	}
+
+	mId := om.GetMessageId()
+
+	if mId != msgId {
+		t.Errorf("Expected message id = '%v'. Instead message id = '%v'.", msgId, mId)
+	}
+
+	mNo := om.GetMessageNumber()
+
+	if msgNo != mNo {
+		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
+	}
+
+	actMsg := om.GetMessage()
+
+	if !strings.Contains(actMsg, xMsg) {
+		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
+	}
+
+	if om.MsgTimeUTC.IsZero()  {
+		t.Errorf("Error: om.MsgTimeUTC == Zero. om.MsgTimeUTC== '%v'", om.MsgTimeUTC)
+	}
+
+	if om.MsgTimeLocal.IsZero()  {
+		t.Errorf("Error: om.MsgTimeLocal == Zero. om.MsgTimeLocal== '%v'",om.MsgTimeLocal)
+	}
+
+	if om.MsgLocalTimeZone != "Local" {
+		t.Errorf("Error: om.MsgLocalTimeZone is NOT set to 'Local'. om.MsgLocalTimeZone== '%v' ", om.MsgLocalTimeZone)
+	}
+
+}
+
+func TestOpsMsgDto_NewStdErrorMsg_02 (t *testing.T) {
+
+	testMsgContext := testOpsMsgDtoCreateContextInfoObj()
+
+	xMsg := "This is Standard Error Msg for test object"
+	msgId := int64(429)
+	msgNo := int64(6429)
+	msgType := OpsMsgTypeERRORMSG
+	msgClass := OpsMsgClassOPERROR
+
+	om := OpsMsgDto{}.InitializeWithMessageContext(testMsgContext).NewStdErrorMsg(xMsg, msgId)
+	om.SetMessageContext(testMsgContext)
+
+  if !testMsgContext.Equal(&om.MsgContext) {
+  	t.Error("Expected testMsgContext to EQUAL om.MsgContext. It did NOT!")
+	}
+
+	if om.MsgType != msgType {
+		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
+	}
+
+	if om.MsgClass != msgClass {
+		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om.MsgClass)
+	}
+
+	if om.IsError() != true {
+		t.Error("Expected error msg to generate IsError='true'. It did NOT! IsError='false'.")
+	}
+
+	if om.IsFatalError() == true {
+		t.Error("Expected standard error msg to generate IsFatalError()='false'. It did NOT! IsFatalError()='true'")
+	}
+
+	mId := om.GetMessageId()
+
+	if mId != msgId {
+		t.Errorf("Expected message id = '%v'. Instead message id = '%v'.", msgId, mId)
+	}
+
+	mNo := om.GetMessageNumber()
+
+	if msgNo != mNo {
+		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
+	}
+
+	actMsg := om.GetMessage()
+
+	if !strings.Contains(actMsg, xMsg) {
+		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
+	}
+
+	if om.MsgTimeUTC.IsZero()  {
+		t.Errorf("Error: om.MsgTimeUTC == Zero. om.MsgTimeUTC== '%v'", om.MsgTimeUTC)
+	}
+
+	if om.MsgTimeLocal.IsZero()  {
+		t.Errorf("Error: om.MsgTimeLocal == Zero. om.MsgTimeLocal== '%v'",om.MsgTimeLocal)
+	}
+
+	if om.MsgLocalTimeZone != "Local" {
+		t.Errorf("Error: om.MsgLocalTimeZone is NOT set to 'Local'. om.MsgLocalTimeZone== '%v' ", om.MsgLocalTimeZone)
+	}
+
+}
+
+func TestOpsMsgDto_NewStdErrorMsg_03 (t *testing.T) {
+
+	xMsg := "This is Standard Error Msg for test object"
+	msgId := int64(429)
+	msgNo := int64(429)
+	msgType := OpsMsgTypeERRORMSG
+	msgClass := OpsMsgClassOPERROR
+
+	om := OpsMsgDto{}.NewStdErrorMsg(xMsg, msgId)
+
+
+	if om.MsgType != msgType {
+		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
+	}
+
+	if om.MsgClass != msgClass {
+		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om.MsgClass)
+	}
+
+	if om.IsError() != true {
+		t.Error("Expected error msg to generate IsError='true'. It did NOT! IsError='false'.")
+	}
+
+	if om.IsFatalError() == true {
+		t.Error("Expected standard error msg to generate IsFatalError()='false'. It did NOT! IsFatalError()='true'")
+	}
+
+	mId := om.GetMessageId()
+
+	if mId != msgId {
+		t.Errorf("Expected message id = '%v'. Instead message id = '%v'.", msgId, mId)
+	}
+
+	mNo := om.GetMessageNumber()
+
+	if msgNo != mNo {
+		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
+	}
+
+	actMsg := om.GetMessage()
+
+	if !strings.Contains(actMsg, xMsg) {
+		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
+	}
+
+	if om.MsgTimeUTC.IsZero()  {
+		t.Errorf("Error: om.MsgTimeUTC == Zero. om.MsgTimeUTC== '%v'", om.MsgTimeUTC)
+	}
+
+	if om.MsgTimeLocal.IsZero()  {
+		t.Errorf("Error: om.MsgTimeLocal == Zero. om.MsgTimeLocal== '%v'",om.MsgTimeLocal)
+	}
+
+	if om.MsgLocalTimeZone != "Local" {
+		t.Errorf("Error: om.MsgLocalTimeZone is NOT set to 'Local'. om.MsgLocalTimeZone== '%v' ", om.MsgLocalTimeZone)
+	}
+
+}
+
+
 func TestOpsMsgDto_SetStdErrorMessage_01(t *testing.T) {
 
 	testParentHistory := testOpsMsgDtoCreateParentHistory()
+
+	testMsgCtx := testOpsMsgDtoCreateContextInfoObj()
 
 	om := testOpsMsgDtoCreateStdErrorMsg()
 
@@ -218,7 +425,9 @@ func TestOpsMsgDto_SetStdErrorMessage_01(t *testing.T) {
 		}
 	}
 
-
+	if !testMsgCtx.Equal(&om.MsgContext) {
+		t.Error("Expected testMsgCtx to EQUAL om.MsgContext. It did NOT!")
+	}
 
 	if om.MsgType != msgType {
 		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
@@ -403,6 +612,211 @@ func TestOpsMsgDto_SetStdErrorMessage_03(t *testing.T) {
 
 }
 
+
+func TestOpsMsgDto_NewFatalErrorMessage_01(t *testing.T) {
+
+	testParentHistory := testOpsMsgDtoCreateParentHistory()
+	testMsgContext := testOpsMsgDtoCreateContextInfoObj()
+
+	xMsg := "This is FATAL Error Msg for test object"
+	msgId := int64(152)
+	msgNo := int64(6152)
+	msgType := OpsMsgTypeERRORMSG
+	msgClass := OpsMsgClassFATAL
+
+	om := OpsMsgDto{}.InitializeAllContextInfo(testParentHistory, testMsgContext).NewFatalErrorMsg(xMsg, msgId)
+
+	l1 := len(testParentHistory)
+
+	l2 := len(om.ParentContextHistory)
+
+	if l1 != l2 {
+		t.Errorf("Expected om.ParentContextHistory to equal length= '%v'. It did NOT! actual length= '%v'",l1, l2)
+	}
+
+	for i:=0; i<l1; i++ {
+		if !testParentHistory[i].Equal(&om.ParentContextHistory[i]) {
+			t.Errorf("Expected om.ParentContextHistory to Equal testParentContext History. It did NOT!. i= '%v'",i)
+		}
+	}
+
+	if !testMsgContext.Equal(&om.MsgContext) {
+		t.Error("Expected testMsgContext to EQUAL om.MsgContext. It did NOT!")
+	}
+
+
+	if om.MsgType != msgType {
+		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
+	}
+
+	if om.MsgClass != msgClass {
+		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om.MsgClass)
+	}
+
+	if om.IsError() != true {
+		t.Errorf("Expected Fatal Error Message to generate IsError='true'. It did NOT! IsError='false'.")
+	}
+
+	if om.IsFatalError() != true {
+		t.Errorf("Expected Fatal Error Message to generate IsFatalError()='true'. It did NOT! IsFatalError()='%v'", om.IsFatalError())
+	}
+
+	mId := om.GetMessageId()
+
+	if mId != msgId {
+		t.Errorf("Expected message id = '%v'. Instead message id = '%v'.", msgId, mId)
+	}
+
+	mNo := om.GetMessageNumber()
+
+	if msgNo != mNo {
+		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
+	}
+
+	actMsg := om.GetMessage()
+
+	if !strings.Contains(actMsg, xMsg) {
+		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
+	}
+
+	if om.MsgTimeUTC.IsZero()  {
+		t.Errorf("Error: om.MsgTimeUTC == Zero. om.MsgTimeUTC== '%v'", om.MsgTimeUTC)
+	}
+
+	if om.MsgTimeLocal.IsZero()  {
+		t.Errorf("Error: om.MsgTimeLocal == Zero. om.MsgTimeLocal== '%v'",om.MsgTimeLocal)
+	}
+
+	if om.MsgLocalTimeZone != "Local" {
+		t.Errorf("Error: om.MsgLocalTimeZone is NOT set to 'Local'. om.MsgLocalTimeZone== '%v' ", om.MsgLocalTimeZone)
+	}
+
+}
+
+func TestOpsMsgDto_NewFatalErrorMessage_02(t *testing.T) {
+
+	testMsgContext := testOpsMsgDtoCreateContextInfoObj()
+
+	xMsg := "This is FATAL Error Msg for test object"
+	msgId := int64(152)
+	msgNo := int64(6152)
+	msgType := OpsMsgTypeERRORMSG
+	msgClass := OpsMsgClassFATAL
+
+	om := OpsMsgDto{}.InitializeWithMessageContext(testMsgContext).NewFatalErrorMsg(xMsg, msgId)
+
+	if !testMsgContext.Equal(&om.MsgContext) {
+		t.Error("Expected testMsgContext to EQUAL om.MsgContext. It did NOT!")
+	}
+
+
+	if om.MsgType != msgType {
+		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
+	}
+
+	if om.MsgClass != msgClass {
+		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om.MsgClass)
+	}
+
+	if om.IsError() != true {
+		t.Errorf("Expected Fatal Error Message to generate IsError='true'. It did NOT! IsError='false'.")
+	}
+
+	if om.IsFatalError() != true {
+		t.Errorf("Expected Fatal Error Message to generate IsFatalError()='true'. It did NOT! IsFatalError()='%v'", om.IsFatalError())
+	}
+
+	mId := om.GetMessageId()
+
+	if mId != msgId {
+		t.Errorf("Expected message id = '%v'. Instead message id = '%v'.", msgId, mId)
+	}
+
+	mNo := om.GetMessageNumber()
+
+	if msgNo != mNo {
+		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
+	}
+
+	actMsg := om.GetMessage()
+
+	if !strings.Contains(actMsg, xMsg) {
+		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
+	}
+
+	if om.MsgTimeUTC.IsZero()  {
+		t.Errorf("Error: om.MsgTimeUTC == Zero. om.MsgTimeUTC== '%v'", om.MsgTimeUTC)
+	}
+
+	if om.MsgTimeLocal.IsZero()  {
+		t.Errorf("Error: om.MsgTimeLocal == Zero. om.MsgTimeLocal== '%v'",om.MsgTimeLocal)
+	}
+
+	if om.MsgLocalTimeZone != "Local" {
+		t.Errorf("Error: om.MsgLocalTimeZone is NOT set to 'Local'. om.MsgLocalTimeZone== '%v' ", om.MsgLocalTimeZone)
+	}
+
+}
+
+func TestOpsMsgDto_NewFatalErrorMessage_03(t *testing.T) {
+
+	xMsg := "This is FATAL Error Msg for test object"
+	msgId := int64(152)
+	msgNo := int64(152)
+	msgType := OpsMsgTypeERRORMSG
+	msgClass := OpsMsgClassFATAL
+
+	om := OpsMsgDto{}.NewFatalErrorMsg(xMsg, msgId)
+
+	if om.MsgType != msgType {
+		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
+	}
+
+	if om.MsgClass != msgClass {
+		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om.MsgClass)
+	}
+
+	if om.IsError() != true {
+		t.Errorf("Expected Fatal Error Message to generate IsError='true'. It did NOT! IsError='false'.")
+	}
+
+	if om.IsFatalError() != true {
+		t.Errorf("Expected Fatal Error Message to generate IsFatalError()='true'. It did NOT! IsFatalError()='%v'", om.IsFatalError())
+	}
+
+	mId := om.GetMessageId()
+
+	if mId != msgId {
+		t.Errorf("Expected message id = '%v'. Instead message id = '%v'.", msgId, mId)
+	}
+
+	mNo := om.GetMessageNumber()
+
+	if msgNo != mNo {
+		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
+	}
+
+	actMsg := om.GetMessage()
+
+	if !strings.Contains(actMsg, xMsg) {
+		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
+	}
+
+	if om.MsgTimeUTC.IsZero()  {
+		t.Errorf("Error: om.MsgTimeUTC == Zero. om.MsgTimeUTC== '%v'", om.MsgTimeUTC)
+	}
+
+	if om.MsgTimeLocal.IsZero()  {
+		t.Errorf("Error: om.MsgTimeLocal == Zero. om.MsgTimeLocal== '%v'",om.MsgTimeLocal)
+	}
+
+	if om.MsgLocalTimeZone != "Local" {
+		t.Errorf("Error: om.MsgLocalTimeZone is NOT set to 'Local'. om.MsgLocalTimeZone== '%v' ", om.MsgLocalTimeZone)
+	}
+
+}
+
+
 func TestOpsMsgDto_SetFatalErrorMessage_01(t *testing.T) {
 
 	om := testOpsMsgDtoCreateFatalErrorMsg()
@@ -585,15 +999,237 @@ func TestOpsMsgDto_SetFatalErrorMessage_03(t *testing.T) {
 
 }
 
-func TestOpsMsgDto_SetInfoMessage_01(t *testing.T) {
+func TestOpsMsgDto_NewInfoMsg_01(t *testing.T) {
 
-	om := testOpsMsgDtoCreateInfoMsg()
+	testParentHistory := testOpsMsgDtoCreateParentHistory()
+	testMsgContext := testOpsMsgDtoCreateContextInfoObj()
 
 	xMsg := "This is Information Message for test object"
 	msgId := int64(19)
 	msgNo := int64(6019)
 	msgType := OpsMsgTypeINFOMSG
 	msgClass := OpsMsgClassINFO
+
+	om := OpsMsgDto{}.InitializeAllContextInfo(testParentHistory, testMsgContext).NewInfoMsg(xMsg, msgId)
+
+	l1 := len(testParentHistory)
+
+	l2 := len(om.ParentContextHistory)
+
+	if l1 != l2 {
+		t.Errorf("Expected om.ParentContextHistory to equal length= '%v'. It did NOT! actual length= '%v'",l1, l2)
+	}
+
+	for i:=0; i<l1; i++ {
+		if !testParentHistory[i].Equal(&om.ParentContextHistory[i]) {
+			t.Errorf("Expected om.ParentContextHistory to Equal testParentContext History. It did NOT!. i= '%v'",i)
+		}
+	}
+
+	if !testMsgContext.Equal(&om.MsgContext) {
+		t.Error("Expected testMsgContext to EQUAL om.MsgContext. It did NOT!")
+	}
+
+	if om.MsgType != msgType {
+		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
+	}
+
+	if om.MsgClass != msgClass {
+		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om.MsgClass)
+	}
+
+	if om.IsError() != false {
+		t.Error("Expected Information Message to generate IsError='false'. It did NOT! IsError='true'.")
+	}
+
+	if om.IsFatalError() != false {
+		t.Errorf("Expected Information to generate IsFatalError()='false'. It did NOT! IsFatalError()='%v'", om.IsFatalError())
+	}
+
+	mId := om.GetMessageId()
+
+	if mId != msgId {
+		t.Errorf("Expected message id = '%v'. Instead message id = '%v'.", msgId, mId)
+	}
+
+	mNo := om.GetMessageNumber()
+
+	if msgNo != mNo {
+		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
+	}
+
+	actMsg := om.GetMessage()
+
+	if !strings.Contains(actMsg, xMsg) {
+		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
+	}
+
+	if om.MsgTimeUTC.IsZero()  {
+		t.Errorf("Error: om.MsgTimeUTC == Zero. om.MsgTimeUTC== '%v'", om.MsgTimeUTC)
+	}
+
+	if om.MsgTimeLocal.IsZero()  {
+		t.Errorf("Error: om.MsgTimeLocal == Zero. om.MsgTimeLocal== '%v'",om.MsgTimeLocal)
+	}
+
+	if om.MsgLocalTimeZone != "Local" {
+		t.Errorf("Error: om.MsgLocalTimeZone is NOT set to 'Local'. om.MsgLocalTimeZone== '%v' ", om.MsgLocalTimeZone)
+	}
+
+}
+
+func TestOpsMsgDto_NewInfoMsg_02(t *testing.T) {
+
+	testMsgContext := testOpsMsgDtoCreateContextInfoObj()
+
+	xMsg := "This is Information Message for test object"
+	msgId := int64(19)
+	msgNo := int64(6019)
+	msgType := OpsMsgTypeINFOMSG
+	msgClass := OpsMsgClassINFO
+
+	om := OpsMsgDto{}.InitializeWithMessageContext(testMsgContext).NewInfoMsg(xMsg, msgId)
+
+	if !testMsgContext.Equal(&om.MsgContext) {
+		t.Error("Expected testMsgContext to EQUAL om.MsgContext. It did NOT!")
+	}
+
+	if om.MsgType != msgType {
+		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
+	}
+
+	if om.MsgClass != msgClass {
+		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om.MsgClass)
+	}
+
+	if om.IsError() != false {
+		t.Error("Expected Information Message to generate IsError='false'. It did NOT! IsError='true'.")
+	}
+
+	if om.IsFatalError() != false {
+		t.Errorf("Expected Information to generate IsFatalError()='false'. It did NOT! IsFatalError()='%v'", om.IsFatalError())
+	}
+
+	mId := om.GetMessageId()
+
+	if mId != msgId {
+		t.Errorf("Expected message id = '%v'. Instead message id = '%v'.", msgId, mId)
+	}
+
+	mNo := om.GetMessageNumber()
+
+	if msgNo != mNo {
+		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
+	}
+
+	actMsg := om.GetMessage()
+
+	if !strings.Contains(actMsg, xMsg) {
+		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
+	}
+
+	if om.MsgTimeUTC.IsZero()  {
+		t.Errorf("Error: om.MsgTimeUTC == Zero. om.MsgTimeUTC== '%v'", om.MsgTimeUTC)
+	}
+
+	if om.MsgTimeLocal.IsZero()  {
+		t.Errorf("Error: om.MsgTimeLocal == Zero. om.MsgTimeLocal== '%v'",om.MsgTimeLocal)
+	}
+
+	if om.MsgLocalTimeZone != "Local" {
+		t.Errorf("Error: om.MsgLocalTimeZone is NOT set to 'Local'. om.MsgLocalTimeZone== '%v' ", om.MsgLocalTimeZone)
+	}
+
+}
+
+func TestOpsMsgDto_NewInfoMsg_03(t *testing.T) {
+
+	xMsg := "This is Information Message for test object"
+	msgId := int64(19)
+	msgNo := int64(19)
+	msgType := OpsMsgTypeINFOMSG
+	msgClass := OpsMsgClassINFO
+
+	om := OpsMsgDto{}.NewInfoMsg(xMsg, msgId)
+
+	if om.MsgType != msgType {
+		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
+	}
+
+	if om.MsgClass != msgClass {
+		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om.MsgClass)
+	}
+
+	if om.IsError() != false {
+		t.Error("Expected Information Message to generate IsError='false'. It did NOT! IsError='true'.")
+	}
+
+	if om.IsFatalError() != false {
+		t.Errorf("Expected Information to generate IsFatalError()='false'. It did NOT! IsFatalError()='%v'", om.IsFatalError())
+	}
+
+	mId := om.GetMessageId()
+
+	if mId != msgId {
+		t.Errorf("Expected message id = '%v'. Instead message id = '%v'.", msgId, mId)
+	}
+
+	mNo := om.GetMessageNumber()
+
+	if msgNo != mNo {
+		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
+	}
+
+	actMsg := om.GetMessage()
+
+	if !strings.Contains(actMsg, xMsg) {
+		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
+	}
+
+	if om.MsgTimeUTC.IsZero()  {
+		t.Errorf("Error: om.MsgTimeUTC == Zero. om.MsgTimeUTC== '%v'", om.MsgTimeUTC)
+	}
+
+	if om.MsgTimeLocal.IsZero()  {
+		t.Errorf("Error: om.MsgTimeLocal == Zero. om.MsgTimeLocal== '%v'",om.MsgTimeLocal)
+	}
+
+	if om.MsgLocalTimeZone != "Local" {
+		t.Errorf("Error: om.MsgLocalTimeZone is NOT set to 'Local'. om.MsgLocalTimeZone== '%v' ", om.MsgLocalTimeZone)
+	}
+
+}
+
+func TestOpsMsgDto_SetInfoMessage_01(t *testing.T) {
+
+	testParentHistory := testOpsMsgDtoCreateParentHistory()
+	testMsgContext := testOpsMsgDtoCreateContextInfoObj()
+
+	xMsg := "This is Information Message for test object"
+	msgId := int64(19)
+	msgNo := int64(6019)
+	msgType := OpsMsgTypeINFOMSG
+	msgClass := OpsMsgClassINFO
+
+	om := testOpsMsgDtoCreateInfoMsg()
+
+	l1 := len(testParentHistory)
+
+	l2 := len(om.ParentContextHistory)
+
+	if l1 != l2 {
+		t.Errorf("Expected om.ParentContextHistory to equal length= '%v'. It did NOT! actual length= '%v'",l1, l2)
+	}
+
+	for i:=0; i<l1; i++ {
+		if !testParentHistory[i].Equal(&om.ParentContextHistory[i]) {
+			t.Errorf("Expected om.ParentContextHistory to Equal testParentContext History. It did NOT!. i= '%v'",i)
+		}
+	}
+
+	if !testMsgContext.Equal(&om.MsgContext) {
+		t.Error("Expected testMsgContext to EQUAL om.MsgContext. It did NOT!")
+	}
 
 	if om.MsgType != msgType {
 		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
@@ -2249,43 +2885,43 @@ func testOpsMsgDtoCreateParentHistory() []OpsMsgContextInfo {
 }
 
 func testOpsMsgDtoCreateStdErrorMsg() OpsMsgDto {
-	om := OpsMsgDto{}.InitializeContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
+	om := OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
 	om.SetStdErrorMessage("This is Standard Error Msg for test object", 429)
 	return om
 }
 
 func testOpsMsgDtoCreateFatalErrorMsg() OpsMsgDto {
-	om := OpsMsgDto{}.InitializeContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
+	om := OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
 	om.SetFatalErrorMessage("This is FATAL Error Msg for test object", 152)
 	return om
 }
 
 func testOpsMsgDtoCreateInfoMsg() OpsMsgDto {
-	om := OpsMsgDto{}.InitializeContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
+	om := OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
 	om.SetInfoMessage("This is Information Message for test object", 19)
 	return om
 }
 
 func testOpsMsgDtoCreateWarningMsg() OpsMsgDto {
-	om := OpsMsgDto{}.InitializeContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
+	om := OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
 	om.SetWarningMessage("This is Warning Message for test object.", 67)
 	return om
 }
 
 func testOpsMsgDtoCreateDebugMsg() OpsMsgDto {
-	om := OpsMsgDto{}.InitializeContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
+	om := OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
 	om.SetDebugMessage("This is DEBUG Message for test object.", 238)
 	return om
 }
 
 func testOpsMsgDtoCreateSuccessfulCompletionMsg() OpsMsgDto {
-	om := OpsMsgDto{}.InitializeContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
+	om := OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
 	om.SetSuccessfulCompletionMessage( 64)
 	return om
 }
 
 func testOpsMsgDtoCreateNoErrorsNoMessagesMsg() OpsMsgDto {
-	om := OpsMsgDto{}.InitializeContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
+	om := OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
 	om.SetNoErrorsNoMessages(28)
 	return om
 }
