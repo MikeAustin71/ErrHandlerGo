@@ -286,9 +286,18 @@ func (opsMsg *OpsMsgDto) DeepCopyParentContextHistory(pi []OpsMsgContextInfo) []
 // Empty - Resets the current OpsMsgDto object to
 // an uninitialized or 'empty' state.
 func (opsMsg *OpsMsgDto) Empty() {
-	opsMsg.ParentContextHistory = make([] OpsMsgContextInfo, 0, 30)
-	opsMsg.MsgContext = OpsMsgContextInfo{}
+
+	opsMsg.EmptyParentHistory()
+	opsMsg.EmptyMessageContext()
 	opsMsg.EmptyMsgData()
+}
+
+func (opsMsg *OpsMsgDto) EmptyParentHistory() {
+	opsMsg.ParentContextHistory = make([] OpsMsgContextInfo, 0, 30)
+}
+
+func (opsMsg *OpsMsgDto) EmptyMessageContext() {
+	opsMsg.MsgContext = OpsMsgContextInfo{}
 }
 
 // EmptyMsgData - Resets all OpsMsgDto fields, with
