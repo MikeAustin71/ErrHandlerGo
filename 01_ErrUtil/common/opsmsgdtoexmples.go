@@ -18,7 +18,25 @@ func TestOpsMsgDto_Example002_NewInfoMsg() {
 	fmt.Printf(msg.GetMessage())
 }
 
-// TTestOpsMsgDto_Example001_NewStdErrorMsg - Test
+// TestOpsMsgDto_Example_003_NewInfoMsg - Test
+// Ops Message New Information Message Display
+func TestOpsMsgDto_Example003_NewInfoMsg() {
+	msg := OpsMsgDto{}.InitializeWithMessageContext(testExampleOpsMsgDtoCreateContextInfoObj()).NewInfoMsg("This is the message text.", 974)
+
+	fmt.Printf(msg.GetMessage())
+}
+
+// TestOpsMsgDto_Example_004_NewInfoMsg - Test
+// Ops Message New Information Message Display
+func TestOpsMsgDto_Example004_NewInfoMsg() {
+	msg := OpsMsgDto{}.NewInfoMsg("This is the message text.", 0)
+
+	fmt.Printf(msg.GetMessage())
+}
+
+
+
+// TestOpsMsgDto_Example001_NewStdErrorMsg - Test
 // Ops Message Standard Error Display
 func TestOpsMsgDto_Example001_NewStdErrorMsg() {
 	msg := OpsMsgDto{}.InitializeWithMessageContext(testExampleOpsMsgDtoCreateContextInfoObj()).NewStdErrorMsg("This is Standard Error message text.", 974)
@@ -26,7 +44,7 @@ func TestOpsMsgDto_Example001_NewStdErrorMsg() {
 	fmt.Printf(msg.GetMessage())
 }
 
-// TTestOpsMsgDto_Example002_NewStdErrorMsg - Test
+// TestOpsMsgDto_Example002_NewStdErrorMsg - Test
 // Ops Message Standard Error Display
 func TestOpsMsgDto_Example002_NewStdErrorMsg() {
 	msg := OpsMsgDto{}.InitializeAllContextInfo(testExampleOpsMsgDtoCreateParentHistory(),testExampleOpsMsgDtoCreateContextInfoObj()).NewStdErrorMsg("This is Standard Error message text.", 974)
@@ -34,7 +52,7 @@ func TestOpsMsgDto_Example002_NewStdErrorMsg() {
 	fmt.Printf(msg.GetMessage())
 }
 
-// TTestOpsMsgDto_Example003_NewStdErrorMsg - Test
+// TestOpsMsgDto_Example003_NewStdErrorMsg - Test
 // Ops Message Standard Error Display
 func TestOpsMsgDto_Example003_NewStdErrorMsg() {
 	msg := OpsMsgDto{}.InitializeWithMessageContext(testExampleOpsMsgDtoCreateContextInfoObj()).NewStdErrorMsg("This is Standard Error message text.", 974)
@@ -42,32 +60,48 @@ func TestOpsMsgDto_Example003_NewStdErrorMsg() {
 	fmt.Printf(msg.GetMessage())
 }
 
-// TTestOpsMsgDto_Example001_NewFatalErrorMsg - Test
+// TestOpsMsgDto_Example004_NewStdErrorMsg - Test
 // Ops Message Standard Error Display
+func TestOpsMsgDto_Example004_NewStdErrorMsg() {
+	msg := OpsMsgDto{}.NewStdErrorMsg("This is Standard Error message text.", 0)
+
+	fmt.Printf(msg.GetMessage())
+}
+
+// TestOpsMsgDto_Example001_NewFatalErrorMsg - Test
+// Ops Message Fatal Error Display
 func TestOpsMsgDto_Example001_NewFatalErrorMsg() {
 	msg := OpsMsgDto{}.NewFatalErrorMsg("This is FATAL Error message text.", 974)
 
 	fmt.Printf(msg.GetMessage())
 }
 
-// TTestOpsMsgDto_Example002_NewFatalErrorMsg - Test
-// Ops Message Standard Error Display
+// TestOpsMsgDto_Example002_NewFatalErrorMsg - Test
+// Ops Message Fatal Error Display
 func TestOpsMsgDto_Example002_NewFatalErrorMsg() {
 	msg := OpsMsgDto{}.InitializeAllContextInfo(testExampleOpsMsgDtoCreateParentHistory(),testExampleOpsMsgDtoCreateContextInfoObj()).NewFatalErrorMsg("This is FATAL Error message text.", 974)
 
 	fmt.Printf(msg.GetMessage())
 }
 
-// TTestOpsMsgDto_Example003_NewFatalErrorMsg - Test
-// Ops Message Standard Error Display
+// TestOpsMsgDto_Example003_NewFatalErrorMsg - Test
+// Ops Message Fatal Error Display
 func TestOpsMsgDto_Example003_NewFatalErrorMsg() {
 	msg := OpsMsgDto{}.InitializeWithMessageContext(testExampleOpsMsgDtoCreateContextInfoObj()).NewFatalErrorMsg("This is FATAL Error message text.", 974)
 
 	fmt.Printf(msg.GetMessage())
 }
 
-// TTestOpsMsgDto_Example001_NewWarningMsg - Test
-// Ops Message Standard Error Display
+// TestOpsMsgDto_Example004_NewFatalErrorMsg - Test
+// Ops Message Fatal Error Display
+func TestOpsMsgDto_Example004_NewFatalErrorMsg() {
+	msg := OpsMsgDto{}.NewFatalErrorMsg("This is FATAL Error message text.", 0)
+
+	fmt.Printf(msg.GetMessage())
+}
+
+// TestOpsMsgDto_Example001_NewWarningMsg - Test
+// Ops Message Warning Message Display
 func TestOpsMsgDto_Example001_NewWarningMsg() {
 	msg := OpsMsgDto{}.NewWarningMsg("This is Warning Error message text.", 974)
 
@@ -75,20 +109,126 @@ func TestOpsMsgDto_Example001_NewWarningMsg() {
 }
 
 // TTestOpsMsgDto_Example002_NewWarningMsg - Test
-// Ops Message Standard Error Display
+// Ops Message Warning Message Display
 func TestOpsMsgDto_Example002_NewWarningMsg() {
 	msg := OpsMsgDto{}.InitializeAllContextInfo(testExampleOpsMsgDtoCreateParentHistory(),testExampleOpsMsgDtoCreateContextInfoObj()).NewWarningMsg("This is Warning Error message text.", 974)
 
 	fmt.Printf(msg.GetMessage())
 }
 
-// TTestOpsMsgDto_Example003_NewWarningMsg - Test
-// Ops Message Standard Error Display
+// TestOpsMsgDto_Example003_NewWarningMsg - Test
+// Ops Message Warning Message Display
 func TestOpsMsgDto_Example003_NewWarningMsg() {
 	msg := OpsMsgDto{}.InitializeWithMessageContext(testExampleOpsMsgDtoCreateContextInfoObj()).NewWarningMsg("This is Warning message text.", 974)
 
 	fmt.Printf(msg.GetMessage())
 }
+
+// TestOpsMsgDto_Example004_NewWarningMsg - Test
+// Ops Message Warning Message Display
+func TestOpsMsgDto_Example004_NewWarningMsg() {
+	msg := OpsMsgDto{}.NewWarningMsg("This is Warning message text.", 0)
+
+	fmt.Printf(msg.GetMessage())
+}
+
+// TestOpsMsgDto_Example001_NewDEBUGMsg - Test
+// Ops Message DEBUG Message Display
+func TestOpsMsgDto_Example001_NewDEBUGMsg() {
+	msg := OpsMsgDto{}.NewDebugMsg("This is DEBUG Error message text.", 974)
+
+	fmt.Printf(msg.GetMessage())
+}
+
+// TestOpsMsgDto_Example002_NewDEBUGMsg - Test
+// Ops Message DEBUG Message Display
+func TestOpsMsgDto_Example002_NewDEBUGMsg() {
+	msg := OpsMsgDto{}.InitializeAllContextInfo(testExampleOpsMsgDtoCreateParentHistory(),testExampleOpsMsgDtoCreateContextInfoObj()).NewDebugMsg("This is DEBUG Error message text.", 974)
+
+	fmt.Printf(msg.GetMessage())
+}
+
+// TestOpsMsgDto_Example003_NewDEBUGMsg - Test
+// Ops Message DEBUG Message Display
+func TestOpsMsgDto_Example003_NewDEBUGMsg() {
+	msg := OpsMsgDto{}.InitializeWithMessageContext(testExampleOpsMsgDtoCreateContextInfoObj()).NewDebugMsg("This is DEBUG message text.", 974)
+
+	fmt.Printf(msg.GetMessage())
+}
+
+// TestOpsMsgDto_Example004_NewDEBUGMsg - Test
+// Ops Message DEBUG Message Display
+func TestOpsMsgDto_Example004_NewDEBUGMsg() {
+	msg := OpsMsgDto{}.NewDebugMsg("This is DEBUG message text.", 0)
+
+	fmt.Printf(msg.GetMessage())
+}
+
+// TestOpsMsgDto_Example001_NewSuccessfulCompletionMsg - Test
+// Ops Message SuccessfulCompletion Message Display
+func TestOpsMsgDto_Example001_NewSuccessfulCompletionMsg() {
+	msg := OpsMsgDto{}.NewSuccessfulCompletionMsg( 974)
+
+	fmt.Printf(msg.GetMessage())
+}
+
+// TTestOpsMsgDto_Example002_NewSuccessfulCompletionMsg - Test
+// Ops Message SuccessfulCompletion Message Display
+func TestOpsMsgDto_Example002_NewSuccessfulCompletionMsg() {
+	msg := OpsMsgDto{}.InitializeAllContextInfo(testExampleOpsMsgDtoCreateParentHistory(),testExampleOpsMsgDtoCreateContextInfoObj()).NewSuccessfulCompletionMsg(974)
+
+	fmt.Printf(msg.GetMessage())
+}
+
+// TestOpsMsgDto_Example003_NewSuccessfulCompletionMsg - Test
+// Ops Message SuccessfulCompletion Message Display
+func TestOpsMsgDto_Example003_NewSuccessfulCompletionMsg() {
+	msg := OpsMsgDto{}.InitializeWithMessageContext(testExampleOpsMsgDtoCreateContextInfoObj()).NewSuccessfulCompletionMsg(974)
+
+	fmt.Printf(msg.GetMessage())
+}
+
+// TestOpsMsgDto_Example004_NewSuccessfulCompletionMsg - Test
+// Ops Message SuccessfulCompletion Message Display
+func TestOpsMsgDto_Example004_NewSuccessfulCompletionMsg() {
+	msg := OpsMsgDto{}.NewSuccessfulCompletionMsg( 0)
+
+	fmt.Printf(msg.GetMessage())
+}
+
+// TestOpsMsgDto_Example001_NewNoErrorsNoMessagesMsg - Test
+// Ops Message SuccessfulCompletion Message Display
+func TestOpsMsgDto_Example001_NewNoErrorsNoMessagesMsg() {
+	msg := OpsMsgDto{}.NewNoErrorsNoMessagesMsg( 974)
+
+	fmt.Printf(msg.GetMessage())
+}
+
+// TTestOpsMsgDto_Example002_NewNoErrorsNoMessagesMsg - Test
+// Ops Message SuccessfulCompletion Message Display
+func TestOpsMsgDto_Example002_NewNoErrorsNoMessagesMsg() {
+	msg := OpsMsgDto{}.InitializeAllContextInfo(testExampleOpsMsgDtoCreateParentHistory(),testExampleOpsMsgDtoCreateContextInfoObj()).NewNoErrorsNoMessagesMsg(974)
+
+	fmt.Printf(msg.GetMessage())
+}
+
+// TestOpsMsgDto_Example003_NewNoErrorsNoMessagesMsg - Test
+// Ops Message SuccessfulCompletion Message Display
+func TestOpsMsgDto_Example003_NewNoErrorsNoMessagesMsg() {
+	msg := OpsMsgDto{}.InitializeWithMessageContext(testExampleOpsMsgDtoCreateContextInfoObj()).NewNoErrorsNoMessagesMsg(974)
+
+	fmt.Printf(msg.GetMessage())
+}
+
+// TestOpsMsgDto_Example004_NewNoErrorsNoMessagesMsg - Test
+// Ops Message SuccessfulCompletion Message Display
+func TestOpsMsgDto_Example004_NewNoErrorsNoMessagesMsg() {
+	msg := OpsMsgDto{}.NewNoErrorsNoMessagesMsg( 0)
+
+	fmt.Printf(msg.GetMessage())
+}
+
+
 
 /*
 =======================================================================================================

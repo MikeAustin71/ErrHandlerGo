@@ -5,6 +5,7 @@ import (
 	"strings"
 	"fmt"
 	"errors"
+	"unicode/utf8"
 )
 
 /*  'opsmsgdto.go' is located in source code
@@ -292,10 +293,14 @@ func (opsMsg *OpsMsgDto) Empty() {
 	opsMsg.EmptyMsgData()
 }
 
+// EmptyParentHistory - Deletes the current ParentHistory ([] OpsMsgContextInfo)
+// and resets it to an 'empty' or uninitialized state (zero length array).
 func (opsMsg *OpsMsgDto) EmptyParentHistory() {
 	opsMsg.ParentContextHistory = make([] OpsMsgContextInfo, 0, 30)
 }
 
+// EmptyMessageContext - Deletes the current message context
+// (OpsMsgDto.MsgContext) and resets it to an uninitialized state.
 func (opsMsg *OpsMsgDto) EmptyMessageContext() {
 	opsMsg.MsgContext = OpsMsgContextInfo{}
 }
@@ -806,43 +811,43 @@ func (opsMsg *OpsMsgDto) getMsgTitle() (banner1, banner2, title, numTitle string
 	case OpsMsgClassNOERRORSNOMESSAGES:
 		// OpsMsgClassNOERRORSNOMESSAGES - 0 Signals uninitialized message
 		// with no errors and no messages
-		title = "Empty Message - No Errors and No Messages"
+		title = "No Errors and No Messages"
 		numTitle = "Msg Number"
-		banner1 = strings.Repeat("%", 78)
+		banner1 = strings.Repeat("&", 78)
 		banner2 = strings.Repeat("-", 78)
 
 	case OpsMsgClassOPERROR:
 		// OpsMsgClassOPERROR - 1 Message is an Error Message
 		title = "Standard ERROR Message"
-		numTitle = "Error Number"
+		numTitle = "Error No"
 		banner1 = strings.Repeat("#", 78)
 		banner2 = strings.Repeat("-", 78)
 
 	case OpsMsgClassFATAL:
 		// OpsMsgClassFATAL - 2 Message is a Fatal Error Message
 		title = "FATAL ERROR Message"
-		numTitle = "Error Number"
+		numTitle = "Error No"
 		banner1 = strings.Repeat("!", 78)
 		banner2 = strings.Repeat("-", 78)
 
 	case OpsMsgClassINFO:
 		// OpsMsgClassINFO - 3 Message is an Informational Message
 		title = "Information Message"
-		numTitle = "Info Msg Number"
+		numTitle = "Msg No"
 		banner1 = strings.Repeat("*", 78)
 		banner2 = strings.Repeat("-", 78)
 
 	case OpsMsgClassWARNING:
 		// OpsMsgClassWARNING - 4 Message is a warning Message
 		title = "WARNING Message"
-		numTitle = "Warning Msg Number"
+		numTitle = "Msg No"
 		banner1 = strings.Repeat("?", 78)
 		banner2 = strings.Repeat("-", 78)
 
 	case OpsMsgClassDEBUG:
 		// OpsMsgClassDEBUG - 5 Message is a Debug Message
 		title = "DEBUG Message"
-		numTitle = "DEBUG - Message Number"
+		numTitle = " Number"
 		banner1 = strings.Repeat("@", 78)
 		banner2 = strings.Repeat("-", 78)
 
@@ -850,7 +855,7 @@ func (opsMsg *OpsMsgDto) getMsgTitle() (banner1, banner2, title, numTitle string
 		// OpsMsgClassSUCCESSFULCOMPLETION - 6 Message signalling successful
 		// completion of the operation
 		title = "Successful Completion"
-		numTitle = "Successful Completion Msg Number"
+		numTitle = "Msg No"
 		banner1 = strings.Repeat("&", 78)
 		banner2 = strings.Repeat("-", 78)
 
@@ -867,21 +872,57 @@ func(opsMsg *OpsMsgDto) setDebugMsgText(banner1, banner2, title, numTitle string
 
 	m := "\n\n"
 	m += "\n" + banner1
-	m += "\n" + title
-	// FmtDateTimeTzNanoYMD
-	dt := DateTimeUtility{}
-	timeStamp := "Local Time: " + dt.GetDateTimeTzNanoSecText(opsMsg.MsgTimeLocal)
-	timeStamp += "    UTC Time: " + dt.GetDateTimeTzNanoSecText(opsMsg.MsgTimeUTC)
 
-	m += "\n"
-	if opsMsg.msgId != 0 {
-		m+= numTitle + ": " + string(opsMsg.msgNumber)
-		m+= "    Time Stamp: " + timeStamp
+	if opsMsg.msgNumber != 0 {
+		m += fmt.Sprintf("\n %v %v: %v", title, numTitle, opsMsg.msgNumber)
 	} else {
-		m+= "Time Stamp: " + timeStamp
+		m += fmt.Sprintf("\n %v -", title)
 	}
 
-	m += "\nMessage: " + opsMsg.Message
+	m += "\n  " + opsMsg.Message
+
+	l1 := len(opsMsg.ParentContextHistory)
+	if l1 > 0 {
+		m += "\n" + banner2
+		m += "\n Parent Context History:"
+		for i:=0; i < l1; i++ {
+			m+= "\n  Src File: " + opsMsg.ParentContextHistory[i].SourceFileName
+			m+= "   Parent Obj: " + opsMsg.ParentContextHistory[i].ParentObjectName
+			m+= "   Func Name: " + opsMsg.ParentContextHistory[i].FuncName
+		}
+
+	}
+
+	if opsMsg.MsgContext.SourceFileName != "" ||
+		opsMsg.MsgContext.ParentObjectName != "" ||
+		opsMsg.MsgContext.FuncName != "" {
+		m += "\n" + banner2
+		m += "\n Current Message Context:"
+		if opsMsg.MsgContext.SourceFileName != "" {
+			m+= "\n  Src File: " + opsMsg.MsgContext.SourceFileName
+		}
+
+		if opsMsg.MsgContext.ParentObjectName != "" {
+			m+= "   Parent Obj: " + opsMsg.MsgContext.ParentObjectName
+		}
+
+		if opsMsg.MsgContext.FuncName != "" {
+			m+= "   Func Name: " + opsMsg.MsgContext.FuncName
+		}
+	}
+
+	// FmtDateTimeTzNanoYMD
+	dt := DateTimeUtility{}
+	localTz := opsMsg.MsgLocalTimeZone
+
+	if localTz == "Local" || localTz == "local" {
+		localZone, _ := time.Now().Zone()
+		localTz += " - " + localZone
+	}
+	m += "\n" + banner2
+	m += "\n   UTC Time: " + dt.GetDateTimeTzNanoSecText(opsMsg.MsgTimeUTC)
+	m += "\n Local Time: " + dt.GetDateTimeTzNanoSecText(opsMsg.MsgTimeLocal) + "   Time Zone: " + localTz
+
 	m += "\n" + banner1
 
 
@@ -914,24 +955,30 @@ func(opsMsg *OpsMsgDto) setMsgText(msg string, msgId int64) {
 		opsMsg.setDebugMsgText(banner1, banner2, title, numTitle)
 		return
 	}
+	lineWidth := len(banner1)
 	dt := DateTimeUtility{}
 	dtFmt := "2006-01-02 Mon 15:04:05.000000000 -0700 MST"
-	localTz := opsMsg.MsgLocalTimeZone
-
-	if localTz == "Local" || localTz == "local" {
-		localZone, _ := time.Now().Zone()
-		localTz += " - " + localZone
-	}
 
 	m= "\n\n"
 	m += "\n" + banner1
-	m += "\n " + title +" -"
-	m += "  Msg Type: " + opsMsg.MsgType.String()
-	m += "  Msg Class: " + opsMsg.MsgClass.String()
-	m += "\n" + banner1
+	s1 := (lineWidth / 3) * 2
+	s2 := lineWidth - s1
+
 	if opsMsg.msgNumber != 0 {
-		m+= fmt.Sprintf("\n %v: %v", numTitle, opsMsg.msgNumber)
+		sNo:= fmt.Sprintf("%v: %v", numTitle, opsMsg.msgNumber)
+		str1, _ := opsMsg.strCenterInStr(title, s1)
+		x := len(str1)
+		if s1 != x {
+			s1 = x
+		}
+		str2, _ := opsMsg.strRightJustify(sNo, s2)
+		m+= "\n" + str1
+		m+= str2
+	} else {
+		str1, _ := opsMsg.strCenterInStr(title, s1)
+		m+= "\n" + str1
 	}
+	m += "\n" + banner1
 	m += "\n " + msg
 
 	l1 := len(opsMsg.ParentContextHistory)
@@ -939,7 +986,7 @@ func(opsMsg *OpsMsgDto) setMsgText(msg string, msgId int64) {
 		m += "\n" + banner2
 		m += "\n Parent Context History:"
 		for i:=0; i < l1; i++ {
-			m+= "\n   Src File: " + opsMsg.ParentContextHistory[i].SourceFileName
+			m+= "\n  Src File: " + opsMsg.ParentContextHistory[i].SourceFileName
 			m+= "   Parent Obj: " + opsMsg.ParentContextHistory[i].ParentObjectName
 			m+= "   Func Name: " + opsMsg.ParentContextHistory[i].FuncName
 		}
@@ -963,8 +1010,8 @@ func(opsMsg *OpsMsgDto) setMsgText(msg string, msgId int64) {
 			m+= "   Func Name: " + opsMsg.MsgContext.FuncName
 		}
 	}
-	m += "\n" + banner2
-	m += fmt.Sprintf("\n Time Stamp - Local Time Zone: %v", localTz)
+	// m += "\n" + banner2
+	// m += fmt.Sprintf("\n Time Stamp - Local Time Zone: %v", localTz)
 	m += "\n" + banner2
 	m += fmt.Sprintf("\n   Message Time UTC: %v ", dt.GetDateTimeCustomFmt(opsMsg.MsgTimeUTC, dtFmt))
 	m += fmt.Sprintf("\n Message Time Local: %v ", dt.GetDateTimeCustomFmt(opsMsg.MsgTimeLocal, dtFmt))
@@ -976,27 +1023,52 @@ func(opsMsg *OpsMsgDto) setMsgText(msg string, msgId int64) {
 func (opsMsg *OpsMsgDto) setEmptyMessageText(banner1, banner2, title, numTitle string) {
 	m := "\n\n"
 	m += "\n" + banner1
-	m += "\n     " + title
-	m += "\n" + banner1
 	if opsMsg.msgNumber != 0 {
-		m+= "\n"  + numTitle + ": " + string(opsMsg.msgNumber)
+		m+= fmt.Sprintf("\n          %v           %v: %v", title, numTitle, opsMsg.msgNumber)
+	} else {
+		m += "\n                      " + title
 	}
-	m += "\n" + banner2
-	m += "\n" + "Time Stamp:"
-	m += "\n" + banner2
+	m += "\n" + banner1
+
+	l1 := len(opsMsg.ParentContextHistory)
+	if l1 > 0 {
+		m += "\n Parent Context History:"
+		for i:=0; i < l1; i++ {
+			m+= "\n  Src File: " + opsMsg.ParentContextHistory[i].SourceFileName
+			m+= "   Parent Obj: " + opsMsg.ParentContextHistory[i].ParentObjectName
+			m+= "   Func Name: " + opsMsg.ParentContextHistory[i].FuncName
+		}
+
+		m += "\n" + banner2
+	}
+
+	if opsMsg.MsgContext.SourceFileName != "" ||
+		opsMsg.MsgContext.ParentObjectName != "" ||
+		opsMsg.MsgContext.FuncName != "" {
+
+		m += "\n Current Message Context:"
+		if opsMsg.MsgContext.SourceFileName != "" {
+			m+= "\n  Src File: " + opsMsg.MsgContext.SourceFileName
+		}
+
+		if opsMsg.MsgContext.ParentObjectName != "" {
+			m+= "   Parent Obj: " + opsMsg.MsgContext.ParentObjectName
+		}
+
+		if opsMsg.MsgContext.FuncName != "" {
+			m+= "   Func Name: " + opsMsg.MsgContext.FuncName
+		}
+
+		m += "\n" + banner2
+
+	}
+
 	dt := DateTimeUtility{}
+
 	dtFmt := "2006-01-02 Mon 15:04:05.000000000 -0700 MST"
-	m += fmt.Sprintf("\n  Message Time UTC: %v ", dt.GetDateTimeCustomFmt(opsMsg.MsgTimeUTC, dtFmt))
-	m += fmt.Sprintf("\nMessage Time Local: %v ", dt.GetDateTimeCustomFmt(opsMsg.MsgTimeLocal, dtFmt))
-	m += "\n   Local Time Zone:"
-	localTz := opsMsg.MsgLocalTimeZone
+	m += fmt.Sprintf("\n  Time UTC: %v", dt.GetDateTimeCustomFmt(opsMsg.MsgTimeUTC, dtFmt))
+	m += fmt.Sprintf("\nTime Local: %v", dt.GetDateTimeCustomFmt(opsMsg.MsgTimeLocal, dtFmt))
 
-	if localTz == "Local" || localTz == "local" {
-		localZone, _ := time.Now().Zone()
-		localTz += " - " + localZone
-	}
-
-	m += localTz
 	m += "\n" + banner1
 
 	opsMsg.FmtMessage =  m
@@ -1019,27 +1091,52 @@ func (opsMsg *OpsMsgDto) setMsgIdAndMsgNumber(msgId int64) {
 func (opsMsg *OpsMsgDto) setSuccessfulCompletionMsgText(banner1, banner2, title, numTitle string) {
 	m := "\n\n"
 	m += "\n" + banner1
-	m += "\n     " + title
-	m += "\n" + banner1
 	if opsMsg.msgNumber != 0 {
-		m+= "\n"  + numTitle + ": " + string(opsMsg.msgNumber)
+		m+= fmt.Sprintf("\n             %v           %v: %v", title, numTitle, opsMsg.msgNumber)
+	} else {
+		m += "\n                      " + title
 	}
-	m += "\n" + banner2
-	m += "\n" + "Time Stamp:"
-	m += "\n" + banner2
+	m += "\n" + banner1
+
+	l1 := len(opsMsg.ParentContextHistory)
+	if l1 > 0 {
+		m += "\n Parent Context History:"
+		for i:=0; i < l1; i++ {
+			m+= "\n   Src File: " + opsMsg.ParentContextHistory[i].SourceFileName
+			m+= "   Parent Obj: " + opsMsg.ParentContextHistory[i].ParentObjectName
+			m+= "   Func Name: " + opsMsg.ParentContextHistory[i].FuncName
+		}
+
+		m += "\n" + banner2
+	}
+
+	if opsMsg.MsgContext.SourceFileName != "" ||
+		opsMsg.MsgContext.ParentObjectName != "" ||
+		opsMsg.MsgContext.FuncName != "" {
+
+		m += "\n Current Message Context:"
+		if opsMsg.MsgContext.SourceFileName != "" {
+			m+= "\n  Src File: " + opsMsg.MsgContext.SourceFileName
+		}
+
+		if opsMsg.MsgContext.ParentObjectName != "" {
+			m+= "   Parent Obj: " + opsMsg.MsgContext.ParentObjectName
+		}
+
+		if opsMsg.MsgContext.FuncName != "" {
+			m+= "   Func Name: " + opsMsg.MsgContext.FuncName
+		}
+
+		m += "\n" + banner2
+
+	}
+
 	dt := DateTimeUtility{}
+
 	dtFmt := "2006-01-02 Mon 15:04:05.000000000 -0700 MST"
-	m += fmt.Sprintf("\n  Message Time UTC: %v ", dt.GetDateTimeCustomFmt(opsMsg.MsgTimeUTC, dtFmt))
-	m += fmt.Sprintf("\nMessage Time Local: %v ", dt.GetDateTimeCustomFmt(opsMsg.MsgTimeLocal, dtFmt))
-	m += "\n   Local Time Zone:"
-	localTz := opsMsg.MsgLocalTimeZone
+	m += fmt.Sprintf("\n  Time UTC: %v", dt.GetDateTimeCustomFmt(opsMsg.MsgTimeUTC, dtFmt))
+	m += fmt.Sprintf("\nTime Local: %v", dt.GetDateTimeCustomFmt(opsMsg.MsgTimeLocal, dtFmt))
 
-	if localTz == "Local" || localTz == "local" {
-		localZone, _ := time.Now().Zone()
-		localTz += " - " + localZone
-	}
-
-	m += localTz
 	m += "\n" + banner1
 
 	opsMsg.FmtMessage =  m
@@ -1073,4 +1170,104 @@ func(opsMsg *OpsMsgDto) setTime(localTimeZone string){
 	opsMsg.MsgTimeLocal = tzLocal.TimeOut
 
 }
+
+
+/*
+
+Private String Management Methods
+
+*/
+
+// strCenterInStr - returns a string which includes
+// a left pad blank string plus the original string.
+// The complete string will effectively center the
+// original string is a field of specified length.
+func (opsMsg *OpsMsgDto) strCenterInStr(strToCenter string, fieldLen int) (string, error) {
+
+	sLen := len(strToCenter)
+
+	if sLen > fieldLen {
+		return strToCenter,  fmt.Errorf("'fieldLen' = '%v' strToCenter Length= '%v'. 'fieldLen is shorter than strToCenter Length!", fieldLen, sLen)
+	}
+
+	if sLen == fieldLen {
+		return strToCenter, nil
+	}
+
+	leftPadCnt := (fieldLen-sLen)/2
+
+	leftPadStr := strings.Repeat(" ", leftPadCnt)
+
+	rightPadCnt := fieldLen - sLen - leftPadCnt
+
+	rightPadStr := ""
+
+	if rightPadCnt > 0 {
+		rightPadStr = strings.Repeat(" ", rightPadCnt)
+	}
+
+
+	return leftPadStr + strToCenter	+ rightPadStr, nil
+
+}
+
+// strRightJustify - Returns a string where input parameter
+// 'strToJustify' is right justified. The length of the returned
+// string is determined by input parameter 'fieldlen'.
+func (opsMsg *OpsMsgDto) strRightJustify(strToJustify string, fieldLen int) (string, error) {
+
+	strLen := len(strToJustify)
+
+	if fieldLen == strLen {
+		return strToJustify, nil
+	}
+
+	if fieldLen < strLen {
+		return strToJustify, fmt.Errorf("Length of string to right justify is '%v'. 'fieldLen' is less. 'fieldLen'= '%v'", strLen, fieldLen)
+	}
+
+	// fieldLen must be greater than strLen
+	lefPadCnt := fieldLen - strLen
+
+	leftPadStr := strings.Repeat(" ", lefPadCnt)
+
+
+
+	return leftPadStr + strToJustify, nil
+}
+
+// strPadLeftToCenter - Returns a blank string
+// which allows centering of the target string
+// in a fixed length field.
+func (opsMsg *OpsMsgDto) strPadLeftToCenter(strToCenter string, fieldLen int) (string, error) {
+
+	sLen := opsMsg.strGetRuneCnt(strToCenter)
+
+	if sLen > fieldLen {
+		return "", errors.New("StringUtility:StrPadLeftToCenter() - String To Center is longer than Field Length")
+	}
+
+	if sLen == fieldLen {
+		return "", nil
+	}
+
+	margin := (fieldLen - sLen) / 2
+
+	return strings.Repeat(" ", margin), nil
+}
+
+// strGetRuneCnt - Uses utf8 Rune Count
+// function to return the number of characters
+// in a string.
+func (opsMsg *OpsMsgDto) strGetRuneCnt(targetStr string) int {
+	return utf8.RuneCountInString(targetStr)
+}
+
+// strGetCharCnt - Uses the 'len' method to
+// return the number of characters in a
+// string.
+func (opsMsg *OpsMsgDto) strGetCharCnt(targetStr string) int {
+	return len([]rune(targetStr))
+}
+
 
