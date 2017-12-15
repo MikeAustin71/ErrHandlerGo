@@ -189,9 +189,24 @@ func TestSetErrDetail(t *testing.T) {
 
 }
 
-func TestIsSpecErrNo(t *testing.T) {
+func TestSpecErr_SignalNoErrors_01(t *testing.T) {
 
 	s := SpecErr{}.SignalNoErrors()
+
+	isErr := s.CheckIsSpecErr()
+
+	if isErr {
+		t.Errorf("Expected CheckIsSpecErr() to return false. Instead it retrned %v", isErr)
+	}
+
+	if s.ErrorMsgType != SpecErrTypeNOERRORSALLCLEAR {
+		t.Errorf("Expected s.ErrorMsgType=='SpecErrTypeNOERRORSALLCLEAR'. Instead, got: '%v'", s.ErrorMsgType.String())
+	}
+}
+
+func TestSpecErr_SignalSuccessfulCompletion_01(t *testing.T) {
+
+	s := SpecErr{}.SignalSuccessfulCompletion()
 
 	isErr := s.CheckIsSpecErr()
 
@@ -202,6 +217,7 @@ func TestIsSpecErrNo(t *testing.T) {
 	if s.ErrorMsgType != SpecErrTypeSUCCESSFULCOMPLETION {
 		t.Errorf("Expected s.ErrorMsgType=='SpecErrTypeSUCCESSFULCOMPLETION'. Instead, got: '%v'", s.ErrorMsgType.String())
 	}
+
 }
 
 func TestIsSpecErrYes(t *testing.T) {

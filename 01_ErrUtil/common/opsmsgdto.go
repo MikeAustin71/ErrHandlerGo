@@ -734,7 +734,7 @@ func (opsMsg *OpsMsgDto) SetDebugMessage(msg string, msgId int64){
 	opsMsg.MsgType = OpsMsgTypeDEBUGMSG
 	opsMsg.MsgClass = OpsMsgClassDEBUG
 
-	opsMsg.setMsgText(msg, msgId)
+	opsMsg.setFormatMessage(msg, msgId)
 
 }
 
@@ -746,7 +746,7 @@ func (opsMsg *OpsMsgDto) SetFatalErrorMessage(errMsg string, errId int64) {
 	opsMsg.MsgType = OpsMsgTypeERRORMSG
 	opsMsg.MsgClass = OpsMsgClassFATAL
 
-	opsMsg.setMsgText(errMsg, errId)
+	opsMsg.setFormatMessage(errMsg, errId)
 
 }
 
@@ -801,7 +801,7 @@ func (opsMsg *OpsMsgDto) SetInfoMessage(msg string, msgId int64) {
 	opsMsg.MsgType = OpsMsgTypeINFOMSG
 	opsMsg.MsgClass = OpsMsgClassINFO
 
-	opsMsg.setMsgText(msg, msgId)
+	opsMsg.setFormatMessage(msg, msgId)
 }
 
 // SetMsgContext - Receives an OpsMsgContextInfo object as
@@ -830,7 +830,7 @@ func (opsMsg *OpsMsgDto) SetStdErrorMessage(errMsg string, errId int64){
 	opsMsg.MsgType = OpsMsgTypeERRORMSG
 	opsMsg.MsgClass = OpsMsgClassOPERROR
 
-	opsMsg.setMsgText(errMsg, errId)
+	opsMsg.setFormatMessage(errMsg, errId)
 
 }
 
@@ -843,7 +843,7 @@ func (opsMsg *OpsMsgDto) SetNoErrorsNoMessages(msg string, msgId int64) {
 	opsMsg.MsgType = OpsMsgTypeNOERRORNOMSG
 	opsMsg.MsgClass = OpsMsgClassNOERRORSNOMESSAGES
 
-	opsMsg.setMsgText(msg, msgId)
+	opsMsg.setFormatMessage(msg, msgId)
 
 }
 
@@ -854,7 +854,7 @@ func (opsMsg *OpsMsgDto) SetSuccessfulCompletionMessage(msg string, msgId int64)
 	opsMsg.MsgType = OpsMsgTypeSUCCESSFULCOMPLETION
 	opsMsg.MsgClass = OpsMsgClassSUCCESSFULCOMPLETION
 
-	opsMsg.setMsgText( msg, msgId)
+	opsMsg.setFormatMessage( msg, msgId)
 
 }
 
@@ -865,7 +865,7 @@ func (opsMsg *OpsMsgDto) SetWarningMessage(msg string, msgId int64) {
 	opsMsg.MsgType = OpsMsgTypeWARNINGMSG
 	opsMsg.MsgClass = OpsMsgClassWARNING
 
-	opsMsg.setMsgText(msg, msgId)
+	opsMsg.setFormatMessage(msg, msgId)
 
 }
 
@@ -933,7 +933,7 @@ func (opsMsg *OpsMsgDto) getMsgTitle() (banner1, banner2, title, numTitle string
 		// completion of the operation
 		title = "Successful Completion"
 		numTitle = "Msg No"
-		banner1 = strings.Repeat("&", 78)
+		banner1 = strings.Repeat("$", 78)
 		banner2 = strings.Repeat("-", 78)
 
 	default:
@@ -1006,7 +1006,9 @@ func(opsMsg *OpsMsgDto) setDebugMsgText(banner1, banner2, title, numTitle string
 	opsMsg.FmtMessage =  m
 }
 
-func(opsMsg *OpsMsgDto) setMsgText(msg string, msgId int64) {
+// setFormatMessage - This method is called internally to set
+// and format the text message for specific message types.
+func(opsMsg *OpsMsgDto) setFormatMessage(msg string, msgId int64) {
 
 	opsMsg.setMsgIdAndMsgNumber(msgId)
 
@@ -1021,6 +1023,7 @@ func(opsMsg *OpsMsgDto) setMsgText(msg string, msgId int64) {
 		opsMsg.setDebugMsgText(banner1, banner2, title, numTitle)
 		return
 	}
+
 	lineWidth := len(banner1)
 	dt := DateTimeUtility{}
 	dtFmt := "2006-01-02 Mon 15:04:05.000000000 -0700 MST"
@@ -1041,8 +1044,20 @@ func(opsMsg *OpsMsgDto) setMsgText(msg string, msgId int64) {
 		m+= "\n" + str1
 	}
 
+	if opsMsg.MsgClass == OpsMsgClassOPERROR ||
+			opsMsg.MsgClass == OpsMsgClassFATAL {
+
+		m += "\n" + nextBanner
+		nextBanner = banner2
+
+		str1 := fmt.Sprintf(" Is Error: %v       Is Panic\\Fatal Error: %v", opsMsg.IsError(), opsMsg.IsFatalError())
+		m += "\n" + str1
+
+	}
+
 	if opsMsg.Message != "" {
 		m += "\n" + nextBanner
+		nextBanner = banner2
 
 		m += "\n Message: "
 
@@ -1052,7 +1067,12 @@ func(opsMsg *OpsMsgDto) setMsgText(msg string, msgId int64) {
 
 		m += opsMsg.Message
 
+	} else {
+		m += "\n" + nextBanner
 		nextBanner = banner2
+
+		m += "\n Message: NO MESSAGE TEXT PROVIDED!!"
+
 	}
 
 	l1 := len(opsMsg.ParentContextHistory)
@@ -1060,9 +1080,10 @@ func(opsMsg *OpsMsgDto) setMsgText(msg string, msgId int64) {
 		m += "\n" + nextBanner
 		m += "\n Parent Context History:"
 		for i:=0; i < l1; i++ {
-			m+= "\n  Src File: " + opsMsg.ParentContextHistory[i].SourceFileName
-			m+= "   Parent Obj: " + opsMsg.ParentContextHistory[i].ParentObjectName
-			m+= "   Func Name: " + opsMsg.ParentContextHistory[i].FuncName
+			m+= "\n  SrcFile: " + opsMsg.ParentContextHistory[i].SourceFileName
+			m+= " -ParentObj: " + opsMsg.ParentContextHistory[i].ParentObjectName
+			m+= " -FuncName: " + opsMsg.ParentContextHistory[i].FuncName
+			m+= " -BaseMsgId: " + fmt.Sprintf("%v",opsMsg.ParentContextHistory[i].BaseMessageId)
 		}
 
 		nextBanner = banner2
@@ -1075,15 +1096,19 @@ func(opsMsg *OpsMsgDto) setMsgText(msg string, msgId int64) {
 		nextBanner = banner2
 		m += "\n Current Message Context:"
 		if opsMsg.MsgContext.SourceFileName != "" {
-			m+= "\n  Src File: " + opsMsg.MsgContext.SourceFileName
+			m+= "\n  SrcFile: " + opsMsg.MsgContext.SourceFileName
 		}
 
 		if opsMsg.MsgContext.ParentObjectName != "" {
-			m+= "   Parent Obj: " + opsMsg.MsgContext.ParentObjectName
+			m+= " -ParentObj: " + opsMsg.MsgContext.ParentObjectName
 		}
 
 		if opsMsg.MsgContext.FuncName != "" {
-			m+= "   Func Name: " + opsMsg.MsgContext.FuncName
+			m+= " -FuncName: " + opsMsg.MsgContext.FuncName
+		}
+
+		if opsMsg.MsgContext.BaseMessageId != 0 {
+			m+= " -BaseMsgId: " + fmt.Sprintf("%v", opsMsg.MsgContext.BaseMessageId)
 		}
 	}
 

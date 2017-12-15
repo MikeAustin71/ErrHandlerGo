@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 	"strings"
+	"unicode/utf8"
+	"errors"
 )
 
 /*
@@ -383,6 +385,16 @@ func (s SpecErr) InitializeBaseInfo(parent []ErrBaseInfo, currentBaseInfo ErrBas
 		BaseInfo:   currentBaseInfo.DeepCopyBaseInfo()}
 }
 
+// InitializeCurrentBaseInfo - Initialize a SpecErr Structure
+// wherein only the current BaseInfo object is initialized. The
+// ParentInfo remains empty or uninitialized.
+func (s SpecErr) InitializeCurrentBaseInfo(currentBaseInfo ErrBaseInfo) SpecErr {
+
+	return SpecErr{
+		BaseInfo:   currentBaseInfo.DeepCopyBaseInfo()}
+
+}
+
 // Initialize - Initializes all elements of
 // the SpecErr structure
 //
@@ -407,6 +419,8 @@ func (s SpecErr) Initialize(parent []ErrBaseInfo, bi ErrBaseInfo, err error, err
 	return s.InitializeBaseInfo(parent, bi).New(err, errType, errNo)
 
 }
+
+
 
 // New - Creates new SpecErr Type. Uses existing
 // Parent and ErrBaseInfo data. The error is based on
@@ -451,10 +465,10 @@ func (s SpecErr) New(err error, errType SpecErrMsgType, errNo int64) SpecErr {
 		se.SetWarningMessage(errMsg, errNo)
 
 	case SpecErrTypeSUCCESSFULCOMPLETION:
-		se.SetSuccessfulCompletion(errNo)
+		se.SetSuccessfulCompletion(errMsg, errNo)
 
 	case SpecErrTypeNOERRORSALLCLEAR:
-		se.SetNoErrorsNoMessages(errNo)
+		se.SetNoErrorsNoMessages(errMsg, errNo)
 	}
 
 	return se
@@ -497,10 +511,10 @@ func (s SpecErr) NewErrorMsgString(errMsg string, errType SpecErrMsgType, errNo 
 		se.SetWarningMessage(errMsg, errNo)
 
 	case SpecErrTypeSUCCESSFULCOMPLETION:
-		se.SetSuccessfulCompletion(errNo)
+		se.SetSuccessfulCompletion(errMsg, errNo)
 
 	case SpecErrTypeNOERRORSALLCLEAR:
-		se.SetNoErrorsNoMessages(errNo)
+		se.SetNoErrorsNoMessages(errMsg, errNo)
 	}
 
 	return se
@@ -525,13 +539,23 @@ func (s *SpecErr) PanicOnSpecErr(eSpec SpecErr) {
 
 // SignalNoErrors - Returns a SpecErr
 // structure with IsErr set to false.
+// Returned error type is SpecErrTypeNOERRORSALLCLEAR
 func (s SpecErr) SignalNoErrors() SpecErr {
 	//return SpecErr{IsErr: false, IsPanic: false}
 	se := SpecErr{}
-	se.SetSuccessfulCompletion(0)
+
+	se.SetNoErrorsNoMessages("No Errors - No Messages", 0)
 	return se
 }
 
+// SignalSuccessfulCompletion - Returns a SpecErr structure with
+// IsErr set to false. The returned error type is SpecErrTypeSUCCESSFULCOMPLETION
+func (s SpecErr) SignalSuccessfulCompletion() SpecErr {
+
+	se := SpecErr{}
+	se.SetSuccessfulCompletion("", 0)
+	return se
+}
 
 // SetBaseInfo - Sets the SpecErr ErrBaseInfo internal
 // structure. This data is used for creating repetitive
@@ -544,14 +568,14 @@ func (s *SpecErr) SetBaseInfo(bi ErrBaseInfo) {
 func (s *SpecErr) SetError(err error, errType SpecErrMsgType, errId int64) {
 
 	if err==nil {
-		s.SetNoErrorsNoMessages(errId)
+		s.SetNoErrorsNoMessages("", errId)
 		return
 	}
 
 	switch errType {
 
 	case SpecErrTypeNOERRORSALLCLEAR:
-		s.SetNoErrorsNoMessages(errId)
+		s.SetNoErrorsNoMessages(err.Error(), errId)
 
 	case SpecErrTypeERROR:
 		s.SetStdError(err.Error(), errId)
@@ -566,7 +590,7 @@ func (s *SpecErr) SetError(err error, errType SpecErrMsgType, errId int64) {
 		s.SetWarningMessage(err.Error(), errId)
 
 	case SpecErrTypeSUCCESSFULCOMPLETION:
-		s.SetSuccessfulCompletion(errId)
+		s.SetSuccessfulCompletion(err.Error(), errId)
 
 	default:
 		panic("SpecErr.SetError() - INVALID SpecErrType!")
@@ -585,7 +609,7 @@ func (s *SpecErr) SetErrorWithMessage(errMsg string, errType SpecErrMsgType, err
 	switch errType {
 
 	case SpecErrTypeNOERRORSALLCLEAR:
-		s.SetNoErrorsNoMessages(errId)
+		s.SetNoErrorsNoMessages(errMsg, errId)
 
 	case SpecErrTypeERROR:
 		s.SetStdError(errMsg, errId)
@@ -600,7 +624,7 @@ func (s *SpecErr) SetErrorWithMessage(errMsg string, errType SpecErrMsgType, err
 		s.SetWarningMessage(errMsg, errId)
 
 	case SpecErrTypeSUCCESSFULCOMPLETION:
-		s.SetSuccessfulCompletion(errId)
+		s.SetSuccessfulCompletion(errMsg, errId)
 
 	default:
 		panic("SpecErr.SetErrorWithMessage() - INVALID SpecErrType!")
@@ -635,9 +659,9 @@ func (s *SpecErr) SetInfoMessage(infoMsg string, msgId int64) {
 // SetNoErrorsNoMessages - Sets or default
 // 'empty' message state.
 // SpecErrType= SpecErrTypeNOERRORSALLCLEAR
-func (s *SpecErr) SetNoErrorsNoMessages(msgNo int64) {
+func (s *SpecErr) SetNoErrorsNoMessages(msg string, msgNo int64) {
 	s.EmptyMsgData()
-	s.setFormatMessage("No Errors - No Messages", msgNo)
+	s.setFormatMessage(msg, msgNo)
 }
 
 // SetParentInfo - Sets the ParentInfo Slice for
@@ -665,13 +689,12 @@ func (s *SpecErr) SetStdError(errMsg string, errId int64) {
 // SetSuccessfulCompletion - Sets values for the current
 // or host SpecErr object to reflect successful completion
 // of the operation.
-func (s *SpecErr) SetSuccessfulCompletion(msgId int64) {
+func (s *SpecErr) SetSuccessfulCompletion(msg string, msgId int64) {
 	s.IsErr = false
 	s.IsPanic = false
 	s.ErrorMsgType = SpecErrTypeSUCCESSFULCOMPLETION
-	s.ErrMsg = "Successful Completion!"
 
-	s.setFormatMessage("Successful Completion!", msgId)
+	s.setFormatMessage(msg, msgId)
 }
 
 // SetWarningMessage - Sets the value of the current SpecErr object to a
@@ -712,103 +735,105 @@ func(s *SpecErr) setFormatMessage(msg string, msgNo int64){
 	var m string
 	dt := DateTimeUtility{}
 	dtfmt := "2006-01-02 Mon 15:04:05.000000000 -0700 MST"
-	localTz := s.ErrorLocalTimeZone
+	lineWidth := len(banner1)
 
-	if localTz == "Local" || localTz == "local" {
-		localZone, _ := time.Now().Zone()
-		localTz += " - " + localZone
-	}
-
-
-	if s.ErrorMsgType == SpecErrTypeSUCCESSFULCOMPLETION ||
-			s.ErrorMsgType == SpecErrTypeNOERRORSALLCLEAR	{
-
-		m = "\n" + banner1
-		if s.ErrNo != 0 {
-			m+= fmt.Sprintf("\n  %v: %v", numTitle, s.ErrNo) + "  " + s.ErrMsg
-
-		} else {
-			m += "\n      " + mTitle
-		}
-
-		m += banner2
-		m += "\n  Time Stamp"
-		m += banner2
-		m += fmt.Sprintf("\n        Time UTC: %v", dt.GetDateTimeCustomFmt(s.ErrorMsgTimeUTC, dtfmt))
-		m += fmt.Sprintf("\n      Time Local: %v", dt.GetDateTimeCustomFmt(s.ErrorMsgTimeLocal, dtfmt))
-
-		m += fmt.Sprintf("\nLocal Time Zone : %v", localTz)
-		m +=  banner1
-
-		s.FmtErrMsg = m
-		return
-	}
 
 	// Common Message Formatting
+	m = "\n\n"
+	m += "\n" + banner1
 
-	m = "\n" + banner1
-	m += "\n" + mTitle
-	m += banner2
+	s1 := (lineWidth / 3) * 2
+	s2 := lineWidth - s1
 
 	if s.ErrNo != 0 {
-		m += fmt.Sprintf("\n  %v: %v", numTitle, s.ErrNo)
+		sNo:= fmt.Sprintf("%v: %v", numTitle, s.ErrNo)
+		str1, _ := s.strCenterInStr(mTitle, s1)
+		str2, _ := s.strRightJustify(sNo, s2)
+		m+= "\n" + str1 + str2
+	} else {
+		str1, _ := s.strCenterInStr(mTitle, s1)
+		m+= "\n" + str1
 	}
 
+	nextBanner := banner1
 
-	m+= "\n"
+	if s.ErrorMsgType == SpecErrTypeERROR || s.ErrorMsgType == SpecErrTypeFATAL {
 
-
-	m += s.ErrMsg
-	m += banner2
-
-	if s.BaseInfo.SourceFileName != "" ||
-		s.BaseInfo.ParentObjectName != "" ||
-		s.BaseInfo.FuncName != ""  {
-		m+= "\nCurrent Base Context Info"
-		m+=  banner2
+		m += "\n" + nextBanner
+		nextBanner = banner2
+		str1 := fmt.Sprintf(" IsError: %v     Is Panic/Fatal Error: %v", s.IsErr, s.IsPanic)
+		m += "\n" + str1
 
 	}
 
-	if s.BaseInfo.SourceFileName != "" {
-		m += "\n  SrcFile: " + s.BaseInfo.SourceFileName
+	if s.ErrMsg != "" {
+		m += "\n" + nextBanner
+		nextBanner = banner2
+
+		m += "\n Message: "
+
+		if len(s.ErrMsg) > 67 {
+			m += "\n  "
+		}
+
+		m += s.ErrMsg
+	} else {
+		m += "\n" + nextBanner
+		nextBanner = banner2
+		m += "\n Message: NO MESSAGE TEXT PROVIDED!!"
+
 	}
 
-	if s.BaseInfo.ParentObjectName != "" {
-		m += "\nParentObj: " + s.BaseInfo.ParentObjectName
-	}
-
-	if s.BaseInfo.FuncName != "" {
-		m += "\n FuncName: " + s.BaseInfo.FuncName
-	}
-
-
-	m += fmt.Sprintf("\n  IsErr: %v", s.IsErr)
-	m += fmt.Sprintf("\nIsPanic: %v", s.IsPanic)
 
 	// If parent Function Info Exists
 	// Print it out.
 	if len(s.ParentInfo) > 0 {
-		m += banner2
-		m += "\n  Parent Context Info"
-		m += banner2
+		m += "\n" + nextBanner
+		nextBanner = banner2
+
+		m += "\n Parent Context Info:"
 
 		for _, bi := range s.ParentInfo {
-			m += "\n SrcFile: " + bi.SourceFileName +"  ParentObj: " + bi.ParentObjectName + "  FuncName: " + bi.FuncName
-			if bi.BaseErrorId != 0 {
-				m += fmt.Sprintf("  ErrorID: %v", bi.BaseErrorId)
+			m += "\n  SrcFile: " + bi.SourceFileName
+			m += " -ParentObj: " + bi.ParentObjectName
+			m += " -FuncName: " + bi.FuncName
+			m += " -BaseMsgId: " + fmt.Sprintf("%v", bi.BaseErrorId)
 			}
-		}
 	}
 
-	m += banner2
-	m += "\n  Time Stamp"
-	m += banner2
-	m += fmt.Sprintf("\n  Error Time UTC: %v", dt.GetDateTimeCustomFmt(s.ErrorMsgTimeUTC, dtfmt))
-	m += fmt.Sprintf("\nError Time Local: %v", dt.GetDateTimeCustomFmt(s.ErrorMsgTimeLocal, dtfmt))
 
-	m += fmt.Sprintf("\nLocal Time Zone : %v", localTz)
-	m +=  banner1
-	m += "\n"
+	if s.BaseInfo.SourceFileName != "" ||
+		s.BaseInfo.ParentObjectName != "" ||
+		s.BaseInfo.FuncName != "" {
+		m += "\n" + nextBanner
+		nextBanner = banner2
+
+		m += "\n Current Base Context Info:"
+
+		if s.BaseInfo.SourceFileName != "" {
+			m += "\n  SrcFile: " + s.BaseInfo.SourceFileName
+		}
+
+		if s.BaseInfo.ParentObjectName != "" {
+			m += " -ParentObj: " + s.BaseInfo.ParentObjectName
+		}
+
+		if s.BaseInfo.FuncName != "" {
+			m += " -FuncName: " + s.BaseInfo.FuncName
+		}
+
+		if s.BaseInfo.BaseErrorId != 0 {
+			m += " -BaseMsgId: " + fmt.Sprintf("%v", s.BaseInfo.BaseErrorId)
+		}
+
+
+	}
+
+	m += "\n" + nextBanner
+	nextBanner = banner2
+	m += fmt.Sprintf("\n   UTC Time: %v", dt.GetDateTimeCustomFmt(s.ErrorMsgTimeUTC, dtfmt))
+	m += fmt.Sprintf("\n Local Time: %v", dt.GetDateTimeCustomFmt(s.ErrorMsgTimeLocal, dtfmt))
+	m += "\n" + banner1
 
 	s.FmtErrMsg = m
 	return
@@ -823,38 +848,38 @@ func(s *SpecErr) setMsgParms() (banner1, banner2, title, numTitle string) {
 
 	case SpecErrTypeNOERRORSALLCLEAR:
 		title = "No Errors - No Messages"
-		banner1 = "\n" + strings.Repeat("@", 78)
-		banner2 = "\n" + strings.Repeat("-", 78)
+		banner1 =  strings.Repeat("&", 78)
+		banner2 =  strings.Repeat("-", 78)
 		numTitle = "MsgNo"
 
 	case SpecErrTypeERROR:
-		banner1 = "\n" + strings.Repeat("!", 78)
-		banner2 = "\n" + strings.Repeat("-", 78)
+		banner1 =  strings.Repeat("#", 78)
+		banner2 =  strings.Repeat("-", 78)
 		title = "Standard Error Message"
 		numTitle = "ErrNo"
 
 	case SpecErrTypeFATAL:
-		banner1 = "\n" + strings.Repeat("%", 78)
-		banner2 = "\n" + strings.Repeat("-", 78)
+		banner1 =  strings.Repeat("!", 78)
+		banner2 =  strings.Repeat("-", 78)
 		title = "Fatal Error Message"
 		numTitle = "ErrNo"
 
 	case SpecErrTypeINFO:
 
-		banner1 = "\n" + strings.Repeat("*", 78)
-		banner2 = "\n" + strings.Repeat("=", 78)
+		banner1 =  strings.Repeat("*", 78)
+		banner2 =  strings.Repeat("-", 78)
 		title = "Information Message"
 		numTitle = "InfoMsgNo"
 
 	case SpecErrTypeWARNING:
-		banner1 = "\n" + strings.Repeat("?", 78)
-		banner2 = "\n" + strings.Repeat("_", 78)
+		banner1 =  strings.Repeat("?", 78)
+		banner2 =  strings.Repeat("-", 78)
 		title = "Warning Message"
 		numTitle = "WarningMsgNo"
 
 	case SpecErrTypeSUCCESSFULCOMPLETION:
-		banner1 = "\n" + strings.Repeat("$", 78)
-		banner2 = "\n" + strings.Repeat("-", 78)
+		banner1 =  strings.Repeat("$", 78)
+		banner2 =  strings.Repeat("-", 78)
 		title = "Successful Completion"
 		numTitle = "MsgNo"
 
@@ -904,6 +929,105 @@ func(s *SpecErr) setTime(localTimeZone string){
 	s.ErrorMsgTimeLocal = tzLocal.TimeOut
 
 }
+
+/*
+
+Private String Management Methods
+
+*/
+
+// strCenterInStr - returns a string which includes
+// a left pad blank string plus the original string.
+// The complete string will effectively center the
+// original string is a field of specified length.
+func (s *SpecErr) strCenterInStr(strToCenter string, fieldLen int) (string, error) {
+
+	sLen := len(strToCenter)
+
+	if sLen > fieldLen {
+		return strToCenter,  fmt.Errorf("'fieldLen' = '%v' strToCenter Length= '%v'. 'fieldLen is shorter than strToCenter Length!", fieldLen, sLen)
+	}
+
+	if sLen == fieldLen {
+		return strToCenter, nil
+	}
+
+	leftPadCnt := (fieldLen-sLen)/2
+
+	leftPadStr := strings.Repeat(" ", leftPadCnt)
+
+	rightPadCnt := fieldLen - sLen - leftPadCnt
+
+	rightPadStr := ""
+
+	if rightPadCnt > 0 {
+		rightPadStr = strings.Repeat(" ", rightPadCnt)
+	}
+
+
+	return leftPadStr + strToCenter	+ rightPadStr, nil
+
+}
+
+// strRightJustify - Returns a string where input parameter
+// 'strToJustify' is right justified. The length of the returned
+// string is determined by input parameter 'fieldlen'.
+func (s *SpecErr) strRightJustify(strToJustify string, fieldLen int) (string, error) {
+
+	strLen := len(strToJustify)
+
+	if fieldLen == strLen {
+		return strToJustify, nil
+	}
+
+	if fieldLen < strLen {
+		return strToJustify, fmt.Errorf("Length of string to right justify is '%v'. 'fieldLen' is less. 'fieldLen'= '%v'", strLen, fieldLen)
+	}
+
+	// fieldLen must be greater than strLen
+	lefPadCnt := fieldLen - strLen
+
+	leftPadStr := strings.Repeat(" ", lefPadCnt)
+
+
+
+	return leftPadStr + strToJustify, nil
+}
+
+// strPadLeftToCenter - Returns a blank string
+// which allows centering of the target string
+// in a fixed length field.
+func (s *SpecErr) strPadLeftToCenter(strToCenter string, fieldLen int) (string, error) {
+
+	sLen := s.strGetRuneCnt(strToCenter)
+
+	if sLen > fieldLen {
+		return "", errors.New("StringUtility:StrPadLeftToCenter() - String To Center is longer than Field Length")
+	}
+
+	if sLen == fieldLen {
+		return "", nil
+	}
+
+	margin := (fieldLen - sLen) / 2
+
+	return strings.Repeat(" ", margin), nil
+}
+
+// strGetRuneCnt - Uses utf8 Rune Count
+// function to return the number of characters
+// in a string.
+func (s *SpecErr) strGetRuneCnt(targetStr string) int {
+	return utf8.RuneCountInString(targetStr)
+}
+
+// strGetCharCnt - Uses the 'len' method to
+// return the number of characters in a
+// string.
+func (s *SpecErr) strGetCharCnt(targetStr string) int {
+	return len([]rune(targetStr))
+}
+
 
 
 var blankErrBaseInfo = ErrBaseInfo{}

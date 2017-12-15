@@ -68,6 +68,15 @@ func TestOpsMsgDto_Example004_NewStdErrorMsg() {
 	fmt.Printf(msg.GetMessage())
 }
 
+// TestOpsMsgDto_Example005_NewStdErrorMsg - Test
+// Ops Message Standard Error Display
+func TestOpsMsgDto_Example005_NewStdErrorMsg() {
+	msg := OpsMsgDto{}.InitializeAllContextInfo(testExampleOpsMsgDtoCreateParentHistory(),testExampleOpsMsgDtoCreateContextInfoObj()).NewStdErrorMsg("", 974)
+
+	fmt.Printf(msg.GetMessage())
+}
+
+
 // TestOpsMsgDto_Example001_NewFatalErrorMsg - Test
 // Ops Message Fatal Error Display
 func TestOpsMsgDto_Example001_NewFatalErrorMsg() {
