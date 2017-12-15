@@ -23,6 +23,8 @@ import (
 						https://github.com/MikeAustin71/datetimeopsgo.git
 */
 
+// OpsMsgCollection - A collection of Operations Message Dto
+// objects
 type OpsMsgCollection struct {
 	OpsMessages [] OpsMsgDto
 }
@@ -70,6 +72,8 @@ func (omc *OpsMsgCollection) PeekLastMsg() OpsMsgDto {
 
 	return omc.OpsMessages[l1-1].CopyOut()
 }
+
+
 
 // GetArrayLength - returns the array length of the
 // OpsMessages array.
