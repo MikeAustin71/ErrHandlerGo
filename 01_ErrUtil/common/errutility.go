@@ -11,6 +11,15 @@ import (
 		code repository:
 
 						https://github.com/MikeAustin71/ErrHandlerGo.git
+
+	Dependencies:
+	=============
+
+	This file depends on utility routines provided by source code
+	file, 'datetimeutility.go'. This source code file is located
+	in the source code repository:
+
+						https://github.com/MikeAustin71/datetimeopsgo.git
 */
 
 // SpecErrMsgType - a series of constants used to describe
