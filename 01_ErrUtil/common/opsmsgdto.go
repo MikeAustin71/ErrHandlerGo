@@ -487,11 +487,12 @@ func(opsMsg OpsMsgDto) InitializeContextWithParentHistoryPlusMsgContext(parentOp
 	return om
 }
 
-// IsFatalError - If the current OpsMsgDto object is configured
-// as a fatal error, this method will return true.
-func (opsMsg *OpsMsgDto) IsFatalError() bool {
+// IsDebugMsg - Returns a boolean value indicating
+// whether or not this message is a 'Debug'
+// type message.
+func(opsMsg OpsMsgDto) IsDebugMsg() bool {
 
-	if opsMsg.MsgClass == OpsMsgClassFATAL {
+	if opsMsg.MsgType == OpsMsgTypeDEBUGMSG {
 		return true
 	}
 
@@ -513,6 +514,74 @@ func (opsMsg *OpsMsgDto) IsError() bool {
 	}
 
 	return false
+}
+
+// IsFatalError - If the current OpsMsgDto object is configured
+// as a fatal error, this method will return true.
+func (opsMsg *OpsMsgDto) IsFatalError() bool {
+
+	if opsMsg.MsgClass == OpsMsgClassFATAL {
+		return true
+	}
+
+	return false
+
+}
+
+// IsInfoMsg - Returns a boolean value indicating
+// whether or not this message is an 'Information'
+// type message.
+func (opsMsg *OpsMsgDto) IsInfoMsg() bool {
+
+	if opsMsg.MsgType == OpsMsgTypeINFOMSG {
+		return true
+	}
+
+	return false
+
+
+}
+
+// IsNoErrorsNoMessages  - Returns a boolean value indicating
+// whether or not this message is a 'No Errors No Messages'
+// type message.
+//
+// 'No Errors No Messages' is the type of message assigned to
+// uninitialized OpsMsgDto objects.
+func (opsMsg *OpsMsgDto) IsNoErrorsNoMessages() bool {
+
+	if opsMsg.MsgType == OpsMsgTypeNOERRORNOMSG {
+		return true
+	}
+
+	return false
+
+}
+
+// IsSuccessfulCompletion - Returns a boolean value indicating
+// whether or not this message is a 'Successful Completion' type
+// message.
+func (opsMsg *OpsMsgDto) IsSuccessfulCompletionMsg() bool {
+
+	if opsMsg.MsgType == OpsMsgTypeSUCCESSFULCOMPLETION {
+		return true
+	}
+
+	return false
+
+}
+
+// IsWarningMsg - Returns a boolean value indicating
+// whether or not this message is a 'Warning' type
+// message.
+func (opsMsg *OpsMsgDto) IsWarningMsg() bool {
+
+	if opsMsg.MsgType == OpsMsgTypeWARNINGMSG {
+		return true
+	}
+
+	return false
+
 }
 
 // NewDebugMsg - Create a new Debug Message
@@ -614,11 +683,11 @@ func (opsMsg OpsMsgDto) NewStdErrorMsg(errMsg string, errNo int64) OpsMsgDto {
 
 // NewSuccessfulCompletionMsg - Creates a new Successful Completion
 // Message and returns it as a new OpsMsgDto object.
-func (opsMsg OpsMsgDto) NewSuccessfulCompletionMsg(msgId int64) OpsMsgDto {
+func (opsMsg OpsMsgDto) NewSuccessfulCompletionMsg(msg string, msgId int64) OpsMsgDto {
 	om := OpsMsgDto{}
 	om.SetParentMessageContextHistory(opsMsg.ParentContextHistory)
 	om.SetMessageContext(opsMsg.MsgContext)
-	om.SetSuccessfulCompletionMessage(msgId)
+	om.SetSuccessfulCompletionMessage(msg, msgId)
 	return om
 }
 
@@ -638,13 +707,13 @@ func (opsMsg OpsMsgDto) NewWarningMsg(msg string, msgNo int64) OpsMsgDto {
 
 // NewNoErrorsNoMessagesMsg - Creates a new No Errors and No
 // Messages Message and returns it as a new OpsMsgDto object.
-func (opsMsg OpsMsgDto) NewNoErrorsNoMessagesMsg(msgNo int64) OpsMsgDto {
+func (opsMsg OpsMsgDto) NewNoErrorsNoMessagesMsg(msg string,msgNo int64) OpsMsgDto {
 
 	om := OpsMsgDto{}
 	om.SetParentMessageContextHistory(opsMsg.ParentContextHistory)
 	om.SetMessageContext(opsMsg.MsgContext)
 
-	om.SetNoErrorsNoMessages(msgNo)
+	om.SetNoErrorsNoMessages(msg, msgNo)
 
 	return om
 
@@ -694,7 +763,7 @@ func (opsMsg *OpsMsgDto) SetFromSpecErrMessage(se SpecErr) {
 	switch se.ErrorMsgType {
 
 	case SpecErrTypeNOERRORSALLCLEAR:
-		opsMsg.SetNoErrorsNoMessages(se.ErrId)
+		opsMsg.SetNoErrorsNoMessages(se.ErrMsg, se.ErrId)
 
 	case SpecErrTypeERROR:
 		opsMsg.SetStdErrorMessage(se.ErrMsg, se.ErrId)
@@ -709,7 +778,7 @@ func (opsMsg *OpsMsgDto) SetFromSpecErrMessage(se SpecErr) {
 		opsMsg.SetWarningMessage(se.ErrMsg, se.ErrId )
 
 	case SpecErrTypeSUCCESSFULCOMPLETION:
-		opsMsg.SetSuccessfulCompletionMessage(se.ErrId)
+		opsMsg.SetSuccessfulCompletionMessage(se.ErrMsg, se.ErrId)
 
 	default:
 		panic("OpsMsgDto.SetFromSpecErrMessage() - INVALID SpecErrType Code")
@@ -760,24 +829,24 @@ func (opsMsg *OpsMsgDto) SetStdErrorMessage(errMsg string, errId int64){
 // SetNoErrorsNoMessages - Configures the current or host
 // OpsMsgDto object for the default message type,
 // 'No Errors and No Messages'.
-func (opsMsg *OpsMsgDto) SetNoErrorsNoMessages(msgId int64) {
+func (opsMsg *OpsMsgDto) SetNoErrorsNoMessages(msg string, msgId int64) {
 
 	opsMsg.EmptyMsgData()
 	opsMsg.MsgType = OpsMsgTypeNOERRORNOMSG
 	opsMsg.MsgClass = OpsMsgClassNOERRORSNOMESSAGES
 
-	opsMsg.setMsgText("No Errors - No Messages", msgId)
+	opsMsg.setMsgText(msg, msgId)
 
 }
 
 // SetSuccessfulCompletionMessage - Configures the current or host
 // OpsMsgDto object as a Successful Completion Message.
-func (opsMsg *OpsMsgDto) SetSuccessfulCompletionMessage(msgId int64){
+func (opsMsg *OpsMsgDto) SetSuccessfulCompletionMessage(msg string, msgId int64){
 	opsMsg.EmptyMsgData()
 	opsMsg.MsgType = OpsMsgTypeSUCCESSFULCOMPLETION
 	opsMsg.MsgClass = OpsMsgClassSUCCESSFULCOMPLETION
 
-	opsMsg.setMsgText("Successful Completion", msgId)
+	opsMsg.setMsgText( msg, msgId)
 
 }
 
@@ -940,17 +1009,6 @@ func(opsMsg *OpsMsgDto) setMsgText(msg string, msgId int64) {
 	var m string
 	banner1, banner2, title, numTitle := opsMsg.getMsgTitle()
 
-	if opsMsg.MsgClass == OpsMsgClassSUCCESSFULCOMPLETION {
-		opsMsg.setSuccessfulCompletionMsgText(banner1, banner2, title, numTitle)
-		return
-	}
-
-	if opsMsg.MsgClass == OpsMsgClassNOERRORSNOMESSAGES {
-		opsMsg.setEmptyMessageText(banner1, banner2, title, numTitle)
-		return
-	}
-
-
 	if opsMsg.MsgClass == OpsMsgClassDEBUG {
 		opsMsg.setDebugMsgText(banner1, banner2, title, numTitle)
 		return
@@ -961,29 +1019,37 @@ func(opsMsg *OpsMsgDto) setMsgText(msg string, msgId int64) {
 
 	m= "\n\n"
 	m += "\n" + banner1
+	nextBanner := banner1
 	s1 := (lineWidth / 3) * 2
 	s2 := lineWidth - s1
 
 	if opsMsg.msgNumber != 0 {
 		sNo:= fmt.Sprintf("%v: %v", numTitle, opsMsg.msgNumber)
 		str1, _ := opsMsg.strCenterInStr(title, s1)
-		x := len(str1)
-		if s1 != x {
-			s1 = x
-		}
 		str2, _ := opsMsg.strRightJustify(sNo, s2)
-		m+= "\n" + str1
-		m+= str2
+		m+= "\n" + str1 + str2
 	} else {
 		str1, _ := opsMsg.strCenterInStr(title, s1)
 		m+= "\n" + str1
 	}
-	m += "\n" + banner1
-	m += "\n " + msg
+
+	if opsMsg.Message != "" {
+		m += "\n" + nextBanner
+
+		m += "\n Message: "
+
+		if len(opsMsg.Message) > 67 {
+			m += "\n  "
+		}
+
+		m += opsMsg.Message
+
+		nextBanner = banner2
+	}
 
 	l1 := len(opsMsg.ParentContextHistory)
 	if l1 > 0 {
-		m += "\n" + banner2
+		m += "\n" + nextBanner
 		m += "\n Parent Context History:"
 		for i:=0; i < l1; i++ {
 			m+= "\n  Src File: " + opsMsg.ParentContextHistory[i].SourceFileName
@@ -991,12 +1057,14 @@ func(opsMsg *OpsMsgDto) setMsgText(msg string, msgId int64) {
 			m+= "   Func Name: " + opsMsg.ParentContextHistory[i].FuncName
 		}
 
+		nextBanner = banner2
 	}
 
 	if opsMsg.MsgContext.SourceFileName != "" ||
 			opsMsg.MsgContext.ParentObjectName != "" ||
 				opsMsg.MsgContext.FuncName != "" {
-		m += "\n" + banner2
+		m += "\n" + nextBanner
+		nextBanner = banner2
 		m += "\n Current Message Context:"
 		if opsMsg.MsgContext.SourceFileName != "" {
 			m+= "\n  Src File: " + opsMsg.MsgContext.SourceFileName
@@ -1010,9 +1078,8 @@ func(opsMsg *OpsMsgDto) setMsgText(msg string, msgId int64) {
 			m+= "   Func Name: " + opsMsg.MsgContext.FuncName
 		}
 	}
-	// m += "\n" + banner2
-	// m += fmt.Sprintf("\n Time Stamp - Local Time Zone: %v", localTz)
-	m += "\n" + banner2
+
+	m += "\n" + nextBanner
 	m += fmt.Sprintf("\n   Message Time UTC: %v ", dt.GetDateTimeCustomFmt(opsMsg.MsgTimeUTC, dtFmt))
 	m += fmt.Sprintf("\n Message Time Local: %v ", dt.GetDateTimeCustomFmt(opsMsg.MsgTimeLocal, dtFmt))
 	m += "\n" + banner1
@@ -1020,61 +1087,8 @@ func(opsMsg *OpsMsgDto) setMsgText(msg string, msgId int64) {
 	opsMsg.FmtMessage =  m
 }
 
-func (opsMsg *OpsMsgDto) setEmptyMessageText(banner1, banner2, title, numTitle string) {
-	m := "\n\n"
-	m += "\n" + banner1
-	if opsMsg.msgNumber != 0 {
-		m+= fmt.Sprintf("\n          %v           %v: %v", title, numTitle, opsMsg.msgNumber)
-	} else {
-		m += "\n                      " + title
-	}
-	m += "\n" + banner1
-
-	l1 := len(opsMsg.ParentContextHistory)
-	if l1 > 0 {
-		m += "\n Parent Context History:"
-		for i:=0; i < l1; i++ {
-			m+= "\n  Src File: " + opsMsg.ParentContextHistory[i].SourceFileName
-			m+= "   Parent Obj: " + opsMsg.ParentContextHistory[i].ParentObjectName
-			m+= "   Func Name: " + opsMsg.ParentContextHistory[i].FuncName
-		}
-
-		m += "\n" + banner2
-	}
-
-	if opsMsg.MsgContext.SourceFileName != "" ||
-		opsMsg.MsgContext.ParentObjectName != "" ||
-		opsMsg.MsgContext.FuncName != "" {
-
-		m += "\n Current Message Context:"
-		if opsMsg.MsgContext.SourceFileName != "" {
-			m+= "\n  Src File: " + opsMsg.MsgContext.SourceFileName
-		}
-
-		if opsMsg.MsgContext.ParentObjectName != "" {
-			m+= "   Parent Obj: " + opsMsg.MsgContext.ParentObjectName
-		}
-
-		if opsMsg.MsgContext.FuncName != "" {
-			m+= "   Func Name: " + opsMsg.MsgContext.FuncName
-		}
-
-		m += "\n" + banner2
-
-	}
-
-	dt := DateTimeUtility{}
-
-	dtFmt := "2006-01-02 Mon 15:04:05.000000000 -0700 MST"
-	m += fmt.Sprintf("\n  Time UTC: %v", dt.GetDateTimeCustomFmt(opsMsg.MsgTimeUTC, dtFmt))
-	m += fmt.Sprintf("\nTime Local: %v", dt.GetDateTimeCustomFmt(opsMsg.MsgTimeLocal, dtFmt))
-
-	m += "\n" + banner1
-
-	opsMsg.FmtMessage =  m
-
-}
-
+// setMsgIdAndMsgNumber - This method is called internally
+// to set the OpsMsgDto.msgId and OpsMsgDto.msgNumber fields.
 func (opsMsg *OpsMsgDto) setMsgIdAndMsgNumber(msgId int64) {
 	
 	if msgId == 0 {
@@ -1087,62 +1101,6 @@ func (opsMsg *OpsMsgDto) setMsgIdAndMsgNumber(msgId int64) {
 	
 	
 }
-
-func (opsMsg *OpsMsgDto) setSuccessfulCompletionMsgText(banner1, banner2, title, numTitle string) {
-	m := "\n\n"
-	m += "\n" + banner1
-	if opsMsg.msgNumber != 0 {
-		m+= fmt.Sprintf("\n             %v           %v: %v", title, numTitle, opsMsg.msgNumber)
-	} else {
-		m += "\n                      " + title
-	}
-	m += "\n" + banner1
-
-	l1 := len(opsMsg.ParentContextHistory)
-	if l1 > 0 {
-		m += "\n Parent Context History:"
-		for i:=0; i < l1; i++ {
-			m+= "\n   Src File: " + opsMsg.ParentContextHistory[i].SourceFileName
-			m+= "   Parent Obj: " + opsMsg.ParentContextHistory[i].ParentObjectName
-			m+= "   Func Name: " + opsMsg.ParentContextHistory[i].FuncName
-		}
-
-		m += "\n" + banner2
-	}
-
-	if opsMsg.MsgContext.SourceFileName != "" ||
-		opsMsg.MsgContext.ParentObjectName != "" ||
-		opsMsg.MsgContext.FuncName != "" {
-
-		m += "\n Current Message Context:"
-		if opsMsg.MsgContext.SourceFileName != "" {
-			m+= "\n  Src File: " + opsMsg.MsgContext.SourceFileName
-		}
-
-		if opsMsg.MsgContext.ParentObjectName != "" {
-			m+= "   Parent Obj: " + opsMsg.MsgContext.ParentObjectName
-		}
-
-		if opsMsg.MsgContext.FuncName != "" {
-			m+= "   Func Name: " + opsMsg.MsgContext.FuncName
-		}
-
-		m += "\n" + banner2
-
-	}
-
-	dt := DateTimeUtility{}
-
-	dtFmt := "2006-01-02 Mon 15:04:05.000000000 -0700 MST"
-	m += fmt.Sprintf("\n  Time UTC: %v", dt.GetDateTimeCustomFmt(opsMsg.MsgTimeUTC, dtFmt))
-	m += fmt.Sprintf("\nTime Local: %v", dt.GetDateTimeCustomFmt(opsMsg.MsgTimeLocal, dtFmt))
-
-	m += "\n" + banner1
-
-	opsMsg.FmtMessage =  m
-
-}
-
 
 // setTime - Sets the time stamp for this Operations
 // Message. Notice that the input parameter 'localTimeZone'

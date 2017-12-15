@@ -1464,12 +1464,12 @@ func testOpsMsgDtoCreateDebugMsg() OpsMsgDto {
 
 func testOpsMsgDtoCreateSuccessfulCompletionMsg() OpsMsgDto {
 	om := OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
-	om.SetSuccessfulCompletionMessage( 64)
+	om.SetSuccessfulCompletionMessage("", 64)
 	return om
 }
 
 func testOpsMsgDtoCreateNoErrorsNoMessagesMsg() OpsMsgDto {
 	om := OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
-	om.SetNoErrorsNoMessages(28)
+	om.SetNoErrorsNoMessages("", 28)
 	return om
 }

@@ -167,7 +167,7 @@ func TestOpsMsgDto_Example004_NewDEBUGMsg() {
 // TestOpsMsgDto_Example001_NewSuccessfulCompletionMsg - Test
 // Ops Message SuccessfulCompletion Message Display
 func TestOpsMsgDto_Example001_NewSuccessfulCompletionMsg() {
-	msg := OpsMsgDto{}.NewSuccessfulCompletionMsg( 974)
+	msg := OpsMsgDto{}.NewSuccessfulCompletionMsg("", 974)
 
 	fmt.Printf(msg.GetMessage())
 }
@@ -175,7 +175,7 @@ func TestOpsMsgDto_Example001_NewSuccessfulCompletionMsg() {
 // TTestOpsMsgDto_Example002_NewSuccessfulCompletionMsg - Test
 // Ops Message SuccessfulCompletion Message Display
 func TestOpsMsgDto_Example002_NewSuccessfulCompletionMsg() {
-	msg := OpsMsgDto{}.InitializeAllContextInfo(testExampleOpsMsgDtoCreateParentHistory(),testExampleOpsMsgDtoCreateContextInfoObj()).NewSuccessfulCompletionMsg(974)
+	msg := OpsMsgDto{}.InitializeAllContextInfo(testExampleOpsMsgDtoCreateParentHistory(),testExampleOpsMsgDtoCreateContextInfoObj()).NewSuccessfulCompletionMsg("",974)
 
 	fmt.Printf(msg.GetMessage())
 }
@@ -183,7 +183,7 @@ func TestOpsMsgDto_Example002_NewSuccessfulCompletionMsg() {
 // TestOpsMsgDto_Example003_NewSuccessfulCompletionMsg - Test
 // Ops Message SuccessfulCompletion Message Display
 func TestOpsMsgDto_Example003_NewSuccessfulCompletionMsg() {
-	msg := OpsMsgDto{}.InitializeWithMessageContext(testExampleOpsMsgDtoCreateContextInfoObj()).NewSuccessfulCompletionMsg(974)
+	msg := OpsMsgDto{}.InitializeWithMessageContext(testExampleOpsMsgDtoCreateContextInfoObj()).NewSuccessfulCompletionMsg("",974)
 
 	fmt.Printf(msg.GetMessage())
 }
@@ -191,15 +191,25 @@ func TestOpsMsgDto_Example003_NewSuccessfulCompletionMsg() {
 // TestOpsMsgDto_Example004_NewSuccessfulCompletionMsg - Test
 // Ops Message SuccessfulCompletion Message Display
 func TestOpsMsgDto_Example004_NewSuccessfulCompletionMsg() {
-	msg := OpsMsgDto{}.NewSuccessfulCompletionMsg( 0)
+	msg := OpsMsgDto{}.NewSuccessfulCompletionMsg("", 0)
 
 	fmt.Printf(msg.GetMessage())
 }
 
+// TTestOpsMsgDto_Example002_NewSuccessfulCompletionMsg - Test
+// Ops Message SuccessfulCompletion Message Display
+func TestOpsMsgDto_Example005_NewSuccessfulCompletionMsg() {
+	msgText := "Xray = 6"
+	msg := OpsMsgDto{}.InitializeAllContextInfo(testExampleOpsMsgDtoCreateParentHistory(),testExampleOpsMsgDtoCreateContextInfoObj()).NewSuccessfulCompletionMsg(msgText,974)
+
+	fmt.Printf(msg.GetMessage())
+}
+
+
 // TestOpsMsgDto_Example001_NewNoErrorsNoMessagesMsg - Test
 // Ops Message SuccessfulCompletion Message Display
 func TestOpsMsgDto_Example001_NewNoErrorsNoMessagesMsg() {
-	msg := OpsMsgDto{}.NewNoErrorsNoMessagesMsg( 974)
+	msg := OpsMsgDto{}.NewNoErrorsNoMessagesMsg("", 974)
 
 	fmt.Printf(msg.GetMessage())
 }
@@ -207,7 +217,7 @@ func TestOpsMsgDto_Example001_NewNoErrorsNoMessagesMsg() {
 // TTestOpsMsgDto_Example002_NewNoErrorsNoMessagesMsg - Test
 // Ops Message SuccessfulCompletion Message Display
 func TestOpsMsgDto_Example002_NewNoErrorsNoMessagesMsg() {
-	msg := OpsMsgDto{}.InitializeAllContextInfo(testExampleOpsMsgDtoCreateParentHistory(),testExampleOpsMsgDtoCreateContextInfoObj()).NewNoErrorsNoMessagesMsg(974)
+	msg := OpsMsgDto{}.InitializeAllContextInfo(testExampleOpsMsgDtoCreateParentHistory(),testExampleOpsMsgDtoCreateContextInfoObj()).NewNoErrorsNoMessagesMsg("",974)
 
 	fmt.Printf(msg.GetMessage())
 }
@@ -215,7 +225,7 @@ func TestOpsMsgDto_Example002_NewNoErrorsNoMessagesMsg() {
 // TestOpsMsgDto_Example003_NewNoErrorsNoMessagesMsg - Test
 // Ops Message SuccessfulCompletion Message Display
 func TestOpsMsgDto_Example003_NewNoErrorsNoMessagesMsg() {
-	msg := OpsMsgDto{}.InitializeWithMessageContext(testExampleOpsMsgDtoCreateContextInfoObj()).NewNoErrorsNoMessagesMsg(974)
+	msg := OpsMsgDto{}.InitializeWithMessageContext(testExampleOpsMsgDtoCreateContextInfoObj()).NewNoErrorsNoMessagesMsg("",974)
 
 	fmt.Printf(msg.GetMessage())
 }
@@ -223,7 +233,18 @@ func TestOpsMsgDto_Example003_NewNoErrorsNoMessagesMsg() {
 // TestOpsMsgDto_Example004_NewNoErrorsNoMessagesMsg - Test
 // Ops Message SuccessfulCompletion Message Display
 func TestOpsMsgDto_Example004_NewNoErrorsNoMessagesMsg() {
-	msg := OpsMsgDto{}.NewNoErrorsNoMessagesMsg( 0)
+	msg := OpsMsgDto{}.NewNoErrorsNoMessagesMsg("", 0)
+
+	fmt.Printf(msg.GetMessage())
+}
+
+// TestOpsMsgDto_Example004_NewNoErrorsNoMessagesMsg - Test
+// Ops Message SuccessfulCompletion Message Display
+func TestOpsMsgDto_Example005_NewNoErrorsNoMessagesMsg() {
+
+	xMsg := "Xray = 6"
+
+	msg := OpsMsgDto{}.NewNoErrorsNoMessagesMsg(xMsg, 0)
 
 	fmt.Printf(msg.GetMessage())
 }
@@ -296,12 +317,12 @@ func testExampleOpsMsgDtoCreateDebugMsg() OpsMsgDto {
 
 func testExampleOpsMsgDtoCreateSuccessfulCompletionMsg() OpsMsgDto {
 	om := OpsMsgDto{}.InitializeAllContextInfo(testExampleOpsMsgDtoCreateParentHistory(), testExampleOpsMsgDtoCreateContextInfoObj())
-	om.SetSuccessfulCompletionMessage( 64)
+	om.SetSuccessfulCompletionMessage("", 64)
 	return om
 }
 
 func testExampleOpsMsgDtoCreateNoErrorsNoMessagesMsg() OpsMsgDto {
 	om := OpsMsgDto{}.InitializeAllContextInfo(testExampleOpsMsgDtoCreateParentHistory(), testExampleOpsMsgDtoCreateContextInfoObj())
-	om.SetNoErrorsNoMessages(28)
+	om.SetNoErrorsNoMessages("",28)
 	return om
 }
