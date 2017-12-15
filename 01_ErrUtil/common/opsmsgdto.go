@@ -23,6 +23,60 @@ import (
 						https://github.com/MikeAustin71/datetimeopsgo.git
 */
 
+type OpsMsgCollection struct {
+	OpsMessages [] OpsMsgDto
+}
+
+// AddOpsMsg - Adds an Operations Message (OpsMsgDto object)
+// to the end of the OpsMessages array.
+func (omc *OpsMsgCollection) AddOpsMsg(opsMsg OpsMsgDto) {
+	omc.OpsMessages = append(omc.OpsMessages, opsMsg)
+}
+
+// PopLastMsg - Removes the last OpsMsgDto object
+// from the collections array, and returns it to
+// the calling method.
+func (omc *OpsMsgCollection) PopLastMsg() OpsMsgDto {
+
+	l1 := len(omc.OpsMessages)
+
+	om := omc.OpsMessages[l1-1].CopyOut()
+
+	omc.OpsMessages = omc.OpsMessages[0:l1-2]
+
+	return om
+}
+
+// PopFirstMsg - Removes the first OpsMsgDto object
+// from the collections array, and returns it to
+// the calling method.
+func (omc *OpsMsgCollection) PopFirstMsg() OpsMsgDto {
+
+	l1 := len(omc.OpsMessages)
+
+	om := omc.OpsMessages[0].CopyOut()
+
+	omc.OpsMessages = omc.OpsMessages[1:l1-1]
+
+	return om
+}
+
+// PeekLastMsg - Returns the last element from the
+// Operation Messages Collection, but does NOT remove
+// it from the OpsMessages array.
+func (omc *OpsMsgCollection) PeekLastMsg() OpsMsgDto {
+
+	l1 := len(omc.OpsMessages)
+
+	return omc.OpsMessages[l1-1].CopyOut()
+}
+
+// GetArrayLength - returns the array length of the
+// OpsMessages array.
+func (omc *OpsMsgCollection) GetArrayLength() int {
+	return len(omc.OpsMessages)
+}
+
 // OpsMsgType - Designates type of Message being logged
 type OpsMsgType int
 
