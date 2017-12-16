@@ -65,7 +65,7 @@ func TestOpsMsgDto_NewNoErrorsNoMessagesMsg_01(t *testing.T) {
 		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
 	}
 
-	actMsg := om.GetMessage()
+	actMsg := om.GetFmtMessage()
 
 	if !strings.Contains(actMsg, xMsg) {
 		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
@@ -129,7 +129,7 @@ func TestOpsMsgDto_NewNoErrorsNoMessagesMsg_02(t *testing.T) {
 		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
 	}
 
-	actMsg := om.GetMessage()
+	actMsg := om.GetFmtMessage()
 
 	if !strings.Contains(actMsg, xMsg) {
 		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
@@ -187,7 +187,7 @@ func TestOpsMsgDto_NewNoErrorsNoMessagesMsg_03(t *testing.T) {
 		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
 	}
 
-	actMsg := om.GetMessage()
+	actMsg := om.GetFmtMessage()
 
 	if !strings.Contains(actMsg, xMsg) {
 		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
@@ -266,7 +266,7 @@ func TestOpsMsgDto_SetNoErrorsNoMessages_01(t *testing.T) {
 		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
 	}
 
-	actMsg := om.GetMessage()
+	actMsg := om.GetFmtMessage()
 
 	if !strings.Contains(actMsg, xMsg) {
 		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
@@ -333,7 +333,7 @@ func TestOpsMsgDto_SetNoErrorsNoMessages_02(t *testing.T) {
 		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
 	}
 
-	actMsg := om.GetMessage()
+	actMsg := om.GetFmtMessage()
 
 	if !strings.Contains(actMsg, xMsg) {
 		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
@@ -393,7 +393,7 @@ func TestOpsMsgDto_SetNoErrorsNoMessages_03(t *testing.T) {
 		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
 	}
 
-	actMsg := om.GetMessage()
+	actMsg := om.GetFmtMessage()
 
 	if !strings.Contains(actMsg, xMsg) {
 		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
@@ -460,7 +460,7 @@ func TestOpsMsgDto_SetNoErrorsNoMessages_04(t *testing.T) {
 		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
 	}
 
-	actMsg := om.GetMessage()
+	actMsg := om.GetFmtMessage()
 
 	if !strings.Contains(actMsg, xMsg) {
 		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
@@ -582,7 +582,7 @@ func TestOpsMsgDto_CopyIn_01(t *testing.T) {
 		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
 	}
 
-	actMsg := om1.GetMessage()
+	actMsg := om1.GetFmtMessage()
 
 	if !strings.Contains(actMsg, xMsg) {
 		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
@@ -648,7 +648,7 @@ func TestOpsMsgDto_CopyIn_02(t *testing.T) {
 		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
 	}
 
-	actMsg := om1.GetMessage()
+	actMsg := om1.GetFmtMessage()
 
 	if !strings.Contains(actMsg, xMsg) {
 		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
@@ -718,7 +718,7 @@ func TestOpsMsgDto_CopyIn_03(t *testing.T) {
 		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
 	}
 
-	actMsg := om1.GetMessage()
+	actMsg := om1.GetFmtMessage()
 
 	if !strings.Contains(actMsg, xMsg) {
 		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
@@ -792,7 +792,7 @@ func TestOpsMsgDto_CopyIn_04(t *testing.T) {
 		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
 	}
 
-	actMsg := om1.GetMessage()
+	actMsg := om1.GetFmtMessage()
 
 	if !strings.Contains(actMsg, xMsg) {
 		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
@@ -856,7 +856,7 @@ func TestOpsMsgDto_CopyOut_01(t *testing.T) {
 		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
 	}
 
-	actMsg := om2.GetMessage()
+	actMsg := om2.GetFmtMessage()
 
 	if !strings.Contains(actMsg, xMsg) {
 		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
@@ -921,7 +921,7 @@ func TestOpsMsgDto_CopyOut_02(t *testing.T) {
 		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
 	}
 
-	actMsg := om2.GetMessage()
+	actMsg := om2.GetFmtMessage()
 
 	if !strings.Contains(actMsg, xMsg) {
 		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
@@ -988,7 +988,7 @@ func TestOpsMsgDto_CopyOut_03(t *testing.T) {
 		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
 	}
 
-	actMsg := om2.GetMessage()
+	actMsg := om2.GetFmtMessage()
 
 	if !strings.Contains(actMsg, xMsg) {
 		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
@@ -1061,7 +1061,7 @@ func TestOpsMsgDto_CopyOut_04(t *testing.T) {
 		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
 	}
 
-	actMsg := om1.GetMessage()
+	actMsg := om1.GetFmtMessage()
 
 	if !strings.Contains(actMsg, xMsg) {
 		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
@@ -1158,7 +1158,7 @@ func TestOpsMsgContextInfo_Equal_05(t *testing.T) {
 
 	om2 = om1.CopyOut()
 
-	om2.FmtMessage = "xxxx"
+	om2.fmtMessage = "xxxx"
 
 	if om2.Equal(&om1) {
 		t.Error("Expected om2!=om1. om2 DID EQUAL om1 - ERROR!")

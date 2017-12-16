@@ -720,7 +720,7 @@ func (s SpecErr) String() string {
 *********************************************
 */
 
-// setFormatMessage - Sets the original message and formats
+// setMessageText - Sets the original message and formats
 // the message for display
 func(s *SpecErr) setFormatMessage(msg string, msgNo int64){
 
@@ -841,7 +841,7 @@ func(s *SpecErr) setFormatMessage(msg string, msgNo int64){
 }
 
 // setMsgParms - Set Message Parameters.
-// Called by SpecErr.setFormatMessage()
+// Called by SpecErr.setMessageText()
 func(s *SpecErr) setMsgParms() (banner1, banner2, title, numTitle string) {
 
 	switch s.ErrorMsgType {

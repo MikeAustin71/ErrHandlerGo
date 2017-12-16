@@ -7,7 +7,7 @@ import "fmt"
 func TestOpsMsgDto_Example001_NewInfoMsg() {
 	msg := OpsMsgDto{}.NewInfoMsg("This is the message text.", 974)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 // TestOpsMsgDto_Example_002_NewInfoMsg - Test
@@ -15,7 +15,7 @@ func TestOpsMsgDto_Example001_NewInfoMsg() {
 func TestOpsMsgDto_Example002_NewInfoMsg() {
 	msg := OpsMsgDto{}.InitializeAllContextInfo(testExampleOpsMsgDtoCreateParentHistory(),testExampleOpsMsgDtoCreateContextInfoObj()).NewInfoMsg("This is the message text.", 974)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 // TestOpsMsgDto_Example_003_NewInfoMsg - Test
@@ -23,7 +23,7 @@ func TestOpsMsgDto_Example002_NewInfoMsg() {
 func TestOpsMsgDto_Example003_NewInfoMsg() {
 	msg := OpsMsgDto{}.InitializeWithMessageContext(testExampleOpsMsgDtoCreateContextInfoObj()).NewInfoMsg("This is the message text.", 974)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 // TestOpsMsgDto_Example_004_NewInfoMsg - Test
@@ -31,7 +31,7 @@ func TestOpsMsgDto_Example003_NewInfoMsg() {
 func TestOpsMsgDto_Example004_NewInfoMsg() {
 	msg := OpsMsgDto{}.NewInfoMsg("This is the message text.", 0)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 
@@ -41,7 +41,7 @@ func TestOpsMsgDto_Example004_NewInfoMsg() {
 func TestOpsMsgDto_Example001_NewStdErrorMsg() {
 	msg := OpsMsgDto{}.InitializeWithMessageContext(testExampleOpsMsgDtoCreateContextInfoObj()).NewStdErrorMsg("This is Standard Error message text.", 974)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 // TestOpsMsgDto_Example002_NewStdErrorMsg - Test
@@ -49,7 +49,7 @@ func TestOpsMsgDto_Example001_NewStdErrorMsg() {
 func TestOpsMsgDto_Example002_NewStdErrorMsg() {
 	msg := OpsMsgDto{}.InitializeAllContextInfo(testExampleOpsMsgDtoCreateParentHistory(),testExampleOpsMsgDtoCreateContextInfoObj()).NewStdErrorMsg("This is Standard Error message text.", 974)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 // TestOpsMsgDto_Example003_NewStdErrorMsg - Test
@@ -57,7 +57,7 @@ func TestOpsMsgDto_Example002_NewStdErrorMsg() {
 func TestOpsMsgDto_Example003_NewStdErrorMsg() {
 	msg := OpsMsgDto{}.InitializeWithMessageContext(testExampleOpsMsgDtoCreateContextInfoObj()).NewStdErrorMsg("This is Standard Error message text.", 974)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 // TestOpsMsgDto_Example004_NewStdErrorMsg - Test
@@ -65,7 +65,7 @@ func TestOpsMsgDto_Example003_NewStdErrorMsg() {
 func TestOpsMsgDto_Example004_NewStdErrorMsg() {
 	msg := OpsMsgDto{}.NewStdErrorMsg("This is Standard Error message text.", 0)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 // TestOpsMsgDto_Example005_NewStdErrorMsg - Test
@@ -73,7 +73,7 @@ func TestOpsMsgDto_Example004_NewStdErrorMsg() {
 func TestOpsMsgDto_Example005_NewStdErrorMsg() {
 	msg := OpsMsgDto{}.InitializeAllContextInfo(testExampleOpsMsgDtoCreateParentHistory(),testExampleOpsMsgDtoCreateContextInfoObj()).NewStdErrorMsg("", 974)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 
@@ -82,7 +82,7 @@ func TestOpsMsgDto_Example005_NewStdErrorMsg() {
 func TestOpsMsgDto_Example001_NewFatalErrorMsg() {
 	msg := OpsMsgDto{}.NewFatalErrorMsg("This is FATAL Error message text.", 974)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 // TestOpsMsgDto_Example002_NewFatalErrorMsg - Test
@@ -90,7 +90,7 @@ func TestOpsMsgDto_Example001_NewFatalErrorMsg() {
 func TestOpsMsgDto_Example002_NewFatalErrorMsg() {
 	msg := OpsMsgDto{}.InitializeAllContextInfo(testExampleOpsMsgDtoCreateParentHistory(),testExampleOpsMsgDtoCreateContextInfoObj()).NewFatalErrorMsg("This is FATAL Error message text.", 974)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 // TestOpsMsgDto_Example003_NewFatalErrorMsg - Test
@@ -98,7 +98,7 @@ func TestOpsMsgDto_Example002_NewFatalErrorMsg() {
 func TestOpsMsgDto_Example003_NewFatalErrorMsg() {
 	msg := OpsMsgDto{}.InitializeWithMessageContext(testExampleOpsMsgDtoCreateContextInfoObj()).NewFatalErrorMsg("This is FATAL Error message text.", 974)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 // TestOpsMsgDto_Example004_NewFatalErrorMsg - Test
@@ -106,7 +106,7 @@ func TestOpsMsgDto_Example003_NewFatalErrorMsg() {
 func TestOpsMsgDto_Example004_NewFatalErrorMsg() {
 	msg := OpsMsgDto{}.NewFatalErrorMsg("This is FATAL Error message text.", 0)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 // TestOpsMsgDto_Example001_NewWarningMsg - Test
@@ -114,7 +114,7 @@ func TestOpsMsgDto_Example004_NewFatalErrorMsg() {
 func TestOpsMsgDto_Example001_NewWarningMsg() {
 	msg := OpsMsgDto{}.NewWarningMsg("This is Warning Error message text.", 974)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 // TTestOpsMsgDto_Example002_NewWarningMsg - Test
@@ -122,7 +122,7 @@ func TestOpsMsgDto_Example001_NewWarningMsg() {
 func TestOpsMsgDto_Example002_NewWarningMsg() {
 	msg := OpsMsgDto{}.InitializeAllContextInfo(testExampleOpsMsgDtoCreateParentHistory(),testExampleOpsMsgDtoCreateContextInfoObj()).NewWarningMsg("This is Warning Error message text.", 974)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 // TestOpsMsgDto_Example003_NewWarningMsg - Test
@@ -130,7 +130,7 @@ func TestOpsMsgDto_Example002_NewWarningMsg() {
 func TestOpsMsgDto_Example003_NewWarningMsg() {
 	msg := OpsMsgDto{}.InitializeWithMessageContext(testExampleOpsMsgDtoCreateContextInfoObj()).NewWarningMsg("This is Warning message text.", 974)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 // TestOpsMsgDto_Example004_NewWarningMsg - Test
@@ -138,7 +138,7 @@ func TestOpsMsgDto_Example003_NewWarningMsg() {
 func TestOpsMsgDto_Example004_NewWarningMsg() {
 	msg := OpsMsgDto{}.NewWarningMsg("This is Warning message text.", 0)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 // TestOpsMsgDto_Example001_NewDEBUGMsg - Test
@@ -146,7 +146,7 @@ func TestOpsMsgDto_Example004_NewWarningMsg() {
 func TestOpsMsgDto_Example001_NewDEBUGMsg() {
 	msg := OpsMsgDto{}.NewDebugMsg("This is DEBUG Error message text.", 974)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 // TestOpsMsgDto_Example002_NewDEBUGMsg - Test
@@ -154,7 +154,7 @@ func TestOpsMsgDto_Example001_NewDEBUGMsg() {
 func TestOpsMsgDto_Example002_NewDEBUGMsg() {
 	msg := OpsMsgDto{}.InitializeAllContextInfo(testExampleOpsMsgDtoCreateParentHistory(),testExampleOpsMsgDtoCreateContextInfoObj()).NewDebugMsg("This is DEBUG Error message text.", 974)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 // TestOpsMsgDto_Example003_NewDEBUGMsg - Test
@@ -162,7 +162,7 @@ func TestOpsMsgDto_Example002_NewDEBUGMsg() {
 func TestOpsMsgDto_Example003_NewDEBUGMsg() {
 	msg := OpsMsgDto{}.InitializeWithMessageContext(testExampleOpsMsgDtoCreateContextInfoObj()).NewDebugMsg("This is DEBUG message text.", 974)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 // TestOpsMsgDto_Example004_NewDEBUGMsg - Test
@@ -170,7 +170,7 @@ func TestOpsMsgDto_Example003_NewDEBUGMsg() {
 func TestOpsMsgDto_Example004_NewDEBUGMsg() {
 	msg := OpsMsgDto{}.NewDebugMsg("This is DEBUG message text.", 0)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 // TestOpsMsgDto_Example001_NewSuccessfulCompletionMsg - Test
@@ -178,7 +178,7 @@ func TestOpsMsgDto_Example004_NewDEBUGMsg() {
 func TestOpsMsgDto_Example001_NewSuccessfulCompletionMsg() {
 	msg := OpsMsgDto{}.NewSuccessfulCompletionMsg("", 974)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 // TTestOpsMsgDto_Example002_NewSuccessfulCompletionMsg - Test
@@ -186,7 +186,7 @@ func TestOpsMsgDto_Example001_NewSuccessfulCompletionMsg() {
 func TestOpsMsgDto_Example002_NewSuccessfulCompletionMsg() {
 	msg := OpsMsgDto{}.InitializeAllContextInfo(testExampleOpsMsgDtoCreateParentHistory(),testExampleOpsMsgDtoCreateContextInfoObj()).NewSuccessfulCompletionMsg("",974)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 // TestOpsMsgDto_Example003_NewSuccessfulCompletionMsg - Test
@@ -194,7 +194,7 @@ func TestOpsMsgDto_Example002_NewSuccessfulCompletionMsg() {
 func TestOpsMsgDto_Example003_NewSuccessfulCompletionMsg() {
 	msg := OpsMsgDto{}.InitializeWithMessageContext(testExampleOpsMsgDtoCreateContextInfoObj()).NewSuccessfulCompletionMsg("",974)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 // TestOpsMsgDto_Example004_NewSuccessfulCompletionMsg - Test
@@ -202,7 +202,7 @@ func TestOpsMsgDto_Example003_NewSuccessfulCompletionMsg() {
 func TestOpsMsgDto_Example004_NewSuccessfulCompletionMsg() {
 	msg := OpsMsgDto{}.NewSuccessfulCompletionMsg("", 0)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 // TTestOpsMsgDto_Example002_NewSuccessfulCompletionMsg - Test
@@ -211,7 +211,7 @@ func TestOpsMsgDto_Example005_NewSuccessfulCompletionMsg() {
 	msgText := "Xray = 6"
 	msg := OpsMsgDto{}.InitializeAllContextInfo(testExampleOpsMsgDtoCreateParentHistory(),testExampleOpsMsgDtoCreateContextInfoObj()).NewSuccessfulCompletionMsg(msgText,974)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 
@@ -220,7 +220,7 @@ func TestOpsMsgDto_Example005_NewSuccessfulCompletionMsg() {
 func TestOpsMsgDto_Example001_NewNoErrorsNoMessagesMsg() {
 	msg := OpsMsgDto{}.NewNoErrorsNoMessagesMsg("", 974)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 // TTestOpsMsgDto_Example002_NewNoErrorsNoMessagesMsg - Test
@@ -228,7 +228,7 @@ func TestOpsMsgDto_Example001_NewNoErrorsNoMessagesMsg() {
 func TestOpsMsgDto_Example002_NewNoErrorsNoMessagesMsg() {
 	msg := OpsMsgDto{}.InitializeAllContextInfo(testExampleOpsMsgDtoCreateParentHistory(),testExampleOpsMsgDtoCreateContextInfoObj()).NewNoErrorsNoMessagesMsg("",974)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 // TestOpsMsgDto_Example003_NewNoErrorsNoMessagesMsg - Test
@@ -236,7 +236,7 @@ func TestOpsMsgDto_Example002_NewNoErrorsNoMessagesMsg() {
 func TestOpsMsgDto_Example003_NewNoErrorsNoMessagesMsg() {
 	msg := OpsMsgDto{}.InitializeWithMessageContext(testExampleOpsMsgDtoCreateContextInfoObj()).NewNoErrorsNoMessagesMsg("",974)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 // TestOpsMsgDto_Example004_NewNoErrorsNoMessagesMsg - Test
@@ -244,7 +244,7 @@ func TestOpsMsgDto_Example003_NewNoErrorsNoMessagesMsg() {
 func TestOpsMsgDto_Example004_NewNoErrorsNoMessagesMsg() {
 	msg := OpsMsgDto{}.NewNoErrorsNoMessagesMsg("", 0)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 // TestOpsMsgDto_Example004_NewNoErrorsNoMessagesMsg - Test
@@ -255,7 +255,7 @@ func TestOpsMsgDto_Example005_NewNoErrorsNoMessagesMsg() {
 
 	msg := OpsMsgDto{}.NewNoErrorsNoMessagesMsg(xMsg, 0)
 
-	fmt.Printf(msg.GetMessage())
+	fmt.Printf(msg.GetFmtMessage())
 }
 
 

@@ -234,14 +234,18 @@ type OpsMsgDto struct {
 	ParentContextHistory [] OpsMsgContextInfo // Function tree showing the execution path leading to this method
 	MsgContext           OpsMsgContextInfo
 	Message              string // The original message sent to OpsMsgDto
-	FmtMessage					 string // The formatted message
-	msgId                int64 // The identifying number for this message
-	msgNumber            int64 //  Message Number = msgId + MsgContext.BaseMessageId. This is the number displayed in the message
 	MsgType              OpsMsgType
 	MsgClass             OpsMsgClass
 	MsgTimeUTC           time.Time
 	MsgTimeLocal         time.Time
 	MsgLocalTimeZone     string
+	UseFormattedMsg			 bool		// If true, message output methods will return the fully formatted message.
+															// If false, message output methods will return an abbreviated from of the message
+															// By default, the fully formatted version of the message will be displayed.
+	fmtMessage           string // The formatted message
+	abbrvMessage				 string // An Abbreviated Form of the message
+	msgId                int64  // The identifying number for this message
+	msgNumber            int64  //  Message Number = msgId + MsgContext.BaseMessageId. This is the number displayed in the message
 
 }
 
@@ -297,7 +301,7 @@ func (opsMsg *OpsMsgDto) CopyIn(opsMsg2 *OpsMsgDto) {
 	opsMsg.MsgContext = opsMsg2.MsgContext.DeepCopyOpsMsgContextInfo()
 
 	opsMsg.Message       		= opsMsg2.Message
-	opsMsg.FmtMessage				= opsMsg2.FmtMessage
+	opsMsg.fmtMessage = opsMsg2.fmtMessage
 	opsMsg.msgId            = opsMsg2.GetMessageId()
 	opsMsg.msgNumber        = opsMsg2.GetMessageNumber()
 	opsMsg.MsgType          = opsMsg2.MsgType
@@ -319,7 +323,7 @@ func (opsMsg *OpsMsgDto) CopyOut() OpsMsgDto {
 	opsMsg2.MsgContext = opsMsg.MsgContext.DeepCopyOpsMsgContextInfo()
 
 	opsMsg2.Message       	= opsMsg.Message
-	opsMsg2.FmtMessage			= opsMsg.FmtMessage
+	opsMsg2.fmtMessage = opsMsg.fmtMessage
 	opsMsg2.msgId            = opsMsg.GetMessageId()
 	opsMsg2.msgNumber        = opsMsg.GetMessageNumber()
 	opsMsg2.MsgType          = opsMsg.MsgType
@@ -382,7 +386,7 @@ func (opsMsg *OpsMsgDto) EmptyMessageContext() {
 // to an uninitialized or 'empty' state.
 func (opsMsg *OpsMsgDto) EmptyMsgData() {
 	opsMsg.Message 					= ""
-	opsMsg.FmtMessage   		= ""
+	opsMsg.fmtMessage = ""
 	opsMsg.msgId          	= int64(0) // The identifying number for this message
 	opsMsg.msgNumber      	= int64(0) //  Message Number = msgId + MsgContext.BaseMessageId. This is the number displayed in the message
 	opsMsg.MsgType        	= OpsMsgTypeNOERRORNOMSG
@@ -415,7 +419,7 @@ func (opsMsg *OpsMsgDto) Equal(opsMsg2 *OpsMsgDto) bool {
 	}
 
 	if  opsMsg.Message     			!= opsMsg2.Message 						||
-			opsMsg.FmtMessage				!= opsMsg2.FmtMessage					||
+			opsMsg.fmtMessage != opsMsg2.fmtMessage ||
 			opsMsg.msgId            != opsMsg2.GetMessageId()			||
 			opsMsg.msgNumber        != opsMsg2.GetMessageNumber()	||
 			opsMsg.MsgType          != opsMsg2.MsgType						||
@@ -441,20 +445,29 @@ func (opsMsg *OpsMsgDto) Equal(opsMsg2 *OpsMsgDto) bool {
 func (opsMsg *OpsMsgDto) GetError() error {
 
 	if opsMsg.IsError() {
-		return errors.New(opsMsg.GetMessage())
+		return errors.New(opsMsg.GetFmtMessage())
 	}
 
 	return nil
 
 }
 
-// GetMessage - Returns the Operations Message
-// stored in this object. Note that the underling
-// message is stored as a string array and may
-// therefore accommodate multiple messages.
-func (opsMsg *OpsMsgDto) GetMessage() string {
+// GetFmtMessage - Returns the formatted Operations
+// Message string for this OpsMsgDto object.
+//
+// For an abbreviated form of this message, see
+// GetAbbrvMessage()
+func (opsMsg *OpsMsgDto) GetFmtMessage() string {
 
-	return opsMsg.FmtMessage
+	return opsMsg.fmtMessage
+}
+
+// GetAbbrvMessage - returns a shorter form of the
+// message associated with this OpsMsgDto object.
+// For the fully formatted message, reference method
+// GetFmtMessage()
+func (opsMsg *OpsMsgDto) GetAbbrvMessage() string {
+	return opsMsg.abbrvMessage
 }
 
 // GetMessageId - returns data field 'msgId' for
@@ -800,7 +813,7 @@ func (opsMsg *OpsMsgDto) SetDebugMessage(msg string, msgId int64){
 	opsMsg.MsgType = OpsMsgTypeDEBUGMSG
 	opsMsg.MsgClass = OpsMsgClassDEBUG
 
-	opsMsg.setFormatMessage(msg, msgId)
+	opsMsg.setMessageText(msg, msgId)
 
 }
 
@@ -812,7 +825,7 @@ func (opsMsg *OpsMsgDto) SetFatalErrorMessage(errMsg string, errId int64) {
 	opsMsg.MsgType = OpsMsgTypeERRORMSG
 	opsMsg.MsgClass = OpsMsgClassFATAL
 
-	opsMsg.setFormatMessage(errMsg, errId)
+	opsMsg.setMessageText(errMsg, errId)
 
 }
 
@@ -867,7 +880,7 @@ func (opsMsg *OpsMsgDto) SetInfoMessage(msg string, msgId int64) {
 	opsMsg.MsgType = OpsMsgTypeINFOMSG
 	opsMsg.MsgClass = OpsMsgClassINFO
 
-	opsMsg.setFormatMessage(msg, msgId)
+	opsMsg.setMessageText(msg, msgId)
 }
 
 // SetMsgContext - Receives an OpsMsgContextInfo object as
@@ -896,7 +909,7 @@ func (opsMsg *OpsMsgDto) SetStdErrorMessage(errMsg string, errId int64){
 	opsMsg.MsgType = OpsMsgTypeERRORMSG
 	opsMsg.MsgClass = OpsMsgClassOPERROR
 
-	opsMsg.setFormatMessage(errMsg, errId)
+	opsMsg.setMessageText(errMsg, errId)
 
 }
 
@@ -909,7 +922,7 @@ func (opsMsg *OpsMsgDto) SetNoErrorsNoMessages(msg string, msgId int64) {
 	opsMsg.MsgType = OpsMsgTypeNOERRORNOMSG
 	opsMsg.MsgClass = OpsMsgClassNOERRORSNOMESSAGES
 
-	opsMsg.setFormatMessage(msg, msgId)
+	opsMsg.setMessageText(msg, msgId)
 
 }
 
@@ -920,7 +933,7 @@ func (opsMsg *OpsMsgDto) SetSuccessfulCompletionMessage(msg string, msgId int64)
 	opsMsg.MsgType = OpsMsgTypeSUCCESSFULCOMPLETION
 	opsMsg.MsgClass = OpsMsgClassSUCCESSFULCOMPLETION
 
-	opsMsg.setFormatMessage( msg, msgId)
+	opsMsg.setMessageText( msg, msgId)
 
 }
 
@@ -931,14 +944,14 @@ func (opsMsg *OpsMsgDto) SetWarningMessage(msg string, msgId int64) {
 	opsMsg.MsgType = OpsMsgTypeWARNINGMSG
 	opsMsg.MsgClass = OpsMsgClassWARNING
 
-	opsMsg.setFormatMessage(msg, msgId)
+	opsMsg.setMessageText(msg, msgId)
 
 }
 
 // String - returns the operations message as a
 // string.
 func (opsMsg *OpsMsgDto) String() string {
-	return opsMsg.GetMessage()
+	return opsMsg.GetFmtMessage()
 }
 
 // ***********************************************
@@ -947,7 +960,7 @@ func (opsMsg *OpsMsgDto) String() string {
 
 // getMsgTitle - Returns the Message title, message number and the
 // banner line separator based on value of OpsMsgDto.MsgClass
-func (opsMsg *OpsMsgDto) getMsgTitle() (banner1, banner2, title, numTitle string, ) {
+func (opsMsg *OpsMsgDto) getMsgTitle() (banner1, banner2, title, numTitle, abbrvTitle string, ) {
 
 	switch opsMsg.MsgClass {
 
@@ -955,6 +968,7 @@ func (opsMsg *OpsMsgDto) getMsgTitle() (banner1, banner2, title, numTitle string
 		// OpsMsgClassNOERRORSNOMESSAGES - 0 Signals uninitialized message
 		// with no errors and no messages
 		title = "No Errors and No Messages"
+		abbrvTitle = "No Errors-No Messages"
 		numTitle = "Msg Number"
 		banner1 = strings.Repeat("&", 78)
 		banner2 = strings.Repeat("-", 78)
@@ -962,6 +976,7 @@ func (opsMsg *OpsMsgDto) getMsgTitle() (banner1, banner2, title, numTitle string
 	case OpsMsgClassOPERROR:
 		// OpsMsgClassOPERROR - 1 Message is an Error Message
 		title = "Standard ERROR Message"
+		abbrvTitle = "Standard ERROR Msg"
 		numTitle = "Error No"
 		banner1 = strings.Repeat("#", 78)
 		banner2 = strings.Repeat("-", 78)
@@ -969,6 +984,7 @@ func (opsMsg *OpsMsgDto) getMsgTitle() (banner1, banner2, title, numTitle string
 	case OpsMsgClassFATAL:
 		// OpsMsgClassFATAL - 2 Message is a Fatal Error Message
 		title = "FATAL ERROR Message"
+		abbrvTitle = "FATAL ERROR Msg"
 		numTitle = "Error No"
 		banner1 = strings.Repeat("!", 78)
 		banner2 = strings.Repeat("-", 78)
@@ -976,6 +992,7 @@ func (opsMsg *OpsMsgDto) getMsgTitle() (banner1, banner2, title, numTitle string
 	case OpsMsgClassINFO:
 		// OpsMsgClassINFO - 3 Message is an Informational Message
 		title = "Information Message"
+		abbrvTitle = "Information Msg"
 		numTitle = "Msg No"
 		banner1 = strings.Repeat("*", 78)
 		banner2 = strings.Repeat("-", 78)
@@ -983,6 +1000,7 @@ func (opsMsg *OpsMsgDto) getMsgTitle() (banner1, banner2, title, numTitle string
 	case OpsMsgClassWARNING:
 		// OpsMsgClassWARNING - 4 Message is a warning Message
 		title = "WARNING Message"
+		abbrvTitle = "WARNING Msg"
 		numTitle = "Msg No"
 		banner1 = strings.Repeat("?", 78)
 		banner2 = strings.Repeat("-", 78)
@@ -990,6 +1008,7 @@ func (opsMsg *OpsMsgDto) getMsgTitle() (banner1, banner2, title, numTitle string
 	case OpsMsgClassDEBUG:
 		// OpsMsgClassDEBUG - 5 Message is a Debug Message
 		title = "DEBUG Message"
+		abbrvTitle = "DEBUG Msg"
 		numTitle = " Number"
 		banner1 = strings.Repeat("@", 78)
 		banner2 = strings.Repeat("-", 78)
@@ -998,6 +1017,7 @@ func (opsMsg *OpsMsgDto) getMsgTitle() (banner1, banner2, title, numTitle string
 		// OpsMsgClassSUCCESSFULCOMPLETION - 6 Message signalling successful
 		// completion of the operation
 		title = "Successful Completion"
+		abbrvTitle = "Successful Completion Msg"
 		numTitle = "Msg No"
 		banner1 = strings.Repeat("$", 78)
 		banner2 = strings.Repeat("-", 78)
@@ -1007,7 +1027,7 @@ func (opsMsg *OpsMsgDto) getMsgTitle() (banner1, banner2, title, numTitle string
 		panic("OpsMsgDto.getMsgTitle() - Invalid opsMsg.MsgClass")
 	}
 
-	return banner1, banner2, title, numTitle
+	return banner1, banner2, title, numTitle, abbrvTitle
 }
 
 
@@ -1069,27 +1089,60 @@ func(opsMsg *OpsMsgDto) setDebugMsgText(banner1, banner2, title, numTitle string
 	m += "\n" + banner1
 
 
-	opsMsg.FmtMessage =  m
+	opsMsg.fmtMessage =  m
 }
 
-// setFormatMessage - This method is called internally to set
+// setMessageText - This method is called internally to set
 // and format the text message for specific message types.
-func(opsMsg *OpsMsgDto) setFormatMessage(msg string, msgId int64) {
+func(opsMsg *OpsMsgDto) setMessageText(msg string, msgId int64) {
 
 	opsMsg.setMsgIdAndMsgNumber(msgId)
 
 	opsMsg.setTime("Local")
 
+	opsMsg.UseFormattedMsg = true
+
 	opsMsg.Message = msg
 
-	var m string
-	banner1, banner2, title, numTitle := opsMsg.getMsgTitle()
+	banner1, banner2, title, numTitle, abbrvTitle := opsMsg.getMsgTitle()
 
 	if opsMsg.MsgClass == OpsMsgClassDEBUG {
 		opsMsg.setDebugMsgText(banner1, banner2, title, numTitle)
+		opsMsg.setAbbreviatedMessageText(abbrvTitle)
 		return
 	}
 
+	opsMsg.setFormatMessageText(banner1, banner2, title, numTitle)
+
+	opsMsg.setAbbreviatedMessageText(abbrvTitle)
+}
+
+func(opsMsg *OpsMsgDto) setAbbreviatedMessageText(abbrvTitle string) {
+
+	var m string
+
+	m = "\n\n"
+	m += "\n" + abbrvTitle
+
+	if opsMsg.msgNumber != 0 {
+		m+= fmt.Sprintf(" No: %v - ", opsMsg.msgNumber)
+	} else {
+		m+= " - "
+	}
+
+	dt := DateTimeUtility{}
+
+	m += dt.GetDateTimeTzNanoSecText(opsMsg.MsgTimeLocal)
+	m += " - "
+	m += opsMsg.Message
+
+	opsMsg.abbrvMessage = m
+
+}
+
+func(opsMsg *OpsMsgDto) setFormatMessageText(banner1, banner2, title, numTitle string){
+
+	var m string
 	lineWidth := len(banner1)
 	dt := DateTimeUtility{}
 	dtFmt := "2006-01-02 Mon 15:04:05.000000000 -0700 MST"
@@ -1111,7 +1164,7 @@ func(opsMsg *OpsMsgDto) setFormatMessage(msg string, msgId int64) {
 	}
 
 	if opsMsg.MsgClass == OpsMsgClassOPERROR ||
-			opsMsg.MsgClass == OpsMsgClassFATAL {
+		opsMsg.MsgClass == OpsMsgClassFATAL {
 
 		m += "\n" + nextBanner
 		nextBanner = banner2
@@ -1156,8 +1209,8 @@ func(opsMsg *OpsMsgDto) setFormatMessage(msg string, msgId int64) {
 	}
 
 	if opsMsg.MsgContext.SourceFileName != "" ||
-			opsMsg.MsgContext.ParentObjectName != "" ||
-				opsMsg.MsgContext.FuncName != "" {
+		opsMsg.MsgContext.ParentObjectName != "" ||
+		opsMsg.MsgContext.FuncName != "" {
 		m += "\n" + nextBanner
 		nextBanner = banner2
 		m += "\n Current Message Context:"
@@ -1183,13 +1236,13 @@ func(opsMsg *OpsMsgDto) setFormatMessage(msg string, msgId int64) {
 	m += fmt.Sprintf("\n Message Time Local: %v ", dt.GetDateTimeCustomFmt(opsMsg.MsgTimeLocal, dtFmt))
 	m += "\n" + banner1
 
-	opsMsg.FmtMessage =  m
+	opsMsg.fmtMessage =  m
 }
 
 // setMsgIdAndMsgNumber - This method is called internally
 // to set the OpsMsgDto.msgId and OpsMsgDto.msgNumber fields.
 func (opsMsg *OpsMsgDto) setMsgIdAndMsgNumber(msgId int64) {
-	
+
 	if msgId == 0 {
 		opsMsg.msgId = 0
 		opsMsg.msgNumber = 0
@@ -1197,9 +1250,10 @@ func (opsMsg *OpsMsgDto) setMsgIdAndMsgNumber(msgId int64) {
 		opsMsg.msgId = msgId
 		opsMsg.msgNumber = msgId + opsMsg.MsgContext.BaseMessageId
 	}
-	
-	
+
+
 }
+
 
 // setTime - Sets the time stamp for this Operations
 // Message. Notice that the input parameter 'localTimeZone'

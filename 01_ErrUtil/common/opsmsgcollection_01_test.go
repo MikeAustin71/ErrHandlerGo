@@ -95,7 +95,7 @@ func TestOpsMsgCollection_AddOpsMsg_01(t *testing.T) {
 		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
 	}
 
-	actMsg := om.GetMessage()
+	actMsg := om.GetFmtMessage()
 
 	if !strings.Contains(actMsg, xMsg) {
 		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
@@ -184,7 +184,7 @@ func TestOpsMsgCollection_PopLastMsg_01(t *testing.T) {
 		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
 	}
 
-	actMsg := om.GetMessage()
+	actMsg := om.GetFmtMessage()
 
 	if !strings.Contains(actMsg, xMsg) {
 		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
@@ -281,7 +281,7 @@ func TestOpsMsgCollection_PopLastMsg_02(t *testing.T) {
 		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
 	}
 
-	actMsg := om.GetMessage()
+	actMsg := om.GetFmtMessage()
 
 	if !strings.Contains(actMsg, xMsg) {
 		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
@@ -380,7 +380,7 @@ func TestOpsMsgCollection_PeekLastMsg_01(t *testing.T) {
 		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
 	}
 
-	actMsg := om.GetMessage()
+	actMsg := om.GetFmtMessage()
 
 	if !strings.Contains(actMsg, xMsg) {
 		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
@@ -477,7 +477,7 @@ func TestOpsMsgCollection_PeekLastMsg_02(t *testing.T) {
 		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
 	}
 
-	actMsg := om.GetMessage()
+	actMsg := om.GetFmtMessage()
 
 	if !strings.Contains(actMsg, xMsg) {
 		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
@@ -574,7 +574,7 @@ func TestOpsMsgCollection_PopFirstMsg_01(t *testing.T) {
 		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
 	}
 
-	actMsg := om.GetMessage()
+	actMsg := om.GetFmtMessage()
 
 	if !strings.Contains(actMsg, xMsg) {
 		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
@@ -672,7 +672,7 @@ func TestOpsMsgCollection_PopFirstMsg_02(t *testing.T) {
 		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
 	}
 
-	actMsg := om.GetMessage()
+	actMsg := om.GetFmtMessage()
 
 	if !strings.Contains(actMsg, xMsg) {
 		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
@@ -768,7 +768,7 @@ func TestOpsMsgCollection_PeekFirstMsg_01(t *testing.T) {
 		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
 	}
 
-	actMsg := om.GetMessage()
+	actMsg := om.GetFmtMessage()
 
 	if !strings.Contains(actMsg, xMsg) {
 		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
@@ -865,7 +865,7 @@ func TestOpsMsgCollection_PeekFirstMsg_02(t *testing.T) {
 		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
 	}
 
-	actMsg := om.GetMessage()
+	actMsg := om.GetFmtMessage()
 
 	if !strings.Contains(actMsg, xMsg) {
 		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
