@@ -17,7 +17,7 @@ import (
 
 func main() {
 
-	common.TestOpsMsgDto_Example003_ErrorMsg()
+	common.TestOpsMsgDto_Example001_Abbrviated_Msg()
 
 }
 

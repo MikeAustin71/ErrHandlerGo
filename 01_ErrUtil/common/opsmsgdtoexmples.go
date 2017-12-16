@@ -280,6 +280,14 @@ func TestOpsMsgDto_Example003_ErrorMsg() {
 	fmt.Println("Error Print Result: ", err)
 }
 
+func TestOpsMsgDto_Example001_Abbrviated_Msg() {
+	msg := OpsMsgDto{}.NewFatalErrorMsg("Test Serious Error.", 972)
+	msg.UseFormattedMsg = false
+
+	fmt.Println("This is example of abbreviated error message from String():")
+	fmt.Println(msg)
+}
+
 /*
 =======================================================================================================
 								Private Methods

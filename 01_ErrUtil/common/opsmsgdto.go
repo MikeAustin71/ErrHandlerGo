@@ -926,6 +926,45 @@ func (opsMsg *OpsMsgDto) SetMessageContext(msgContext OpsMsgContextInfo) {
 	opsMsg.MsgContext = msgContext.DeepCopyOpsMsgContextInfo()
 }
 
+// SetMessageOutputMode - This method is used to set the message output mode.
+// If the input parameter, 'isFullyFormattedMsg' is set to 'true', the methods
+// String() and Error() will return fully formatted messages like this:
+//
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// FATAL ERROR Message                             Error No: 6974
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// Is Error: true       Is Panic\Fatal Error: true
+// ------------------------------------------------------------------------------
+// Message: This is FATAL Error message text.
+// ------------------------------------------------------------------------------
+// Parent Context History:
+// SrcFile: TSource01 -ParentObj: PObj01 -FuncName: Func001 -BaseMsgId: 1000
+// SrcFile: TSource02 -ParentObj: PObj02 -FuncName: Func002 -BaseMsgId: 2000
+// SrcFile: TSource03 -ParentObj: PObj03 -FuncName: Func003 -BaseMsgId: 3000
+// SrcFile: TSource04 -ParentObj: PObj04 -FuncName: Func004 -BaseMsgId: 4000
+// SrcFile: TSource05 -ParentObj: PObj05 -FuncName: Func005 -BaseMsgId: 5000
+// ------------------------------------------------------------------------------
+// Current Message Context:
+// SrcFile: TSource06 -ParentObj: PObj06 -FuncName: Func006 -BaseMsgId: 6000
+// ------------------------------------------------------------------------------
+//   Message Time UTC: 2017-12-16 Sat 22:12:28.458551100 +0000 UTC
+// Message Time Local: 2017-12-16 Sat 16:12:28.458551100 -0600 CST
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//
+// If input parameter 'isFullyFormattedMsg' is set to 'false', an abbreviated
+// message text will be returned by methods Error() and String(). Example:
+//
+// FATAL ERROR Msg No: 972 - 12/16/2017 16:18:24.904997000 -0600 CST - Test Serious Error.
+//
+// Use this method, 'SetMessageOutputMode', to determine the message format you wish
+// to display.
+//
+func (opsMsg *OpsMsgDto) SetMessageOutputMode(isFullyFormattedMsg bool) {
+
+	opsMsg.UseFormattedMsg = isFullyFormattedMsg
+}
+
+
 // SetParentMessageContextHistory - Deletes the current opsMsg.ParentContextHistory
 // and replaeces it with the input parameter, 'parentHistory',
 func (opsMsg *OpsMsgDto) SetParentMessageContextHistory( parentHistory []OpsMsgContextInfo) {
