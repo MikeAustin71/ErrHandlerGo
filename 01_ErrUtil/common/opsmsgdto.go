@@ -435,6 +435,35 @@ func (opsMsg *OpsMsgDto) Equal(opsMsg2 *OpsMsgDto) bool {
 
 }
 
+// Error - implements the 'Error' interface
+// for golang errors. You can therefore pass
+// the OpsMsgDto structure to any golang
+// method that supports the 'Error' interface.
+//
+// Notice that the error object is created
+// with one of two string types. If the
+// OpsMsgDto field 'UseFormattedMsg' is set
+// to true, the fully formatted message
+// string is used. Otherwise, a shorter
+// or abbreviated version of the the
+// message string is used.
+//
+// This message does not filter by message
+// type. The Error() method will create
+// and return an error object for any type
+// of message object, including Information,
+// Warning, NoErrorsNoMessages and Successful
+// Completion Messages.
+func (opsMsg OpsMsgDto) Error() error {
+
+	if opsMsg.UseFormattedMsg {
+		return errors.New(opsMsg.fmtMessage)
+	}
+
+	return errors.New(opsMsg.abbrvMessage)
+
+}
+
 // GetError - If the current OpsMsgDto is
 // configured as either a Standard Error or
 // Fatal Error, this method will return
@@ -442,10 +471,24 @@ func (opsMsg *OpsMsgDto) Equal(opsMsg2 *OpsMsgDto) bool {
 // message. If OpsMsgDto is configured as
 // a non-error type message, this method
 // will return 'nil'.
+//
+// The error string returned by this method
+// is determined by the boolean OpsMsgDto
+// field, opsMsg.UseFormattedMsg. If true,
+// the fully formatted message string will
+// be configured in the returned error type.
+// If false, the abbreviated or short version
+// of the message string will be configured
+// in the error.
 func (opsMsg *OpsMsgDto) GetError() error {
 
 	if opsMsg.IsError() {
-		return errors.New(opsMsg.GetFmtMessage())
+
+		if opsMsg.UseFormattedMsg {
+			return errors.New(opsMsg.GetFmtMessage())
+		}
+
+		return errors.New(opsMsg.GetAbbrvMessage())
 	}
 
 	return nil
@@ -951,7 +994,12 @@ func (opsMsg *OpsMsgDto) SetWarningMessage(msg string, msgId int64) {
 // String - returns the operations message as a
 // string.
 func (opsMsg *OpsMsgDto) String() string {
-	return opsMsg.GetFmtMessage()
+
+	if opsMsg.UseFormattedMsg {
+		return opsMsg.GetFmtMessage()
+	}
+
+	return opsMsg.GetAbbrvMessage()
 }
 
 // ***********************************************

@@ -258,13 +258,35 @@ func TestOpsMsgDto_Example005_NewNoErrorsNoMessagesMsg() {
 	fmt.Printf(msg.GetFmtMessage())
 }
 
+func TestOpsMsgDto_Example001_ErrorMsg() error {
 
+	msg := OpsMsgDto{}.NewFatalErrorMsg("Test Serious Error.", 972)
+
+	return msg.Error()
+
+}
+
+func TestOpsMsgDto_Example002_ErrorMsg() error {
+
+	msg := OpsMsgDto{}.NewFatalErrorMsg("Test Serious Error.", 972)
+	msg.UseFormattedMsg = false
+	return msg.Error()
+
+}
+
+func TestOpsMsgDto_Example003_ErrorMsg() {
+	err := TestOpsMsgDto_Example002_ErrorMsg()
+
+	fmt.Println("Error Print Result: ", err)
+}
 
 /*
 =======================================================================================================
 								Private Methods
 =======================================================================================================
  */
+
+
 
 func testExampleOpsMsgDtoCreateContextInfoObj() OpsMsgContextInfo {
 	ci := OpsMsgContextInfo{}
