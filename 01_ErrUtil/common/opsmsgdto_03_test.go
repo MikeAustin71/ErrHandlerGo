@@ -1284,3 +1284,46 @@ func TestOpsMsgDto_IsError_03(t *testing.T) {
 	}
 
 }
+
+func TestOpsMsgDto_IsFatalError_01(t *testing.T) {
+
+	om := testOpsMsgDtoCreateFatalErrorMsg()
+
+	expectedIsFatalError := true
+
+	actualIsFatalError := om.IsFatalError()
+
+	if expectedIsFatalError != actualIsFatalError {
+		t.Errorf("Expected om.IsFatalError() = '%v'. Actual om.IsFatalError()= '%v'", expectedIsFatalError, actualIsFatalError)
+	}
+
+}
+
+func TestOpsMsgDto_IsFatalError_02(t *testing.T) {
+
+	om := testOpsMsgDtoCreateStdErrorMsg()
+
+	expectedIsFatalError := false
+
+	actualIsFatalError := om.IsFatalError()
+
+	if expectedIsFatalError != actualIsFatalError {
+		t.Errorf("Expected om.IsFatalError() = '%v'. Actual om.IsFatalError()= '%v'", expectedIsFatalError, actualIsFatalError)
+	}
+
+}
+
+
+func TestOpsMsgDto_IsFatalError_03(t *testing.T) {
+
+	om := testOpsMsgDtoCreateInfoMsg()
+
+	expectedIsFatalError := false
+
+	actualIsFatalError := om.IsFatalError()
+
+	if expectedIsFatalError != actualIsFatalError {
+		t.Errorf("Expected om.IsFatalError() = '%v'. Actual om.IsFatalError()= '%v'", expectedIsFatalError, actualIsFatalError)
+	}
+
+}

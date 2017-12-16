@@ -589,7 +589,9 @@ func (opsMsg *OpsMsgDto) IsError() bool {
 }
 
 // IsFatalError - If the current OpsMsgDto object is configured
-// as a fatal error, this method will return true.
+// as a fatal error, this method will return true. A fatal error
+// is the equivalent of a 'panic' error which immediately terminates
+// program execution.
 func (opsMsg *OpsMsgDto) IsFatalError() bool {
 
 	if opsMsg.MsgClass == OpsMsgClassFATAL {
