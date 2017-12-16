@@ -13,14 +13,7 @@ import (
 
 		https://github.com/MikeAustin71/ErrHandlerGo.git
 
-	Dependencies:
-	=============
 
-	This file depends on utility routines provided by source code
-	file, 'datetimeutility.go'. This source code file is located
-	in the source code repository:
-
-						https://github.com/MikeAustin71/datetimeopsgo.git
 */
 
 // OpsMsgCollection - A collection of Operations Message Dto
@@ -454,13 +447,13 @@ func (opsMsg *OpsMsgDto) Equal(opsMsg2 *OpsMsgDto) bool {
 // of message object, including Information,
 // Warning, NoErrorsNoMessages and Successful
 // Completion Messages.
-func (opsMsg OpsMsgDto) Error() error {
+func (opsMsg OpsMsgDto) Error() string {
 
 	if opsMsg.UseFormattedMsg {
-		return errors.New(opsMsg.fmtMessage)
+		return opsMsg.fmtMessage
 	}
 
-	return errors.New(opsMsg.abbrvMessage)
+	return opsMsg.abbrvMessage
 
 }
 
@@ -1123,16 +1116,16 @@ func(opsMsg *OpsMsgDto) setDebugMsgText(banner1, banner2, title, numTitle string
 	}
 
 	// FmtDateTimeTzNanoYMD
-	dt := DateTimeUtility{}
-	localTz := opsMsg.MsgLocalTimeZone
 
+	localTz := opsMsg.MsgLocalTimeZone
+	dtFmt := "01/02/2006 15:04:05.000000000 -0700 MST"
 	if localTz == "Local" || localTz == "local" {
 		localZone, _ := time.Now().Zone()
 		localTz += " - " + localZone
 	}
 	m += "\n" + banner2
-	m += "\n   UTC Time: " + dt.GetDateTimeTzNanoSecText(opsMsg.MsgTimeUTC)
-	m += "\n Local Time: " + dt.GetDateTimeTzNanoSecText(opsMsg.MsgTimeLocal) + "   Time Zone: " + localTz
+	m += "\n   UTC Time: " + opsMsg.MsgTimeUTC.Format(dtFmt)
+	m += "\n Local Time: " + opsMsg.MsgTimeLocal.Format(dtFmt) + "   Time Zone: " + localTz
 
 	m += "\n" + banner1
 
@@ -1178,9 +1171,8 @@ func(opsMsg *OpsMsgDto) setAbbreviatedMessageText(abbrvTitle string) {
 		m+= " - "
 	}
 
-	dt := DateTimeUtility{}
-
-	m += dt.GetDateTimeTzNanoSecText(opsMsg.MsgTimeLocal)
+	dtFmt := "01/02/2006 15:04:05.000000000 -0700 MST"
+	m += opsMsg.MsgTimeLocal.Format(dtFmt)
 	m += " - "
 	m += opsMsg.Message
 
@@ -1192,7 +1184,7 @@ func(opsMsg *OpsMsgDto) setFormatMessageText(banner1, banner2, title, numTitle s
 
 	var m string
 	lineWidth := len(banner1)
-	dt := DateTimeUtility{}
+
 	dtFmt := "2006-01-02 Mon 15:04:05.000000000 -0700 MST"
 
 	m= "\n\n"
@@ -1280,8 +1272,8 @@ func(opsMsg *OpsMsgDto) setFormatMessageText(banner1, banner2, title, numTitle s
 	}
 
 	m += "\n" + nextBanner
-	m += fmt.Sprintf("\n   Message Time UTC: %v ", dt.GetDateTimeCustomFmt(opsMsg.MsgTimeUTC, dtFmt))
-	m += fmt.Sprintf("\n Message Time Local: %v ", dt.GetDateTimeCustomFmt(opsMsg.MsgTimeLocal, dtFmt))
+	m += fmt.Sprintf("\n   Message Time UTC: %v ", opsMsg.MsgTimeUTC.Format(dtFmt))
+	m += fmt.Sprintf("\n Message Time Local: %v ", opsMsg.MsgTimeLocal.Format(dtFmt))
 	m += "\n" + banner1
 
 	opsMsg.fmtMessage =  m

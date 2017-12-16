@@ -262,7 +262,7 @@ func TestOpsMsgDto_Example001_ErrorMsg() error {
 
 	msg := OpsMsgDto{}.NewFatalErrorMsg("Test Serious Error.", 972)
 
-	return msg.Error()
+	return msg
 
 }
 
@@ -270,7 +270,7 @@ func TestOpsMsgDto_Example002_ErrorMsg() error {
 
 	msg := OpsMsgDto{}.NewFatalErrorMsg("Test Serious Error.", 972)
 	msg.UseFormattedMsg = false
-	return msg.Error()
+	return msg
 
 }
 
