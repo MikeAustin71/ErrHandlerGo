@@ -121,7 +121,7 @@ func TestOpsMsgDto_InitializeContextWithParentOpsMsg_01(t *testing.T) {
 
 	ci := OpsMsgContextInfo{SourceFileName:"TSource07", ParentObjectName:"PObj07", FuncName: "Func007", BaseMessageId: 7000}
 	
-	om2 := OpsMsgDto{}.InitializeContextWithParentHistoryPlusMsgContext(om, ci)
+	om2 := OpsMsgDto{}.InitializeContextWithOpsMsgDto(om, ci)
 	om2.SetInfoMessage(newMsg, 122 )
 
 

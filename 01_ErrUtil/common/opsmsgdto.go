@@ -14,6 +14,44 @@ import (
 		https://github.com/MikeAustin71/ErrHandlerGo.git
 
 
+		Message Formats:
+		================
+		Depending on the setting for OpsMsgDto field 'UseFormattedMsg', two
+		types of message formatting are employed. This is an example of a
+		fully formatted message for display output:
+   --------------------------------------------------------------------------------
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   FATAL ERROR Message                             								 Error No: 6974
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   Is Error: true       Is Panic\Fatal Error: true
+   ------------------------------------------------------------------------------
+   Message: This is FATAL Error message text.
+   ------------------------------------------------------------------------------
+   Parent Context History:
+   SrcFile: TSource01 -ParentObj: PObj01 -FuncName: Func001 -BaseMsgId: 1000
+   SrcFile: TSource02 -ParentObj: PObj02 -FuncName: Func002 -BaseMsgId: 2000
+   SrcFile: TSource03 -ParentObj: PObj03 -FuncName: Func003 -BaseMsgId: 3000
+   SrcFile: TSource04 -ParentObj: PObj04 -FuncName: Func004 -BaseMsgId: 4000
+   SrcFile: TSource05 -ParentObj: PObj05 -FuncName: Func005 -BaseMsgId: 5000
+   ------------------------------------------------------------------------------
+   Current Message Context:
+   SrcFile: TSource06 -ParentObj: PObj06 -FuncName: Func006 -BaseMsgId: 6000
+   ------------------------------------------------------------------------------
+     Message Time UTC: 2017-12-16 Sat 22:12:28.458551100 +0000 UTC
+   Message Time Local: 2017-12-16 Sat 16:12:28.458551100 -0600 CST
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   --------------------------------------------------------------------------------
+		The second type of message output mode is an abbreviated message text. This is
+		an example of an abbreviated message text
+   --------------------------------------------------------------------------------
+
+	 FATAL ERROR Msg No: 972 - 12/16/2017 16:18:24.904997000 -0600 CST - Test Serious Error.
+
+   --------------------------------------------------------------------------------
+		Reference Method OpsMsgDto.SetMessageOutputMode() below for additional information.
+
 */
 
 // OpsMsgCollection - A collection of Operations Message Dto
@@ -564,8 +602,8 @@ func(opsMsg OpsMsgDto) InitializeWithMessageContext(msgContext OpsMsgContextInfo
 	return om
 }
 
-// InitializeContextWithParentHistoryPlusMsgContext - Initialize a new OpsMsgDto
-// object with Parent History plus the OpsMsgContextInfo object passed as an input
+// InitializeContextWithOpsMsgDto - Initialize a new OpsMsgDto object with a parent
+// OpsMsgDto object plus the OpsMsgContextInfo object passed as an input
 // parameter, 'newMsgContext'.
 //
 // Input Parameters:
@@ -588,16 +626,23 @@ func(opsMsg OpsMsgDto) InitializeWithMessageContext(msgContext OpsMsgContextInfo
 //	Example Usage:
 //  ==============
 //
-//	parentOpsMsgDto // OpsMsgDto object created in the parent function
-//	currentMsgContext = OpsMsgContextInfo{SourceFileName:"xray.go",
-// 											ParentObjectName: "stringutil", FuncName:"DoSomeWork",
-//											BaseMessgeId:int64(8000)
+//	parentOpsMsgDto   = OpsMsgDto object created in the parent function
+//	currentMsgContext = OpsMsgContextInfo object describing the current context
+//											(i.e. Function Name)
 //
+// omParent := OpsMsgDto{}.InitializeAllContextInfo(parentHistory, parentMsgContextInfo)
+// currentContext := OpsMsgContextInfo{SourceFileName:"xray.go",ParentObjectName: "stringutil",
+// 												FuncName:"DoSomeWork",BaseMessgeId:int64(8000)}
+//
+// om := OpsMsgDto{}.InitializeContextWithOpsMsgDto(omParent, currentContext)
+//
+// Background:
+// ===========
 // Parent Context History and current Message Context serve as an important
 // purpose. It allows one to maintain a record of the function execution tree
 // that led to the generation of this message.
 //
-func(opsMsg OpsMsgDto) InitializeContextWithParentHistoryPlusMsgContext(parentOpsMsg OpsMsgDto, newMsgContext OpsMsgContextInfo) OpsMsgDto {
+func(opsMsg OpsMsgDto) InitializeContextWithOpsMsgDto(parentOpsMsg OpsMsgDto, newMsgContext OpsMsgContextInfo) OpsMsgDto {
 
 	om := OpsMsgDto{}
 
@@ -931,7 +976,7 @@ func (opsMsg *OpsMsgDto) SetMessageContext(msgContext OpsMsgContextInfo) {
 // String() and Error() will return fully formatted messages like this:
 //
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// FATAL ERROR Message                             Error No: 6974
+// FATAL ERROR Message                             								 Error No: 6974
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // Is Error: true       Is Panic\Fatal Error: true
 // ------------------------------------------------------------------------------
@@ -1022,6 +1067,21 @@ func (opsMsg *OpsMsgDto) SetWarningMessage(msg string, msgId int64) {
 	opsMsg.setMessageText(msg, msgId)
 
 }
+
+
+// SignalSuccessfulCompletion - Creates a Successful Completion message and
+// returns it as a new OpsMsgDto object.
+//
+// Can be used to return Successful Completion message to a calling function.
+//
+func (opsMsg OpsMsgDto) SignalSuccessfulCompletion(msgId int64) OpsMsgDto {
+
+	om := OpsMsgDto{}.InitializeAllContextInfo(opsMsg.DeepCopyParentContextHistory(opsMsg.ParentContextHistory), opsMsg.MsgContext.DeepCopyOpsMsgContextInfo())
+	om.SetSuccessfulCompletionMessage("", msgId)
+	return om
+}
+
+
 
 // String - returns the operations message as a
 // string.
