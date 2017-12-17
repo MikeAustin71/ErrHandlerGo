@@ -893,6 +893,37 @@ func TestSpecErr_CopyIn_01(t *testing.T) {
 
 }
 
+func TestSpecErr_SetDebugMsg_001(t *testing.T) {
+
+	parentInfo := testCreateSpecErrParentBaseInfo5Elements()
+	currBaseInfo := testCreateSpecErrBaseInfoObject()
+	xMsg := "This is DEBUG msg #1"
+	xErrId := int64(822)
+	xErrNo := int64(6822)
+	s := SpecErr{}.InitializeBaseInfo(parentInfo, currBaseInfo)
+
+	s.SetDebugMessage(xMsg, xErrId)
+
+	actualMsg := s.String()
+
+	if !strings.Contains(actualMsg, xMsg) {
+		t.Errorf("Expected Debug message to contain text '%v'. It did NOT!", xMsg)
+	}
+
+	actualErrId := s.GetErrorId()
+
+	if xErrId != actualErrId {
+		t.Errorf("Expected ErrId= '%v'. Instead, ErrId= '%v'", xErrId != actualErrId)
+	}
+
+	actualErrNo := s.GetErrorNumber()
+
+	if xErrNo != actualErrNo {
+		t.Errorf("Expected ErrNo= '%v'.  Instead, ErrNo= '%v'.", xErrNo != actualErrNo)
+	}
+
+}
+
 func TestSpecErr_Equal_01(t *testing.T) {
 
 	parentInfo := testCreateSpecErrParentBaseInfo5Elements()

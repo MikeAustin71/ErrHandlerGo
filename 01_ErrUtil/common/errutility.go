@@ -477,6 +477,75 @@ func (s SpecErr) Initialize(parent []ErrBaseInfo, bi ErrBaseInfo, err error, err
 
 }
 
+
+// IsDebugMsg - returns true if this SpecErr object
+// is configured as a DEBUG message
+func (s *SpecErr) IsDebugMsg() bool {
+
+	if s.ErrorMsgType == SpecErrTypeDEBUG {
+		return true
+	}
+
+	return false
+}
+
+// IsFatalErrorMsg - returns true if this SpecErr object
+// is configured as a FATAL Error message
+func (s *SpecErr) IsFatalErrorMsg() bool {
+
+	if s.ErrorMsgType == SpecErrTypeFATAL {
+		return true
+	}
+
+	return false
+}
+
+// IsStdErrorMsg - returns true if this SpecErr object
+// is configured as a Standard Error message
+func (s *SpecErr) IsStdErrorMsg() bool {
+
+	if s.ErrorMsgType == SpecErrTypeERROR {
+		return true
+	}
+
+	return false
+}
+
+
+// IsInfoMsg - returns true if this SpecErr object
+// is configured as a Information message
+func (s *SpecErr) IsInfoMsg() bool {
+
+	if s.ErrorMsgType == SpecErrTypeINFO {
+		return true
+	}
+
+	return false
+}
+
+// IsNoErrsNoMsgs - return 'true' if this SpecErr object
+// is configured as a type 'No Errors - No Messages'.
+func (s *SpecErr) IsNoErrsNoMsgs() bool {
+
+	if s.ErrorMsgType == SpecErrTypeNOERRORSALLCLEAR {
+		return true
+	}
+
+	return false
+
+}
+
+// IsWarningMsg - returns true if this SpecErr object
+// is configured as a Warning message
+func (s *SpecErr) IsWarningMsg() bool {
+
+	if s.ErrorMsgType == SpecErrTypeWARNING {
+		return true
+	}
+
+	return false
+}
+
 // ModifyMsg - Change the existing message text.
 // Note: this will NOT change the message type.
 // Only the message text is affected.
@@ -528,6 +597,9 @@ func (s SpecErr) New(err error, errType SpecErrMsgType, errNo int64) SpecErr {
 	case SpecErrTypeWARNING:
 		se.SetWarningMessage(errMsg, errNo)
 
+	case SpecErrTypeDEBUG:
+		se.SetDebugMessage(errMsg, errNo)
+
 	case SpecErrTypeSUCCESSFULCOMPLETION:
 		se.SetSuccessfulCompletion(errMsg, errNo)
 
@@ -574,11 +646,27 @@ func (s SpecErr) NewErrorMsgString(errMsg string, errType SpecErrMsgType, errNo 
 	case SpecErrTypeWARNING:
 		se.SetWarningMessage(errMsg, errNo)
 
+	case SpecErrTypeDEBUG:
+		se.SetDebugMessage(errMsg, errNo)
+
 	case SpecErrTypeSUCCESSFULCOMPLETION:
 		se.SetSuccessfulCompletion(errMsg, errNo)
 
 	case SpecErrTypeNOERRORSALLCLEAR:
 		se.SetNoErrorsNoMessages(errMsg, errNo)
+	}
+
+	return se
+}
+
+// NewNoErrsNoMsg - Creates a new default type SpecErr object.
+// The message type is set to SpecErrTypeNOERRORSALLCLEAR
+func (s SpecErr)NewNoErrsNoMsg() SpecErr {
+
+	se := SpecErr{
+		ParentInfo: s.DeepCopyParentInfo(s.ParentInfo),
+		BaseInfo:   s.BaseInfo.DeepCopyBaseInfo(),
+		ErrorMsgType: SpecErrTypeNOERRORSALLCLEAR,
 	}
 
 	return se
@@ -628,6 +716,16 @@ func (s *SpecErr) SetBaseInfo(bi ErrBaseInfo) {
 	s.BaseInfo = bi.NewBaseInfo()
 }
 
+// SetDebugMessage - Sets the state of the current SpecErr object
+// to a DEBUG message.
+func (s *SpecErr) SetDebugMessage(msg string, errId int64) {
+	s.EmptyMsgData()
+	s.ErrorMsgType	= SpecErrTypeDEBUG
+	s.IsErr  = false
+	s.IsPanic = false
+	s.setMessageText(msg, errId)
+}
+
 // SetError - Sets the error message for the current or host SpecErr object.
 func (s *SpecErr) SetError(err error, errType SpecErrMsgType, errId int64) {
 
@@ -652,6 +750,9 @@ func (s *SpecErr) SetError(err error, errType SpecErrMsgType, errId int64) {
 
 	case SpecErrTypeWARNING:
 		s.SetWarningMessage(err.Error(), errId)
+
+	case SpecErrTypeDEBUG:
+		s.SetDebugMessage(err.Error(), errId)
 
 	case SpecErrTypeSUCCESSFULCOMPLETION:
 		s.SetSuccessfulCompletion(err.Error(), errId)
@@ -687,6 +788,9 @@ func (s *SpecErr) SetErrorWithMessage(errMsg string, errType SpecErrMsgType, err
 	case SpecErrTypeWARNING:
 		s.SetWarningMessage(errMsg, errId)
 
+	case SpecErrTypeDEBUG:
+		s.SetDebugMessage(errMsg, errId)
+
 	case SpecErrTypeSUCCESSFULCOMPLETION:
 		s.SetSuccessfulCompletion(errMsg, errId)
 
@@ -697,7 +801,7 @@ func (s *SpecErr) SetErrorWithMessage(errMsg string, errType SpecErrMsgType, err
 
 }
 
-// SetFatalError - Sets the value of the current or host SpecErr object
+// SetFatalError - Sets the state of the current or host SpecErr object
 // to a FATAL error.  Both IsPanic IsErr are set to 'true'.
 func (s *SpecErr) SetFatalError(errMsg string, errNo int64) {
 
@@ -1063,6 +1167,14 @@ func (s *SpecErr) setMsgParms() (banner1, banner2, title, numTitle, abbrvTitle s
 		title = "Warning Message"
 		abbrvTitle = "WARNING Msg"
 		numTitle = "WarningMsgNo"
+
+	case SpecErrTypeDEBUG:
+		banner1 =  strings.Repeat("?", 78)
+		banner2 =  strings.Repeat("-", 78)
+		title = "DEBUG Message"
+		abbrvTitle = "DEBUG Msg"
+		numTitle = "DebugMsgNo"
+
 
 	case SpecErrTypeSUCCESSFULCOMPLETION:
 		banner1 =  strings.Repeat("$", 78)
