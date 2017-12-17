@@ -28,7 +28,7 @@ func TestErrUtilityExample001() {
 	err := errors.New(ex4)
 	ex6 := int64(22)
 
-	x := SpecErr{}.Initialize(ex1, ex2, err, SpecErrTypeERROR, ex6)
+	x := SpecErr{}.Initialize(ex1, ex2, "", err, SpecErrTypeERROR, ex6)
 
 	fmt.Println(x.Error())
 
@@ -57,7 +57,7 @@ func TestErrorUtilityExample002() {
 	err := errors.New(ex4)
 	ex6 := int64(22)
 
-	x := SpecErr{}.Initialize(ex1, ex2, err, SpecErrTypeFATAL, ex6)
+	x := SpecErr{}.Initialize(ex1, ex2, "", err, SpecErrTypeFATAL, ex6)
 
 	panic(x)
 }

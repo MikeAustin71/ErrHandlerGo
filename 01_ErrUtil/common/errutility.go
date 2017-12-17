@@ -463,11 +463,13 @@ func (s SpecErr) InitializeCurrentBaseInfo(currentBaseInfo ErrBaseInfo) SpecErr 
 // the SpecErr structure
 //
 // Input Parameters:
-// parent [] ErrBaseInfo - 	This represents history data of the function chain
+// parent [] ErrBaseInfo	- This represents history data of the function chain
 //													which preceded the function in which this error occurred.
 //
-// bi ErrBaseInfo 			 -	This represents the base information associated with the
+// bi ErrBaseInfo 			 	-	This represents the base information associated with the
 //													current function in which the error occurred.
+//
+// prefixMsg string		 		-	Prefix Message. This message is prefixed to the 'err' input parameter.
 //
 // err error		 - 	Type Error containing the error message which will be associated
 //									with this SpecErr object.
@@ -479,8 +481,8 @@ func (s SpecErr) InitializeCurrentBaseInfo(currentBaseInfo ErrBaseInfo) SpecErr 
 //									error message. If 'errNo' is set to zero - no error number will be
 //									will be displayed in the final error message.
 //
-func (s SpecErr) Initialize(parent []ErrBaseInfo, bi ErrBaseInfo, err error, errType SpecErrMsgType, errNo int64) SpecErr {
-	return s.InitializeBaseInfo(parent, bi).New(err, errType, errNo)
+func (s SpecErr) Initialize(parent []ErrBaseInfo, bi ErrBaseInfo, prefixMsg string, err error, errType SpecErrMsgType, errNo int64) SpecErr {
+	return s.InitializeBaseInfo(parent, bi).New(prefixMsg, err, errType, errNo)
 
 }
 
@@ -571,8 +573,10 @@ func (s *SpecErr) ModifyMsg(msg string, msgId int64){
 //
 // Input Parameters:
 //
-// err error		 - 	Type Error containing the error message which will be associated
-//									with this SpecErr object.
+// prefixMsg string -	Prefix message text.  This string is prefixed to the 'err' string.
+//
+// err error		 		-	Type Error containing the error message which will be associated
+//										with this SpecErr object.
 //
 // errType SpecErrMsgType	 -	A constant designating the type
 //														of error message to be created.
@@ -581,7 +585,7 @@ func (s *SpecErr) ModifyMsg(msg string, msgId int64){
 //									error message. If 'errNo' is set to zero - no error number will be
 //									will be displayed in the final error message.
 //
-func (s SpecErr) New(err error, errType SpecErrMsgType, errNo int64) SpecErr {
+func (s SpecErr) New(prefixMsg string, err error, errType SpecErrMsgType, errNo int64) SpecErr {
 
 
 	se := SpecErr{
@@ -589,7 +593,14 @@ func (s SpecErr) New(err error, errType SpecErrMsgType, errNo int64) SpecErr {
 		BaseInfo:   s.BaseInfo.DeepCopyBaseInfo(),
 	}
 
-	errMsg := err.Error()
+	var errMsg string
+	if prefixMsg!= "" {
+		errMsg = prefixMsg + err.Error()
+	} else {
+		errMsg = err.Error()
+	}
+
+
 
 	switch errType {
 	case SpecErrTypeERROR:

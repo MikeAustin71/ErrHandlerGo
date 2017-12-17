@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func TestErrorUtility_01(t *testing.T) {
+func TestSpecErr_New_001(t *testing.T) {
 
 	ex1 := "errutil_test.go"
 	ex1ParentObj := "ErrorObj"
@@ -23,7 +23,7 @@ func TestErrorUtility_01(t *testing.T) {
 	a := make([]ErrBaseInfo, 0, 10)
 	bi := ErrBaseInfo{}.New(ex1, ex1ParentObj, ex2, ex3)
 	se := SpecErr{}.InitializeBaseInfo(a, bi)
-	x := se.New(err, SpecErrTypeFATAL, ex5)
+	x := se.New("", err, SpecErrTypeFATAL, ex5)
 
 
 	if x.ErrMsg != ex6 {
@@ -45,6 +45,48 @@ func TestErrorUtility_01(t *testing.T) {
 	if x.errNo != ex7 {
 		t.Error(fmt.Sprintf("Expected '%v' got", ex7), x.errNo)
 	}
+
+}
+
+func TestSpecErr_New_002(t *testing.T) {
+	ex1 := "errutil_test.go"
+	ex1ParentObj := "ErrorObj"
+	ex2 := "TestErrorUtility"
+	ex3 := int64(10000)
+
+
+	ex5 := int64(334)
+	ex6 := "Test Error #1"
+	ex6Msg := "Func Xray Overloaded!\n"
+	ex7 := ex5 + ex3
+	expectedMsg := ex6Msg + ex6
+	err := errors.New(ex6)
+	a := make([]ErrBaseInfo, 0, 10)
+	bi := ErrBaseInfo{}.New(ex1, ex1ParentObj, ex2, ex3)
+	se := SpecErr{}.InitializeBaseInfo(a, bi)
+	x := se.New(ex6Msg, err, SpecErrTypeFATAL, ex5)
+
+
+	if expectedMsg != x.ErrMsg  {
+		t.Errorf("Expected '%v' got %v", expectedMsg, x.ErrMsg)
+	}
+
+	if x.BaseInfo.SourceFileName != ex1 {
+		t.Error(fmt.Sprintf("Expected '%v' got", ex1), x.BaseInfo.SourceFileName)
+	}
+
+	if x.BaseInfo.ParentObjectName != ex1ParentObj {
+		t.Errorf("Expected BaseInfo.ParentObjectName = '%v'. Instead, got ParentObjectName= '%v'", ex1ParentObj, x.BaseInfo.ParentObjectName)
+	}
+
+	if x.BaseInfo.FuncName != ex2 {
+		t.Error(fmt.Sprintf("Expected '%v' got", ex2), x.BaseInfo.FuncName)
+	}
+
+	if x.errNo != ex7 {
+		t.Error(fmt.Sprintf("Expected '%v' got", ex7), x.errNo)
+	}
+
 
 }
 
@@ -169,7 +211,7 @@ func TestSetErrDetail(t *testing.T) {
 	a := make([]ErrBaseInfo, 0, 10)
 	bi := ErrBaseInfo{}.New(ex1, ex1ParentObj, ex2, ex3)
 
-	x := SpecErr{}.InitializeBaseInfo(a, bi).New(err, SpecErrTypeFATAL, ex5)
+	x := SpecErr{}.InitializeBaseInfo(a, bi).New("",err, SpecErrTypeFATAL, ex5)
 
 	if x.errNo != ex7 {
 		t.Error(fmt.Sprintf("Expected Err No '%v', got", ex7), x.errNo)
@@ -227,7 +269,7 @@ func TestIsSpecErrYes(t *testing.T) {
 
 	err := errors.New(ex99)
 
-	x := SpecErr{}.New(err, SpecErrTypeFATAL, ex4)
+	x := SpecErr{}.New("", err, SpecErrTypeFATAL, ex4)
 
 	isErr := x.CheckIsSpecErr()
 
@@ -251,7 +293,7 @@ func TestQuickInitialize(t *testing.T) {
 	err := errors.New(ex2)
 	ex4 := int64(499)
 
-	x := SpecErr{}.New(err, SpecErrTypeERROR, ex4)
+	x := SpecErr{}.New("",err, SpecErrTypeERROR, ex4)
 
 	if x.errNo != ex4 {
 		t.Error(fmt.Sprintf("Expected errNo: '%v', got", ex4), x.errNo)
@@ -289,7 +331,7 @@ func TestFullInitialize(t *testing.T) {
 	ex6 := int64(22)
 	ex7 := int64(16022)
 
-	x := SpecErr{}.Initialize(ex1, ex2, err, SpecErrTypeERROR, ex6)
+	x := SpecErr{}.Initialize(ex1, ex2, "", err, SpecErrTypeERROR, ex6)
 
 	pl := len(x.ParentInfo)
 
@@ -338,7 +380,7 @@ func TestBlankInitialize(t *testing.T) {
 	ex3 := false
 	ex4 := int64(22)
 
-	x := SpecErr{}.Initialize(blankParentInfo, blankErrBaseInfo, err, SpecErrTypeERROR, ex4)
+	x := SpecErr{}.Initialize(blankParentInfo, blankErrBaseInfo, "", err, SpecErrTypeERROR, ex4)
 
 	if x.ErrMsg != ex2 {
 		t.Error(fmt.Sprintf("Expected ErrMsg '%v', got", ex2), x.ErrMsg)
@@ -392,7 +434,7 @@ func TestAddBaseInfoToParent(t *testing.T) {
 	ex5 := false
 	ex6 := int64(22)
 
-	x := SpecErr{}.Initialize(ex1, ex2, err, SpecErrTypeERROR, ex6)
+	x := SpecErr{}.Initialize(ex1, ex2, "", err, SpecErrTypeERROR, ex6)
 
 	pl := len(x.ParentInfo)
 
@@ -435,7 +477,7 @@ func TestSpecErr_CheckIsSpecErr(t *testing.T) {
 	err := errors.New(ex4)
 	ex6 := int64(22)
 
-	x := SpecErr{}.Initialize(ex1, ex2, err, SpecErrTypeERROR, ex6)
+	x := SpecErr{}.Initialize(ex1, ex2, "", err, SpecErrTypeERROR, ex6)
 
 	result := x.CheckIsSpecErr()
 
@@ -465,7 +507,7 @@ func TestSpecErr_CheckIsSpecErrPanic(t *testing.T) {
 	err := errors.New(ex4)
 	ex6 := int64(22)
 
-	x := SpecErr{}.Initialize(ex1, ex2, err, SpecErrTypeERROR, ex6)
+	x := SpecErr{}.Initialize(ex1, ex2, "", err, SpecErrTypeERROR, ex6)
 
 	x.IsPanic = true
 
@@ -531,7 +573,7 @@ func TestSpecErr_ConfigureParentInfoFromParentSpecErr01(t *testing.T) {
 
 	e := errors.New("This is the error message")
 
-	se := SpecErr{}.Initialize(parentInfo, baseInfo, e, SpecErrTypeFATAL, 553 )
+	se := SpecErr{}.Initialize(parentInfo, baseInfo, "", e, SpecErrTypeFATAL, 553 )
 
 	baseInfo2 := bi.New("TestSrcFileName7", "TestObject7", "TestFuncName7", 7000)
 
@@ -577,7 +619,7 @@ func TestSpecErr_InitializeBaseInfoWithSpecErr01(t *testing.T) {
 
 	e := errors.New("This is the error message")
 
-	se := SpecErr{}.Initialize(parentInfo, baseInfo, e, SpecErrTypeFATAL, 553 )
+	se := SpecErr{}.Initialize(parentInfo, baseInfo,"", e, SpecErrTypeFATAL, 553 )
 
 	baseInfo2 := bi.New("TestSrcFileName7", "TestObject7", "TestFuncName7", 7000)
 
@@ -623,7 +665,7 @@ func TestSpecErr_NewInfoMsgString01(t *testing.T) {
 
 	e := errors.New("This is an error message #1")
 
-	se := SpecErr{}.Initialize(parentInfo, baseInfo, e, SpecErrTypeFATAL, 553 )
+	se := SpecErr{}.Initialize(parentInfo, baseInfo, "", e, SpecErrTypeFATAL, 553 )
 
 	baseInfo2 := bi.New("TestSrcFileName7", "TestObject7", "TestFuncName7", 7000)
 
@@ -669,7 +711,7 @@ func TestSpecErr_NewWarningMsgString01(t *testing.T) {
 
 	e := errors.New("This is an error message #1")
 
-	se := SpecErr{}.Initialize(parentInfo, baseInfo, e, SpecErrTypeFATAL, 553 )
+	se := SpecErr{}.Initialize(parentInfo, baseInfo, "", e, SpecErrTypeFATAL, 553 )
 
 	baseInfo2 := bi.New("TestSrcFileName7", "TestObject7", "TestFuncName7", 7000)
 
@@ -913,13 +955,13 @@ func TestSpecErr_SetDebugMsg_001(t *testing.T) {
 	actualErrId := s.GetErrorId()
 
 	if xErrId != actualErrId {
-		t.Errorf("Expected ErrId= '%v'. Instead, ErrId= '%v'", xErrId != actualErrId)
+		t.Errorf("Expected ErrId= '%v'. Instead, ErrId= '%v'", xErrId, actualErrId)
 	}
 
 	actualErrNo := s.GetErrorNumber()
 
 	if xErrNo != actualErrNo {
-		t.Errorf("Expected ErrNo= '%v'.  Instead, ErrNo= '%v'.", xErrNo != actualErrNo)
+		t.Errorf("Expected ErrNo= '%v'.  Instead, ErrNo= '%v'.", xErrNo, actualErrNo)
 	}
 
 }
