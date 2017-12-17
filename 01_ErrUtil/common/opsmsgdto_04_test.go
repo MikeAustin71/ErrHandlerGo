@@ -257,7 +257,6 @@ func TestOpsMsgDto_SignalSuccessfulCompletion_01(t *testing.T) {
 	msgId := int64(64)
 	msgNo := int64(6064)
 	msgType := OpsMsgTypeSUCCESSFULCOMPLETION
-	msgClass := OpsMsgClassSUCCESSFULCOMPLETION
 
 	l1 := len(testParentHistory)
 
@@ -279,10 +278,6 @@ func TestOpsMsgDto_SignalSuccessfulCompletion_01(t *testing.T) {
 
 	if om.MsgType != msgType {
 		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
-	}
-
-	if om.MsgClass != msgClass {
-		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om.MsgClass)
 	}
 
 	if om.IsError() != false {
@@ -335,7 +330,6 @@ func TestOpsMsgDto_SignalSuccessfulCompletion_02(t *testing.T) {
 	msgId := int64(0)
 	msgNo := int64(0)
 	msgType := OpsMsgTypeSUCCESSFULCOMPLETION
-	msgClass := OpsMsgClassSUCCESSFULCOMPLETION
 
 	l1 := len(testParentHistory)
 
@@ -357,10 +351,6 @@ func TestOpsMsgDto_SignalSuccessfulCompletion_02(t *testing.T) {
 
 	if om.MsgType != msgType {
 		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
-	}
-
-	if om.MsgClass != msgClass {
-		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om.MsgClass)
 	}
 
 	if om.IsError() != false {

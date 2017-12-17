@@ -14,8 +14,7 @@ func TestOpsMsgDto_NewNoErrorsNoMessagesMsg_01(t *testing.T) {
 	xMsg := "No Errors and No Messages"
 	msgId := int64(28)
 	msgNo := int64(6028)
-	msgType := OpsMsgTypeNOERRORNOMSG
-	msgClass := OpsMsgClassNOERRORSNOMESSAGES
+	msgType := OpsMsgTypeNOERRORNOMSGS
 
 	om := OpsMsgDto{}.InitializeAllContextInfo(testParentHistory, testMsgContext).NewNoErrorsNoMessagesMsg("",msgId)
 
@@ -39,10 +38,6 @@ func TestOpsMsgDto_NewNoErrorsNoMessagesMsg_01(t *testing.T) {
 
 	if om.MsgType != msgType {
 		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
-	}
-
-	if om.MsgClass != msgClass {
-		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om.MsgClass)
 	}
 
 	if om.IsError() != false {
@@ -92,8 +87,7 @@ func TestOpsMsgDto_NewNoErrorsNoMessagesMsg_02(t *testing.T) {
 	xMsg := "No Errors and No Messages"
 	msgId := int64(28)
 	msgNo := int64(6028)
-	msgType := OpsMsgTypeNOERRORNOMSG
-	msgClass := OpsMsgClassNOERRORSNOMESSAGES
+	msgType := OpsMsgTypeNOERRORNOMSGS
 
 	om := OpsMsgDto{}.InitializeWithMessageContext(testMsgContext).NewNoErrorsNoMessagesMsg("",msgId)
 
@@ -103,10 +97,6 @@ func TestOpsMsgDto_NewNoErrorsNoMessagesMsg_02(t *testing.T) {
 
 	if om.MsgType != msgType {
 		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
-	}
-
-	if om.MsgClass != msgClass {
-		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om.MsgClass)
 	}
 
 	if om.IsError() != false {
@@ -154,17 +144,12 @@ func TestOpsMsgDto_NewNoErrorsNoMessagesMsg_03(t *testing.T) {
 	xMsg := "No Errors and No Messages"
 	msgId := int64(28)
 	msgNo := int64(28)
-	msgType := OpsMsgTypeNOERRORNOMSG
-	msgClass := OpsMsgClassNOERRORSNOMESSAGES
+	msgType := OpsMsgTypeNOERRORNOMSGS
 
 	om := OpsMsgDto{}.NewNoErrorsNoMessagesMsg("",msgId)
 
 	if om.MsgType != msgType {
 		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
-	}
-
-	if om.MsgClass != msgClass {
-		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om.MsgClass)
 	}
 
 	if om.IsError() != false {
@@ -215,8 +200,7 @@ func TestOpsMsgDto_SetNoErrorsNoMessages_01(t *testing.T) {
 	xMsg := "No Errors and No Messages"
 	msgId := int64(28)
 	msgNo := int64(6028)
-	msgType := OpsMsgTypeNOERRORNOMSG
-	msgClass := OpsMsgClassNOERRORSNOMESSAGES
+	msgType := OpsMsgTypeNOERRORNOMSGS
 
 	om := testOpsMsgDtoCreateNoErrorsNoMessagesMsg()
 
@@ -240,10 +224,6 @@ func TestOpsMsgDto_SetNoErrorsNoMessages_01(t *testing.T) {
 
 	if om.MsgType != msgType {
 		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
-	}
-
-	if om.MsgClass != msgClass {
-		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om.MsgClass)
 	}
 
 	if om.IsError() != false {
@@ -295,8 +275,7 @@ func TestOpsMsgDto_SetNoErrorsNoMessages_02(t *testing.T) {
 	xMsg := "No Errors and No Messages"
 	msgId := int64(28)
 	msgNo := int64(6028)
-	msgType := OpsMsgTypeNOERRORNOMSG
-	msgClass := OpsMsgClassNOERRORSNOMESSAGES
+	msgType := OpsMsgTypeNOERRORNOMSGS
 
 	om.SetMessageContext(testMsgContext)
 	om.SetNoErrorsNoMessages("",msgId)
@@ -307,10 +286,6 @@ func TestOpsMsgDto_SetNoErrorsNoMessages_02(t *testing.T) {
 
 	if om.MsgType != msgType {
 		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
-	}
-
-	if om.MsgClass != msgClass {
-		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om.MsgClass)
 	}
 
 	if om.IsError() != false {
@@ -360,17 +335,12 @@ func TestOpsMsgDto_SetNoErrorsNoMessages_03(t *testing.T) {
 	xMsg := "No Errors and No Messages"
 	msgId := int64(28)
 	msgNo := int64(28)
-	msgType := OpsMsgTypeNOERRORNOMSG
-	msgClass := OpsMsgClassNOERRORSNOMESSAGES
+	msgType := OpsMsgTypeNOERRORNOMSGS
 
 	om.SetNoErrorsNoMessages("",msgId)
 
 	if om.MsgType != msgType {
 		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
-	}
-
-	if om.MsgClass != msgClass {
-		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om.MsgClass)
 	}
 
 	if om.IsError() != false {
@@ -422,8 +392,7 @@ func TestOpsMsgDto_SetNoErrorsNoMessages_04(t *testing.T) {
 	xMsg := "Xray = 6"
 	msgId := int64(28)
 	msgNo := int64(6028)
-	msgType := OpsMsgTypeNOERRORNOMSG
-	msgClass := OpsMsgClassNOERRORSNOMESSAGES
+	msgType := OpsMsgTypeNOERRORNOMSGS
 
 	om.SetMessageContext(testMsgContext)
 	om.SetNoErrorsNoMessages(xMsg,msgId)
@@ -434,10 +403,6 @@ func TestOpsMsgDto_SetNoErrorsNoMessages_04(t *testing.T) {
 
 	if om.MsgType != msgType {
 		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
-	}
-
-	if om.MsgClass != msgClass {
-		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om.MsgClass)
 	}
 
 	if om.IsError() != false {
@@ -552,14 +517,9 @@ func TestOpsMsgDto_CopyIn_01(t *testing.T) {
 	msgId := int64(19)
 	msgNo := int64(6019)
 	msgType := OpsMsgTypeINFOMSG
-	msgClass := OpsMsgClassINFO
 
 	if om1.MsgType != msgType {
 		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om1.MsgType)
-	}
-
-	if om1.MsgClass != msgClass {
-		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om1.MsgClass)
 	}
 
 	if om1.IsError() != false {
@@ -618,14 +578,9 @@ func TestOpsMsgDto_CopyIn_02(t *testing.T) {
 	msgId := int64(19)
 	msgNo := int64(6019)
 	msgType := OpsMsgTypeINFOMSG
-	msgClass := OpsMsgClassINFO
 
 	if om1.MsgType != msgType {
 		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om1.MsgType)
-	}
-
-	if om1.MsgClass != msgClass {
-		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om1.MsgClass)
 	}
 
 	if om1.IsError() != false {
@@ -686,16 +641,10 @@ func TestOpsMsgDto_CopyIn_03(t *testing.T) {
 
 	om1.CopyIn(&om2)
 
-
 	msgType := OpsMsgTypeINFOMSG
-	msgClass := OpsMsgClassINFO
 
 	if om1.MsgType != msgType {
 		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om1.MsgType)
-	}
-
-	if om1.MsgClass != msgClass {
-		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om1.MsgClass)
 	}
 
 	if om1.IsError() != false {
@@ -762,14 +711,9 @@ func TestOpsMsgDto_CopyIn_04(t *testing.T) {
 
 
 	msgType := OpsMsgTypeINFOMSG
-	msgClass := OpsMsgClassINFO
 
 	if om1.MsgType != msgType {
 		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om1.MsgType)
-	}
-
-	if om1.MsgClass != msgClass {
-		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om1.MsgClass)
 	}
 
 	if om1.IsError() != false {
@@ -824,16 +768,11 @@ func TestOpsMsgDto_CopyOut_01(t *testing.T) {
 	xMsg := "This is FATAL Error Msg for test object"
 	msgId := int64(152)
 	msgNo := int64(6152)
-	msgType := OpsMsgTypeERRORMSG
-	msgClass := OpsMsgClassFATAL
+	msgType := OpsMsgTypeFATALERRORMSG
 
 
 	if om2.MsgType != msgType {
 		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om2.MsgType)
-	}
-
-	if om2.MsgClass != msgClass {
-		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om2.MsgClass)
 	}
 
 	if om2.IsError() != true {
@@ -889,16 +828,11 @@ func TestOpsMsgDto_CopyOut_02(t *testing.T) {
 	xMsg := "This is FATAL Error Msg for test object"
 	msgId := int64(152)
 	msgNo := int64(6152)
-	msgType := OpsMsgTypeERRORMSG
-	msgClass := OpsMsgClassFATAL
+	msgType := OpsMsgTypeFATALERRORMSG
 
 
 	if om2.MsgType != msgType {
 		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om2.MsgType)
-	}
-
-	if om2.MsgClass != msgClass {
-		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om2.MsgClass)
 	}
 
 	if om2.IsError() != true {
@@ -948,8 +882,7 @@ func TestOpsMsgDto_CopyOut_03(t *testing.T) {
 	xMsg := "This is FATAL Error Msg for test object"
 	msgId := int64(152)
 	msgNo := int64(152)
-	msgType := OpsMsgTypeERRORMSG
-	msgClass := OpsMsgClassFATAL
+	msgType := OpsMsgTypeFATALERRORMSG
 
 	om1 := OpsMsgDto{}
 	om1.SetFatalErrorMessage(xMsg, msgId)
@@ -958,14 +891,8 @@ func TestOpsMsgDto_CopyOut_03(t *testing.T) {
 
 	om2 = om1.CopyOut()
 
-
-
 	if om2.MsgType != msgType {
 		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om2.MsgType)
-	}
-
-	if om2.MsgClass != msgClass {
-		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om2.MsgClass)
 	}
 
 	if om2.IsError() != true {
@@ -1029,16 +956,10 @@ func TestOpsMsgDto_CopyOut_04(t *testing.T) {
 
 	om1 = om2.CopyOut()
 
-
 	msgType := OpsMsgTypeINFOMSG
-	msgClass := OpsMsgClassINFO
 
 	if om1.MsgType != msgType {
 		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om1.MsgType)
-	}
-
-	if om1.MsgClass != msgClass {
-		t.Errorf("Expected Messgage Class == '%v'. Instead, Message Class == '%v'.", msgClass, om1.MsgClass)
 	}
 
 	if om1.IsError() != false {
@@ -1172,10 +1093,6 @@ func TestOpsMsgContextInfo_Equal_06(t *testing.T) {
 
 	om2 := testOpsMsgDtoCreateFatalErrorMsg()
 
-	om2 = om1.CopyOut()
-
-	om2.MsgClass = OpsMsgClassNOERRORSNOMESSAGES
-
 	if om2.Equal(&om1) {
 		t.Error("Expected om2!=om1. om2 DID EQUAL om1 - ERROR!")
 	}
@@ -1269,7 +1186,6 @@ func TestOpsMsgDto_IsError_02(t *testing.T) {
 	}
 
 }
-
 
 func TestOpsMsgDto_IsError_03(t *testing.T) {
 

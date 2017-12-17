@@ -142,30 +142,34 @@ const (
 
 	// OpsMsgTypeNOERRORNOMSG - 0 Uninitialized -
 	// no errors and no messages
-	OpsMsgTypeNOERRORNOMSG OpsMsgType = iota
+	OpsMsgTypeNOERRORNOMSGS OpsMsgType = iota
 
 	// OpsMsgTypeERRORMSG - 1 Error Message
 	OpsMsgTypeERRORMSG
 
-	// OpsMsgTypeINFOMSG - 2 Information Message Type
+	// OpsMsgTypeFATALERRORMSG 2 Fatal Error Message
+	OpsMsgTypeFATALERRORMSG
+
+	// OpsMsgTypeINFOMSG - 3 Information Message Type
 	OpsMsgTypeINFOMSG
 
-	// OpsMsgTypeWARNINGMSG - 3 Warning Message Type
+	// OpsMsgTypeWARNINGMSG - 4 Warning Message Type
 	OpsMsgTypeWARNINGMSG
 
-	// OpsMsgTypeDEBUGMSG - 4 Debug Message
+	// OpsMsgTypeDEBUGMSG - 5 Debug Message
 	OpsMsgTypeDEBUGMSG
 
-	// OpsMsgTypeSUCCESSFULCOMPLETION - 5 Message signalling
+	// OpsMsgTypeSUCCESSFULCOMPLETION - 6 Message signalling
 	// successful completion of the operation.
 	OpsMsgTypeSUCCESSFULCOMPLETION
 
 )
 
 // OpsMsgTypeNames - String Array holding Message Type names.
-var OpsMsgTypeNames = [...]string{"NOERRORSNOMSGS","ERROR", "INFO", "WARNING", "DEBUG", "SUCCESS"}
+var OpsMsgTypeNames = [...]string{"NOERRORSNOMSGS","ERROR", "FATALERROR", "INFO", "WARNING", "DEBUG", "SUCCESS"}
 
 
+/*
 // OpsMsgClass - Holds the Message level indicating the relative importance of a specific log Message.
 type OpsMsgClass int
 
@@ -204,6 +208,7 @@ const (
 // OpsMsgClassNames - string array containing names of Log Levels
 var OpsMsgClassNames = [...]string{"NOERRORSNOMESSAGES", "OPERROR", "FATAL", "INFO", "WARNING", "DEBUG", "SUCCESS"}
 
+*/
 
 // OpsMsgContextInfo - Contains context information describing
 // the current environment in which the message was generated.
@@ -277,7 +282,6 @@ type OpsMsgDto struct {
 	MsgContext           OpsMsgContextInfo
 	Message              string // The original message sent to OpsMsgDto
 	MsgType              OpsMsgType
-	MsgClass             OpsMsgClass
 	MsgTimeUTC           time.Time
 	MsgTimeLocal         time.Time
 	MsgLocalTimeZone     string
@@ -347,7 +351,6 @@ func (opsMsg *OpsMsgDto) CopyIn(opsMsg2 *OpsMsgDto) {
 	opsMsg.msgId            = opsMsg2.GetMessageId()
 	opsMsg.msgNumber        = opsMsg2.GetMessageNumber()
 	opsMsg.MsgType          = opsMsg2.MsgType
-	opsMsg.MsgClass         = opsMsg2.MsgClass
 	opsMsg.MsgTimeUTC       = opsMsg2.MsgTimeUTC
 	opsMsg.MsgTimeLocal     = opsMsg2.MsgTimeLocal
 	opsMsg.MsgLocalTimeZone = opsMsg2.MsgLocalTimeZone
@@ -369,7 +372,6 @@ func (opsMsg *OpsMsgDto) CopyOut() OpsMsgDto {
 	opsMsg2.msgId            = opsMsg.GetMessageId()
 	opsMsg2.msgNumber        = opsMsg.GetMessageNumber()
 	opsMsg2.MsgType          = opsMsg.MsgType
-	opsMsg2.MsgClass         = opsMsg.MsgClass
 	opsMsg2.MsgTimeUTC       = opsMsg.MsgTimeUTC
 	opsMsg2.MsgTimeLocal     = opsMsg.MsgTimeLocal
 	opsMsg2.MsgLocalTimeZone = opsMsg.MsgLocalTimeZone
@@ -431,8 +433,7 @@ func (opsMsg *OpsMsgDto) EmptyMsgData() {
 	opsMsg.fmtMessage = ""
 	opsMsg.msgId          	= int64(0) // The identifying number for this message
 	opsMsg.msgNumber      	= int64(0) //  Message Number = msgId + MsgContext.BaseMessageId. This is the number displayed in the message
-	opsMsg.MsgType        	= OpsMsgTypeNOERRORNOMSG
-	opsMsg.MsgClass       	= OpsMsgClassNOERRORSNOMESSAGES
+	opsMsg.MsgType        	= OpsMsgTypeNOERRORNOMSGS
 	opsMsg.MsgTimeUTC     	= time.Time{}
 	opsMsg.MsgTimeLocal   	= time.Time{}
 	opsMsg.MsgLocalTimeZone	= ""
@@ -465,7 +466,6 @@ func (opsMsg *OpsMsgDto) Equal(opsMsg2 *OpsMsgDto) bool {
 			opsMsg.msgId            != opsMsg2.GetMessageId()			||
 			opsMsg.msgNumber        != opsMsg2.GetMessageNumber()	||
 			opsMsg.MsgType          != opsMsg2.MsgType						||
-			opsMsg.MsgClass         != opsMsg2.MsgClass						||
 			opsMsg.MsgTimeUTC       != opsMsg2.MsgTimeUTC					||
 			opsMsg.MsgTimeLocal     != opsMsg2.MsgTimeLocal				||
 			opsMsg.MsgLocalTimeZone != opsMsg2.MsgLocalTimeZone {
@@ -686,7 +686,8 @@ func(opsMsg OpsMsgDto) IsDebugMsg() bool {
 // or a Fatal Error. (See Method IsFatalError())
 func (opsMsg *OpsMsgDto) IsError() bool {
 
-	if opsMsg.MsgType == OpsMsgTypeERRORMSG {
+	if opsMsg.MsgType == OpsMsgTypeERRORMSG ||
+			opsMsg.MsgType == OpsMsgTypeFATALERRORMSG {
 		return true
 	}
 
@@ -699,7 +700,7 @@ func (opsMsg *OpsMsgDto) IsError() bool {
 // program execution.
 func (opsMsg *OpsMsgDto) IsFatalError() bool {
 
-	if opsMsg.MsgClass == OpsMsgClassFATAL {
+	if opsMsg.MsgType == OpsMsgTypeFATALERRORMSG {
 		return true
 	}
 
@@ -729,7 +730,7 @@ func (opsMsg *OpsMsgDto) IsInfoMsg() bool {
 // uninitialized OpsMsgDto objects.
 func (opsMsg *OpsMsgDto) IsNoErrorsNoMessages() bool {
 
-	if opsMsg.MsgType == OpsMsgTypeNOERRORNOMSG {
+	if opsMsg.MsgType == OpsMsgTypeNOERRORNOMSGS {
 		return true
 	}
 
@@ -766,9 +767,15 @@ func (opsMsg *OpsMsgDto) IsWarningMsg() bool {
 // ModifyMsg - Change the existing message text.
 // Note: this will NOT change the message type.
 // Only the message text is affected.
-func (opsMsg *OpsMsgDto) ModifyMsg(msg string, msgId int64) {
+func (opsMsg *OpsMsgDto) ModifyMsg(msg string) {
 
-	opsMsg.setMessageText(msg, msgId)
+	opsMsg.setMessageText(msg, opsMsg.msgId)
+
+}
+
+// ModifyMsgId - Change the existing message Id.
+func (opsMsg *OpsMsgDto) ModifyMsgId(msgId int64) {
+	opsMsg.setMsgIdAndMsgNumber(msgId)
 }
 
 // NewDebugMsg - Create a new Debug Message
@@ -785,32 +792,35 @@ func (opsMsg *OpsMsgDto) ModifyMsg(msg string, msgId int64) {
 func(opsMsg OpsMsgDto) NewDebugMsg(msg string, msgNo int64) OpsMsgDto {
 
 	om := OpsMsgDto{}
-	om.SetParentMessageContextHistory(opsMsg.ParentContextHistory)
+	om.SetParentMessageContextHistory(opsMsg.DeepCopyParentContextHistory(opsMsg.ParentContextHistory))
 	om.SetMessageContext(opsMsg.MsgContext)
 	om.SetDebugMessage(msg, msgNo)
 
 	return om
 }
 
-
-// NewInfoMsg - Create a new Operations Message which is
-// an Informational Message.
+// NewError - Create a new OpsMsgDto by inputting an error type and a message type.
 //
 // Input Parameters
 // ****************
 //
-//	msg string 		- The text of the Information Message
+//  prefixMsg string	- The message text will be prefixed to the error text to create the final
+//											message text.
 //
-//	msgNo	int64		- The message number to be associated with
-//									this message. If 'msgNo' is equal to zero,
-//									no message number will be displayed in the
-//									final message
-func(opsMsg OpsMsgDto) NewInfoMsg(msg string, msgNo int64) OpsMsgDto {
+//	err error					- An error type containing error text will be added to the end of the prefixMsg
+//											to create the final message text.
+//
+//	errMsg string			- The text of the Error Message
+//
+//	errNo	int64				- The number to be associated with this message. If 'errNo' is equal to zero,
+// 											no error number will be displayed in the final error message
+//
+func (opsMsg OpsMsgDto) NewError(prefixMsg string, err error, msgType OpsMsgType, errId int64) OpsMsgDto {
 
 	om := OpsMsgDto{}
-	om.SetParentMessageContextHistory(opsMsg.ParentContextHistory)
+	om.SetParentMessageContextHistory(opsMsg.DeepCopyParentContextHistory(opsMsg.ParentContextHistory))
 	om.SetMessageContext(opsMsg.MsgContext)
-	om.SetInfoMessage(msg, msgNo)
+	om.SetFromError(prefixMsg, err, msgType, errId)
 
 	return om
 }
@@ -829,11 +839,33 @@ func(opsMsg OpsMsgDto) NewInfoMsg(msg string, msgNo int64) OpsMsgDto {
 func (opsMsg OpsMsgDto) NewFatalErrorMsg(errMsg string, errNo int64) OpsMsgDto {
 
 	om := OpsMsgDto{}
-	om.SetParentMessageContextHistory(opsMsg.ParentContextHistory)
+	om.SetParentMessageContextHistory(opsMsg.DeepCopyParentContextHistory(opsMsg.ParentContextHistory))
 	om.SetMessageContext(opsMsg.MsgContext)
 	om.SetFatalErrorMessage(errMsg, errNo)
 	return om
 
+}
+
+// NewInfoMsg - Create a new Operations Message which is
+// an Informational Message.
+//
+// Input Parameters
+// ****************
+//
+//	msg string 		- The text of the Information Message
+//
+//	msgNo	int64		- The message number to be associated with
+//									this message. If 'msgNo' is equal to zero,
+//									no message number will be displayed in the
+//									final message
+func(opsMsg OpsMsgDto) NewInfoMsg(msg string, msgNo int64) OpsMsgDto {
+
+	om := OpsMsgDto{}
+	om.SetParentMessageContextHistory(opsMsg.DeepCopyParentContextHistory(opsMsg.ParentContextHistory))
+	om.SetMessageContext(opsMsg.MsgContext)
+	om.SetInfoMessage(msg, msgNo)
+
+	return om
 }
 
 // NewMsgFromSpecErrMsg - Create a new Operations Message based on
@@ -911,9 +943,43 @@ func (opsMsg OpsMsgDto) NewNoErrorsNoMessagesMsg(msg string,msgNo int64) OpsMsgD
 func (opsMsg *OpsMsgDto) SetDebugMessage(msg string, msgId int64){
 	opsMsg.EmptyMsgData()
 	opsMsg.MsgType = OpsMsgTypeDEBUGMSG
-	opsMsg.MsgClass = OpsMsgClassDEBUG
 
 	opsMsg.setMessageText(msg, msgId)
+
+}
+
+// SetFatalError - Creates a Fatal Error message from an error type.
+//
+// Input Parameters
+// ****************
+//
+//  prefixMsg string	- The message text will be prefixed to the error text to create the final
+//											message text.
+//
+//	err error					- An error type containing error text which will be added to the end of the
+//											'prefixMsg' to create the final message text.
+//
+//	errMsg string			- The text of the Error Message
+//
+//	errNo	int64				- The number to be associated with this message. If 'errNo' is equal to zero,
+// 											no error number will be displayed in the final error message
+//
+func(opsMsg *OpsMsgDto) SetFatalError(prefixMsg string, err error, errId int64) {
+
+	var msg string
+
+	if prefixMsg != "" {
+		msg = prefixMsg + err.Error()
+	} else {
+		msg = err.Error()
+	}
+
+
+	opsMsg.EmptyMsgData()
+	opsMsg.MsgType = OpsMsgTypeFATALERRORMSG
+
+	opsMsg.setMessageText(msg, errId)
+
 
 }
 
@@ -922,10 +988,65 @@ func (opsMsg *OpsMsgDto) SetDebugMessage(msg string, msgId int64){
 func (opsMsg *OpsMsgDto) SetFatalErrorMessage(errMsg string, errId int64) {
 
 	opsMsg.EmptyMsgData()
-	opsMsg.MsgType = OpsMsgTypeERRORMSG
-	opsMsg.MsgClass = OpsMsgClassFATAL
+	opsMsg.MsgType = OpsMsgTypeFATALERRORMSG
 
 	opsMsg.setMessageText(errMsg, errId)
+
+}
+
+// SetFromError - Configure this OpsMsgDto object by
+// inputting an error type.
+//
+// Input Parameters
+// ****************
+//
+//  prefixMsg string	- The message text will be prefixed to the error text to create the final
+//											message text.
+//
+//	err error					- An error type containing error text which will be added to the end of the
+//											'prefixMsg' to create the final message text.
+//
+//	msgTyp3 OpsMsgType- This Type code specifies the type of message to be created.
+//
+//	errNo	int64				- The number to be associated with this message. If 'errNo' is equal to zero,
+// 											no error number will be displayed in the final error message
+//
+func (opsMsg *OpsMsgDto) SetFromError(prefixMsg string, err error, msgType OpsMsgType, errId int64) {
+
+	var msg string
+
+	if prefixMsg != "" {
+		msg = prefixMsg + err.Error()
+	} else {
+		msg = err.Error()
+	}
+
+	switch msgType {
+
+	case OpsMsgTypeNOERRORNOMSGS:
+		opsMsg.SetNoErrorsNoMessages(msg, errId)
+
+	case OpsMsgTypeERRORMSG:
+		opsMsg.SetStdErrorMessage(msg, errId)
+
+	case OpsMsgTypeFATALERRORMSG:
+		opsMsg.SetFatalErrorMessage(msg, errId)
+
+	case OpsMsgTypeINFOMSG:
+		opsMsg.SetInfoMessage(msg, errId)
+
+	case OpsMsgTypeWARNINGMSG:
+		opsMsg.SetWarningMessage(msg, errId)
+
+	case OpsMsgTypeDEBUGMSG:
+		opsMsg.SetWarningMessage(msg, errId)
+
+	case OpsMsgTypeSUCCESSFULCOMPLETION:
+		opsMsg.SetSuccessfulCompletionMessage(msg, errId)
+
+	default:
+		panic("OpsMsgDto.SetFromError() Error - INVALID OpsMsgType!")
+	}
 
 }
 
@@ -982,7 +1103,6 @@ func (opsMsg *OpsMsgDto) SetFromSpecErrMessage(se SpecErr) {
 func (opsMsg *OpsMsgDto) SetInfoMessage(msg string, msgId int64) {
 	opsMsg.EmptyMsgData()
 	opsMsg.MsgType = OpsMsgTypeINFOMSG
-	opsMsg.MsgClass = OpsMsgClassINFO
 
 	opsMsg.setMessageText(msg, msgId)
 }
@@ -1045,12 +1165,42 @@ func (opsMsg *OpsMsgDto) SetParentMessageContextHistory( parentHistory []OpsMsgC
 
 }
 
+// SetStdError - Configures a Standard Error message from an input error type.
+//
+// Input Parameters:
+// =================
+//
+// prefixMsg string		- This string will be prefixed the error string to produce
+//											the final message text.
+//
+// err error					- The text contained in this error type will be added to the
+//											prefixMsg string to produce the final message text.
+//
+// errId int64				- This error Id number will be added to the opsMsg.MsgContext.BaseMessageId
+//											to create the final Error or Message Number.
+//
+func (opsMsg *OpsMsgDto) SetStdError(prefixMsg string, err error, errId int64){
+
+	var msg string
+
+	if prefixMsg != "" {
+		msg = prefixMsg + err.Error()
+	} else {
+		msg = err.Error()
+	}
+
+	opsMsg.EmptyMsgData()
+	opsMsg.MsgType = OpsMsgTypeERRORMSG
+	opsMsg.setMessageText(msg, errId)
+
+
+}
+
 // SetStdErrorMessage - Configures the current or host
 // OpsMsgDto object as a standard error message.
 func (opsMsg *OpsMsgDto) SetStdErrorMessage(errMsg string, errId int64){
 	opsMsg.EmptyMsgData()
 	opsMsg.MsgType = OpsMsgTypeERRORMSG
-	opsMsg.MsgClass = OpsMsgClassOPERROR
 
 	opsMsg.setMessageText(errMsg, errId)
 
@@ -1062,8 +1212,7 @@ func (opsMsg *OpsMsgDto) SetStdErrorMessage(errMsg string, errId int64){
 func (opsMsg *OpsMsgDto) SetNoErrorsNoMessages(msg string, msgId int64) {
 
 	opsMsg.EmptyMsgData()
-	opsMsg.MsgType = OpsMsgTypeNOERRORNOMSG
-	opsMsg.MsgClass = OpsMsgClassNOERRORSNOMESSAGES
+	opsMsg.MsgType = OpsMsgTypeNOERRORNOMSGS
 
 	opsMsg.setMessageText(msg, msgId)
 
@@ -1074,7 +1223,6 @@ func (opsMsg *OpsMsgDto) SetNoErrorsNoMessages(msg string, msgId int64) {
 func (opsMsg *OpsMsgDto) SetSuccessfulCompletionMessage(msg string, msgId int64){
 	opsMsg.EmptyMsgData()
 	opsMsg.MsgType = OpsMsgTypeSUCCESSFULCOMPLETION
-	opsMsg.MsgClass = OpsMsgClassSUCCESSFULCOMPLETION
 
 	opsMsg.setMessageText( msg, msgId)
 
@@ -1085,7 +1233,6 @@ func (opsMsg *OpsMsgDto) SetSuccessfulCompletionMessage(msg string, msgId int64)
 func (opsMsg *OpsMsgDto) SetWarningMessage(msg string, msgId int64) {
 	opsMsg.EmptyMsgData()
 	opsMsg.MsgType = OpsMsgTypeWARNINGMSG
-	opsMsg.MsgClass = OpsMsgClassWARNING
 
 	opsMsg.setMessageText(msg, msgId)
 
@@ -1125,10 +1272,10 @@ func (opsMsg *OpsMsgDto) String() string {
 // banner line separator based on value of OpsMsgDto.MsgClass
 func (opsMsg *OpsMsgDto) setMsgParms() (banner1, banner2, title, numTitle, abbrvTitle string, ) {
 
-	switch opsMsg.MsgClass {
+	switch opsMsg.MsgType {
 
-	case OpsMsgClassNOERRORSNOMESSAGES:
-		// OpsMsgClassNOERRORSNOMESSAGES - 0 Signals uninitialized message
+	case OpsMsgTypeNOERRORNOMSGS:
+		// OpsMsgTypeNOERRORNOMSGS - 0 Signals uninitialized message
 		// with no errors and no messages
 		title = "No Errors and No Messages"
 		abbrvTitle = "No Errors-No Messages"
@@ -1136,48 +1283,48 @@ func (opsMsg *OpsMsgDto) setMsgParms() (banner1, banner2, title, numTitle, abbrv
 		banner1 = strings.Repeat("&", 78)
 		banner2 = strings.Repeat("-", 78)
 
-	case OpsMsgClassOPERROR:
-		// OpsMsgClassOPERROR - 1 Message is an Error Message
+	case OpsMsgTypeERRORMSG:
+		// OpsMsgTypeERRORMSG - 1 Message is an Error Message
 		title = "Standard ERROR Message"
 		abbrvTitle = "Standard ERROR Msg"
 		numTitle = "Error No"
 		banner1 = strings.Repeat("#", 78)
 		banner2 = strings.Repeat("-", 78)
 
-	case OpsMsgClassFATAL:
-		// OpsMsgClassFATAL - 2 Message is a Fatal Error Message
+	case OpsMsgTypeFATALERRORMSG:
+		// OpsMsgTypeFATALERRORMSG - 2 Message is a Fatal Error Message
 		title = "FATAL ERROR Message"
 		abbrvTitle = "FATAL ERROR Msg"
 		numTitle = "Error No"
 		banner1 = strings.Repeat("!", 78)
 		banner2 = strings.Repeat("-", 78)
 
-	case OpsMsgClassINFO:
-		// OpsMsgClassINFO - 3 Message is an Informational Message
+	case OpsMsgTypeINFOMSG:
+		// OpsMsgTypeINFOMSG - 3 Message is an Informational Message
 		title = "Information Message"
 		abbrvTitle = "Information Msg"
 		numTitle = "Msg No"
 		banner1 = strings.Repeat("*", 78)
 		banner2 = strings.Repeat("-", 78)
 
-	case OpsMsgClassWARNING:
-		// OpsMsgClassWARNING - 4 Message is a warning Message
+	case OpsMsgTypeWARNINGMSG:
+		// OpsMsgTypeWARNINGMSG - 4 Message is a warning Message
 		title = "WARNING Message"
 		abbrvTitle = "WARNING Msg"
 		numTitle = "Msg No"
 		banner1 = strings.Repeat("?", 78)
 		banner2 = strings.Repeat("-", 78)
 
-	case OpsMsgClassDEBUG:
-		// OpsMsgClassDEBUG - 5 Message is a Debug Message
+	case OpsMsgTypeDEBUGMSG:
+		// OpsMsgTypeDEBUGMSG - 5 Message is a Debug Message
 		title = "DEBUG Message"
 		abbrvTitle = "DEBUG Msg"
 		numTitle = " Number"
 		banner1 = strings.Repeat("@", 78)
 		banner2 = strings.Repeat("-", 78)
 
-	case OpsMsgClassSUCCESSFULCOMPLETION:
-		// OpsMsgClassSUCCESSFULCOMPLETION - 6 Message signalling successful
+	case OpsMsgTypeSUCCESSFULCOMPLETION:
+		// OpsMsgTypeSUCCESSFULCOMPLETION - 6 Message signalling successful
 		// completion of the operation
 		title = "Successful Completion"
 		abbrvTitle = "Successful Completion Msg"
@@ -1269,7 +1416,7 @@ func(opsMsg *OpsMsgDto) setMessageText(msg string, msgId int64) {
 
 	banner1, banner2, title, numTitle, abbrvTitle := opsMsg.setMsgParms()
 
-	if opsMsg.MsgClass == OpsMsgClassDEBUG {
+	if opsMsg.MsgType == OpsMsgTypeDEBUGMSG {
 		opsMsg.setDebugMsgText(banner1, banner2, title, numTitle)
 		opsMsg.setAbbreviatedMessageText(abbrvTitle)
 		return
@@ -1328,8 +1475,8 @@ func(opsMsg *OpsMsgDto) setFormatMessageText(banner1, banner2, title, numTitle s
 		m+= "\n" + str1
 	}
 
-	if opsMsg.MsgClass == OpsMsgClassOPERROR ||
-		opsMsg.MsgClass == OpsMsgClassFATAL {
+	if opsMsg.MsgType == OpsMsgTypeERRORMSG ||
+		opsMsg.MsgType == OpsMsgTypeFATALERRORMSG {
 
 		m += "\n" + nextBanner
 		nextBanner = banner2
