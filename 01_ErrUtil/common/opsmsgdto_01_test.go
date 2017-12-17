@@ -44,12 +44,86 @@ func TestOpsMsgDto_ParentHistory_02(t *testing.T) {
 		t.Errorf("Expected Parent Context History Length = 5. Instead, Parent Context History Lenth = '%v'", l)
 	}
 
+	if om.ParentContextHistory[0].SourceFileName != "TSource01" {
+		t.Errorf("Expected 1st OpsMsgContextInfo object in Parent Context History SourceFileName= 'TSource01'. Instead, SourceFileName= '%v'",om.ParentContextHistory[0].SourceFileName)
+	}
+
+	if om.ParentContextHistory[0].ParentObjectName != "PObj01" {
+		t.Errorf("Expected 1st OpsMsgContextInfo object in Parent Context History ParentObjectName= 'PObj01'. Instead, ParentObjectName= '%v'",om.ParentContextHistory[0].ParentObjectName)
+	}
+
+	if om.ParentContextHistory[0].FuncName != "Func001" {
+		t.Errorf("Expected 1st OpsMsgContextInfo object in Parent Context History FuncName= 'Func001'. Instead, ParentObjectName= '%v'",om.ParentContextHistory[0].FuncName)
+	}
+
+	if om.ParentContextHistory[0].BaseMessageId != int64(1000) {
+		t.Errorf("Expected 1st OpsMsgContextInfo object in Parent Context History BaseMessageId = 1000. Instead, BaseMessageId = '%v'", om.ParentContextHistory[0].BaseMessageId)
+	}
+
+	if om.ParentContextHistory[1].SourceFileName != "TSource02" {
+		t.Errorf("Expected 2nd OpsMsgContextInfo object in Parent Context History SourceFileName= 'TSource02'. Instead, SourceFileName= '%v'",om.ParentContextHistory[1].SourceFileName)
+	}
+
+
+	if om.ParentContextHistory[1].ParentObjectName != "PObj02" {
+		t.Errorf("Expected 2nd OpsMsgContextInfo object in Parent Context History ParentObjectName= 'PObj02'. Instead, ParentObjectName= '%v'",om.ParentContextHistory[1].ParentObjectName)
+	}
+
+	if om.ParentContextHistory[1].FuncName != "Func002" {
+		t.Errorf("Expected 2nd OpsMsgContextInfo object in Parent Context History FuncName= 'Func002'. Instead, ParentObjectName= '%v'",om.ParentContextHistory[1].FuncName)
+	}
+
+	if om.ParentContextHistory[1].BaseMessageId != int64(2000) {
+		t.Errorf("Expected 2nd OpsMsgContextInfo object in Parent Context History BaseMessageId = 2000. Instead, BaseMessageId = '%v'", om.ParentContextHistory[1].BaseMessageId)
+	}
+
+	if om.ParentContextHistory[2].SourceFileName != "TSource03" {
+		t.Errorf("Expected 3rd OpsMsgContextInfo object in Parent Context History SourceFileName= 'TSource03'. Instead, SourceFileName= '%v'",om.ParentContextHistory[2].SourceFileName)
+	}
+
+	if om.ParentContextHistory[2].ParentObjectName != "PObj03" {
+		t.Errorf("Expected 3rd OpsMsgContextInfo object in Parent Context History ParentObjectName= 'PObj03'. Instead, ParentObjectName= '%v'",om.ParentContextHistory[2].ParentObjectName)
+	}
+
 	if om.ParentContextHistory[2].FuncName != "Func003" {
 		t.Errorf("Expected 3rd OpsMsgContextInfo object in Parent Context History FuncName= 'Func003'. Instead, FuncName= '%v'",om.ParentContextHistory[2].FuncName)
 	}
 
+	if om.ParentContextHistory[2].BaseMessageId != int64(3000) {
+		t.Errorf("Expected 3rd OpsMsgContextInfo object in Parent Context History BaseMessageId = 3000. Instead, BaseMessageId = '%v'", om.ParentContextHistory[2].BaseMessageId)
+	}
+
+
+	if om.ParentContextHistory[3].SourceFileName != "TSource04" {
+		t.Errorf("Expected 4th OpsMsgContextInfo object in Parent Context History SourceFileName= 'TSource04'. Instead, SourceFileName= '%v'",om.ParentContextHistory[3].SourceFileName)
+	}
+
+	if om.ParentContextHistory[3].ParentObjectName != "PObj04" {
+		t.Errorf("Expected 4th OpsMsgContextInfo object in Parent Context History ParentObjectName= 'PObj04'. Instead, ParentObjectName= '%v'",om.ParentContextHistory[3].ParentObjectName)
+	}
+
+	if om.ParentContextHistory[3].FuncName != "Func004" {
+		t.Errorf("Expected 4th OpsMsgContextInfo object in Parent Context History FuncName= 'Func004'. Instead, FuncName= '%v'",om.ParentContextHistory[3].FuncName)
+	}
+
 	if om.ParentContextHistory[3].BaseMessageId != int64(4000) {
 		t.Errorf("Expected 4th OpsMsgContextInfo object in Parent Context History BaseMessageId = 4000. Instead, BaseMessageId = '%v'", om.ParentContextHistory[3].BaseMessageId)
+	}
+
+	if om.ParentContextHistory[4].SourceFileName != "TSource05" {
+		t.Errorf("Expected 5th OpsMsgContextInfo object in Parent Context History SourceFileName= 'TSource05'. Instead, SourceFileName= '%v'",om.ParentContextHistory[4].SourceFileName)
+	}
+
+	if om.ParentContextHistory[4].ParentObjectName != "PObj05" {
+		t.Errorf("Expected 5th OpsMsgContextInfo object in Parent Context History ParentObjectName = 'PObj05'. Instead, ParentObjectName = '%v'", om.ParentContextHistory[4].ParentObjectName)
+	}
+
+	if om.ParentContextHistory[4].FuncName != "Func005" {
+		t.Errorf("Expected 5th OpsMsgContextInfo object in Parent Context History FuncName= 'Func005'. Instead, FuncName= '%v'",om.ParentContextHistory[4].FuncName)
+	}
+
+	if om.ParentContextHistory[4].BaseMessageId != int64(5000) {
+		t.Errorf("Expected 5th OpsMsgContextInfo object in Parent Context History BaseMessageId = 5000. Instead, BaseMessageId = '%v'", om.ParentContextHistory[4].BaseMessageId)
 	}
 
 }
@@ -74,22 +148,78 @@ func TestOpsMsgDto_InitializeContextInfo_01(t *testing.T) {
 		t.Errorf("Expected 1st OpsMsgContextInfo object in Parent Context History ParentObjectName= 'PObj01'. Instead, ParentObjectName= '%v'",om.ParentContextHistory[0].ParentObjectName)
 	}
 
+	if om.ParentContextHistory[0].FuncName != "Func001" {
+		t.Errorf("Expected 1st OpsMsgContextInfo object in Parent Context History FuncName= 'Func001'. Instead, ParentObjectName= '%v'",om.ParentContextHistory[0].FuncName)
+	}
+
+	if om.ParentContextHistory[0].BaseMessageId != int64(1000) {
+		t.Errorf("Expected 1st OpsMsgContextInfo object in Parent Context History BaseMessageId = 1000. Instead, BaseMessageId = '%v'", om.ParentContextHistory[0].BaseMessageId)
+	}
+
+	if om.ParentContextHistory[1].SourceFileName != "TSource02" {
+		t.Errorf("Expected 2nd OpsMsgContextInfo object in Parent Context History SourceFileName= 'TSource02'. Instead, SourceFileName= '%v'",om.ParentContextHistory[1].SourceFileName)
+	}
+
 
 	if om.ParentContextHistory[1].ParentObjectName != "PObj02" {
 		t.Errorf("Expected 2nd OpsMsgContextInfo object in Parent Context History ParentObjectName= 'PObj02'. Instead, ParentObjectName= '%v'",om.ParentContextHistory[1].ParentObjectName)
 	}
 
+	if om.ParentContextHistory[1].FuncName != "Func002" {
+		t.Errorf("Expected 2nd OpsMsgContextInfo object in Parent Context History FuncName= 'Func002'. Instead, ParentObjectName= '%v'",om.ParentContextHistory[1].FuncName)
+	}
+
+	if om.ParentContextHistory[1].BaseMessageId != int64(2000) {
+		t.Errorf("Expected 2nd OpsMsgContextInfo object in Parent Context History BaseMessageId = 2000. Instead, BaseMessageId = '%v'", om.ParentContextHistory[1].BaseMessageId)
+	}
+
+	if om.ParentContextHistory[2].SourceFileName != "TSource03" {
+		t.Errorf("Expected 3rd OpsMsgContextInfo object in Parent Context History SourceFileName= 'TSource03'. Instead, SourceFileName= '%v'",om.ParentContextHistory[2].SourceFileName)
+	}
+
+	if om.ParentContextHistory[2].ParentObjectName != "PObj03" {
+		t.Errorf("Expected 3rd OpsMsgContextInfo object in Parent Context History ParentObjectName= 'PObj03'. Instead, ParentObjectName= '%v'",om.ParentContextHistory[2].ParentObjectName)
+	}
 
 	if om.ParentContextHistory[2].FuncName != "Func003" {
 		t.Errorf("Expected 3rd OpsMsgContextInfo object in Parent Context History FuncName= 'Func003'. Instead, FuncName= '%v'",om.ParentContextHistory[2].FuncName)
+	}
+
+	if om.ParentContextHistory[2].BaseMessageId != int64(3000) {
+		t.Errorf("Expected 3rd OpsMsgContextInfo object in Parent Context History BaseMessageId = 3000. Instead, BaseMessageId = '%v'", om.ParentContextHistory[2].BaseMessageId)
+	}
+
+
+	if om.ParentContextHistory[3].SourceFileName != "TSource04" {
+		t.Errorf("Expected 4th OpsMsgContextInfo object in Parent Context History SourceFileName= 'TSource04'. Instead, SourceFileName= '%v'",om.ParentContextHistory[3].SourceFileName)
+	}
+
+	if om.ParentContextHistory[3].ParentObjectName != "PObj04" {
+		t.Errorf("Expected 4th OpsMsgContextInfo object in Parent Context History ParentObjectName= 'PObj04'. Instead, ParentObjectName= '%v'",om.ParentContextHistory[3].ParentObjectName)
+	}
+
+	if om.ParentContextHistory[3].FuncName != "Func004" {
+		t.Errorf("Expected 4th OpsMsgContextInfo object in Parent Context History FuncName= 'Func004'. Instead, FuncName= '%v'",om.ParentContextHistory[3].FuncName)
 	}
 
 	if om.ParentContextHistory[3].BaseMessageId != int64(4000) {
 		t.Errorf("Expected 4th OpsMsgContextInfo object in Parent Context History BaseMessageId = 4000. Instead, BaseMessageId = '%v'", om.ParentContextHistory[3].BaseMessageId)
 	}
 
+	if om.ParentContextHistory[4].SourceFileName != "TSource05" {
+		t.Errorf("Expected 5th OpsMsgContextInfo object in Parent Context History SourceFileName= 'TSource05'. Instead, SourceFileName= '%v'",om.ParentContextHistory[4].SourceFileName)
+	}
+
 	if om.ParentContextHistory[4].ParentObjectName != "PObj05" {
 		t.Errorf("Expected 5th OpsMsgContextInfo object in Parent Context History ParentObjectName = 'PObj05'. Instead, ParentObjectName = '%v'", om.ParentContextHistory[4].ParentObjectName)
+	}
+
+	if om.ParentContextHistory[4].FuncName != "Func005" {
+		t.Errorf("Expected 5th OpsMsgContextInfo object in Parent Context History FuncName= 'Func005'. Instead, FuncName= '%v'",om.ParentContextHistory[4].FuncName)
+	}
+
+	if om.ParentContextHistory[4].BaseMessageId != int64(5000) {
+		t.Errorf("Expected 5th OpsMsgContextInfo object in Parent Context History BaseMessageId = 5000. Instead, BaseMessageId = '%v'", om.ParentContextHistory[4].BaseMessageId)
 	}
 
 	if om.MsgContext.SourceFileName != "TSource06" {
@@ -1272,4 +1402,29 @@ func testOpsMsgDtoCreateNoErrorsNoMessagesMsg() OpsMsgDto {
 	om := OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
 	om.SetNoErrorsNoMessages("", 28)
 	return om
+}
+
+func testOpsMsgDtoCreateSpecErrParentBaseInfo5Elements() []ErrBaseInfo {
+	parentBaseInfo := make([]ErrBaseInfo, 0, 10)
+	bi := ErrBaseInfo{}
+
+	a := bi.New("TSource01", "PObj01", "Func001", 1000)
+	b := bi.New("TSource02", "PObj02", "Func002", 2000)
+	c := bi.New("TSource03", "PObj03", "Func003", 3000)
+	d := bi.New("TSource04", "PObj04", "Func004", 4000)
+	e := bi.New("TSource05", "PObj05", "Func005", 5000)
+
+	parentBaseInfo = append(parentBaseInfo, a, b, c, d, e)
+
+
+	return parentBaseInfo
+}
+
+
+func testOpsMsgDtoCreateSpecErrBaseInfoObject() ErrBaseInfo {
+	bi := ErrBaseInfo{}
+
+	a := bi.New("TSource06", "PObj06", "Func006", 6000)
+
+	return a
 }
