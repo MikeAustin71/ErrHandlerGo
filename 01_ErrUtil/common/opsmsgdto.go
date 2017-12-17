@@ -18,6 +18,13 @@ import (
 
 			NONE
 
+
+		NOTE:
+		=====
+		The 'OpsMsgDto' type supersedes and replaces the 'SpecErr' type also
+		found in this source code repository.
+
+
 		Message Formats:
 		================
 		Depending on the setting for OpsMsgDto field 'UseFormattedMsg', two
