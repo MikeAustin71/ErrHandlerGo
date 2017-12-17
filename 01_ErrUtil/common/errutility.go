@@ -14,14 +14,48 @@ import (
 
 						https://github.com/MikeAustin71/ErrHandlerGo.git
 
-	Dependencies:
-	=============
 
-	This file depends on utility routines provided by source code
-	file, 'datetimeutility.go'. This source code file is located
-	in the source code repository:
+		Dependencies:
+		=============
 
-						https://github.com/MikeAustin71/datetimeopsgo.git
+			NONE
+
+
+		Message Formats:
+		================
+		Depending on the setting for SpecErr field 'UseFormattedMsg', two
+		types of message formatting are employed. This is an example of a
+		fully formatted message for display output:
+   --------------------------------------------------------------------------------
+
+	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+									Fatal Error Message                                ErrNo: 6224
+	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	 IsError: true     Is Panic/Fatal Error: false
+	------------------------------------------------------------------------------
+	 Message: This is Fatal Error Message.
+	------------------------------------------------------------------------------
+	 Parent Context Info:
+		SrcFile: TSource01 -ParentObj: PObj01 -FuncName: Func001 -BaseMsgId: 1000
+		SrcFile: TSource02 -ParentObj: PObj02 -FuncName: Func002 -BaseMsgId: 2000
+		SrcFile: TSource03 -ParentObj: PObj03 -FuncName: Func003 -BaseMsgId: 3000
+		SrcFile: TSource04 -ParentObj: PObj04 -FuncName: Func004 -BaseMsgId: 4000
+		SrcFile: TSource05 -ParentObj: PObj05 -FuncName: Func005 -BaseMsgId: 5000
+	------------------------------------------------------------------------------
+	 Current Base Context Info:
+		SrcFile: TSource06 -ParentObj: PObj06 -FuncName: Func006 -BaseMsgId: 6000
+	------------------------------------------------------------------------------
+		 UTC Time: 2017-12-17 Sun 00:39:49.231005700 +0000 UTC
+	 Local Time: 2017-12-16 Sat 18:39:49.231005700 -0600 CST
+	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   --------------------------------------------------------------------------------
+		The second type of message output mode is an abbreviated message text. This is
+		an example of an abbreviated message text
+   --------------------------------------------------------------------------------
+
+		FATAL ERROR Msg No: 6224 - 12/16/2017 18:44:26.140129600 -0600 CST - This is Fatal Error Message.
+
 */
 
 // SpecErrMsgType - a series of constants used to describe
@@ -57,6 +91,10 @@ const (
 	// only.
 	SpecErrTypeINFO
 
+	// SpecErrTypeDEBUG - NOT an error. This is an informational
+	// Debug message.
+	SpecErrTypeDEBUG
+
 	// SpecErrTypeSUCCESSFULCOMPLETION - Signals that the operation
 	// completed successfully with no errors.
 	SpecErrTypeSUCCESSFULCOMPLETION
@@ -64,7 +102,7 @@ const (
 )
 
 // ErrMsgTypeNames - String Array holding Error Message Type names.
-var ErrMsgTypeNames = [...]string{"NOERRORSALLCLEAR","FATAL", "ERROR", "WARNING", "INFO","SUCCESS"}
+var ErrMsgTypeNames = [...]string{"NOERRORSALLCLEAR","FATAL", "ERROR", "WARNING", "INFO","DEBUG",	"SUCCESS"}
 
 // ErrBaseInfo is intended for use with
 // the SpecErr Structure. It sets up base
@@ -133,18 +171,20 @@ func (b ErrBaseInfo) GetNewParentInfo(srcFile, parentObj, funcName string, baseE
 // SpecErr - A data structure used
 // to hold custom error information
 type SpecErr struct {
-	ParentInfo         	[]ErrBaseInfo
-	BaseInfo           	ErrBaseInfo
-	ErrorMsgTimeUTC    	time.Time
-	ErrorMsgTimeLocal  	time.Time
-	ErrorLocalTimeZone 	string
-	ErrorMsgType				SpecErrMsgType
-	IsErr              	bool
-	IsPanic            	bool
-	ErrMsg             	string	// Original Error Message passed in by caller
-	FmtErrMsg						string	// Formatted Error Message
-	ErrId								int64		// Original Error Id Number
-	ErrNo              	int64   // Error Id + BaseInfo.BaseErrId
+	ParentInfo         []ErrBaseInfo
+	BaseInfo           ErrBaseInfo
+	ErrorMsgTimeUTC    time.Time
+	ErrorMsgTimeLocal  time.Time
+	ErrorLocalTimeZone string
+	ErrorMsgType       SpecErrMsgType
+	IsErr              bool
+	IsPanic            bool
+	UseFormattedMsg    bool
+	ErrMsg             string // Original Error Message passed in by caller
+	fmtErrMsg          string // Fully Formatted Error Message
+	abbrvErrMsg        string // Abbreviated Error Message
+	errId              int64  // Original Error Id Number
+	errNo              int64  // Error Id + BaseInfo.BaseErrId
 }
 
 
@@ -245,9 +285,9 @@ func (s *SpecErr) CopyIn(s2 SpecErr) {
 	s.IsErr              	= s2.IsErr
 	s.IsPanic            	= s2.IsPanic
 	s.ErrMsg             	= s2.ErrMsg
-	s.FmtErrMsg           = s2.FmtErrMsg
-	s.ErrId								= s2.ErrId
-	s.ErrNo              	= s2.ErrNo
+	s.fmtErrMsg = s2.fmtErrMsg
+	s.errId = s2.errId
+	s.errNo = s2.errNo
 }
 
 // CopyOut - Creates a deep copy of the
@@ -263,9 +303,9 @@ func (s *SpecErr) CopyOut() SpecErr {
 	se.IsErr              	= s.IsErr
 	se.IsPanic            	= s.IsPanic
 	se.ErrMsg             	= s.ErrMsg
-	se.FmtErrMsg            = s.FmtErrMsg
-	se.ErrId								= s.ErrId
-	se.ErrNo              	= s.ErrNo
+	se.fmtErrMsg = s.fmtErrMsg
+	se.errId = s.errId
+	se.errNo = s.errNo
 
 	return se
 }
@@ -319,9 +359,9 @@ func (s *SpecErr) Equal( s2 *SpecErr) bool {
 			s.IsErr								!= s2.IsErr              	||
 			s.IsPanic							!= s2.IsPanic            	||
 			s.ErrMsg 							!= s2.ErrMsg             	||
-			s.FmtErrMsg           != s2.FmtErrMsg 					||
-			s.ErrId								!= s2.ErrId   						||
-			s.ErrNo 							!= s2.ErrNo {
+			s.fmtErrMsg != s2.fmtErrMsg ||
+			s.errId != s2.errId ||
+			s.errNo != s2.errNo {
 
 			return false
 	}
@@ -348,9 +388,9 @@ func (s *SpecErr) EmptyMsgData() {
 	s.IsErr              	= false
 	s.IsPanic            	= false
 	s.ErrMsg             	= ""
-	s.FmtErrMsg						= ""
-	s.ErrId								= int64(0)
-	s.ErrNo              	= int64(0)
+	s.fmtErrMsg = ""
+	s.errId = int64(0)
+	s.errNo = int64(0)
 }
 
 
@@ -359,8 +399,25 @@ func (s *SpecErr) EmptyMsgData() {
 // message as a string.
 func (s SpecErr) Error() string {
 
-	return s.FmtErrMsg
+	if s.UseFormattedMsg {
+		return s.fmtErrMsg
+	}
 
+	return s.abbrvErrMsg
+}
+
+// GetErrorId - Returns the Error Id (field= 'errId')
+// for the current SpecErr object.
+func (s *SpecErr) GetErrorId() int64 {
+	return s.errId
+}
+
+// GetErrorNumber - returns the Error Number
+// (field= 'errNo) for the current SpecErr object.
+// The 'errNo' is equal to 'errId' plus 'SpecErr.BaseInfo.BaseErrorId'
+func (s *SpecErr) GetErrorNumber() int64 {
+
+	return s.errNo
 }
 
 // InitializeBaseInfoWithSpecErr - Initialize a SpecErr object by passing in a parent SpecErr object and
@@ -420,7 +477,14 @@ func (s SpecErr) Initialize(parent []ErrBaseInfo, bi ErrBaseInfo, err error, err
 
 }
 
+// ModifyMsg - Change the existing message text.
+// Note: this will NOT change the message type.
+// Only the message text is affected.
+func (s *SpecErr) ModifyMsg(msg string, msgId int64){
 
+	s.setMessageText(msg, msgId)
+
+}
 
 // New - Creates new SpecErr Type. Uses existing
 // Parent and ErrBaseInfo data. The error is based on
@@ -641,7 +705,7 @@ func (s *SpecErr) SetFatalError(errMsg string, errNo int64) {
 	s.ErrorMsgType	= SpecErrTypeFATAL
 	s.IsErr  = true
 	s.IsPanic = false
-	s.setFormatMessage(errMsg, errNo)
+	s.setMessageText(errMsg, errNo)
 
 
 }
@@ -653,7 +717,17 @@ func (s *SpecErr) SetInfoMessage(infoMsg string, msgId int64) {
 	s.ErrorMsgType	= SpecErrTypeINFO
 	s.IsErr  = false
 	s.IsPanic = false
-	s.setFormatMessage(infoMsg, msgId)
+	s.setMessageText(infoMsg, msgId)
+}
+
+
+
+// SetMessageOutputMode- This method is used to set the message output mode.
+// If the input parameter, 'isFullyFormattedMsg' is set to 'true', the methods
+// String() and Error() will return fully formatted messages.
+//
+func (s *SpecErr) SetMessageOutputMode(isFullyFormattedMsg bool) {
+	s.UseFormattedMsg = isFullyFormattedMsg
 }
 
 // SetNoErrorsNoMessages - Sets or default
@@ -661,7 +735,7 @@ func (s *SpecErr) SetInfoMessage(infoMsg string, msgId int64) {
 // SpecErrType= SpecErrTypeNOERRORSALLCLEAR
 func (s *SpecErr) SetNoErrorsNoMessages(msg string, msgNo int64) {
 	s.EmptyMsgData()
-	s.setFormatMessage(msg, msgNo)
+	s.setMessageText(msg, msgNo)
 }
 
 // SetParentInfo - Sets the ParentInfo Slice for
@@ -683,7 +757,7 @@ func (s *SpecErr) SetStdError(errMsg string, errId int64) {
 	s.ErrorMsgType	= SpecErrTypeERROR
 	s.IsErr  = true
 	s.IsPanic = false
-	s.setFormatMessage(errMsg, errId)
+	s.setMessageText(errMsg, errId)
 }
 
 // SetSuccessfulCompletion - Sets values for the current
@@ -694,7 +768,7 @@ func (s *SpecErr) SetSuccessfulCompletion(msg string, msgId int64) {
 	s.IsPanic = false
 	s.ErrorMsgType = SpecErrTypeSUCCESSFULCOMPLETION
 
-	s.setFormatMessage(msg, msgId)
+	s.setMessageText(msg, msgId)
 }
 
 // SetWarningMessage - Sets the value of the current SpecErr object to a
@@ -704,13 +778,19 @@ func (s *SpecErr) SetWarningMessage(warningMsg string, msgId int64) {
 	s.ErrorMsgType	= SpecErrTypeWARNING
 	s.IsErr  = false
 	s.IsPanic = false
-	s.setFormatMessage(warningMsg, msgId)
+	s.setMessageText(warningMsg, msgId)
 }
 
 // String - Returns the string message
 // compiled by the Error() method.
 func (s SpecErr) String() string {
-	return s.Error()
+
+	if s.UseFormattedMsg {
+
+		return s.fmtErrMsg
+	}
+
+	return s.abbrvErrMsg
 }
 
 /*
@@ -722,7 +802,7 @@ func (s SpecErr) String() string {
 
 // setMessageText - Sets the original message and formats
 // the message for display
-func(s *SpecErr) setFormatMessage(msg string, msgNo int64){
+func(s *SpecErr) setMessageText(msg string, msgNo int64){
 
 	s.setMsgIdMsgNo(msgNo)
 
@@ -730,10 +810,112 @@ func(s *SpecErr) setFormatMessage(msg string, msgNo int64){
 
 	s.ErrMsg = msg
 
-	banner1, banner2, mTitle, numTitle := s.setMsgParms()
+	s.UseFormattedMsg = true
+
+	banner1, banner2, mTitle, numTitle, abbrvTitle := s.setMsgParms()
+
+	if s.ErrorMsgType == SpecErrTypeDEBUG {
+		s.setDebugMsgText(banner1, banner2, mTitle, numTitle)
+		s.setAbbreviatedMessageText(abbrvTitle)
+		return
+	}
+
+	s.setFormatMessageText(banner1, banner2, mTitle, numTitle)
+
+	s.setAbbreviatedMessageText(abbrvTitle)
+}
+
+
+func (s *SpecErr) setAbbreviatedMessageText(abbrvTitle string) {
 
 	var m string
-	dt := DateTimeUtility{}
+
+	m = "\n\n"
+	m += "\n" + abbrvTitle
+
+	if s.errNo != 0 {
+		m+= fmt.Sprintf(" No: %v - ", s.errNo)
+	} else {
+		m+= " - "
+	}
+
+	dtFmt := "01/02/2006 15:04:05.000000000 -0700 MST"
+	m += s.ErrorMsgTimeLocal.Format(dtFmt)
+	m += " - "
+	m += s.ErrMsg
+
+	s.abbrvErrMsg = m
+
+
+}
+
+func(s *SpecErr) setDebugMsgText(banner1, banner2, title, numTitle string) {
+
+	m := "\n\n"
+	m += "\n" + banner1
+
+	if s.errNo != 0 {
+		m += fmt.Sprintf("\n %v %v: %v", title, numTitle, s.errNo)
+	} else {
+		m += fmt.Sprintf("\n %v -", title)
+	}
+
+	m += "\n  " + s.ErrMsg
+
+	l1 := len(s.ParentInfo)
+	if l1 > 0 {
+		m += "\n" + banner2
+		m += "\n Parent Context History:"
+		for i:=0; i < l1; i++ {
+			m+= "\n  Src File: " + s.ParentInfo[i].SourceFileName
+			m+= "   Parent Obj: " + s.ParentInfo[i].ParentObjectName
+			m+= "   Func Name: " + s.ParentInfo[i].FuncName
+		}
+
+	}
+
+	if s.BaseInfo.SourceFileName != "" ||
+		s.BaseInfo.ParentObjectName != "" ||
+		s.BaseInfo.FuncName != "" {
+
+		m += "\n" + banner2
+		m += "\n Current Message Context:"
+		if s.BaseInfo.SourceFileName != "" {
+			m+= "\n  Src File: " + s.BaseInfo.SourceFileName
+		}
+
+		if s.BaseInfo.ParentObjectName != "" {
+			m+= "   Parent Obj: " + s.BaseInfo.ParentObjectName
+		}
+
+		if s.BaseInfo.FuncName != "" {
+			m+= "   Func Name: " + s.BaseInfo.FuncName
+		}
+	}
+
+	// FmtDateTimeTzNanoYMD
+
+	localTz := s.ErrorLocalTimeZone
+	dtFmt := "01/02/2006 15:04:05.000000000 -0700 MST"
+	if localTz == "Local" || localTz == "local" {
+		localZone, _ := time.Now().Zone()
+		localTz += " - " + localZone
+	}
+	m += "\n" + banner2
+	m += "\n   UTC Time: " + s.ErrorMsgTimeUTC.Format(dtFmt)
+	m += "\n Local Time: " + s.ErrorMsgTimeLocal.Format(dtFmt) + "   Time Zone: " + localTz
+
+	m += "\n" + banner1
+
+
+	s.fmtErrMsg =  m
+}
+
+// setFormatMessageText - Called internally. Sets the
+// fully formatted message text.
+func (s *SpecErr) setFormatMessageText(banner1, banner2, mTitle, numTitle string) {
+	var m string
+
 	dtfmt := "2006-01-02 Mon 15:04:05.000000000 -0700 MST"
 	lineWidth := len(banner1)
 
@@ -745,8 +927,8 @@ func(s *SpecErr) setFormatMessage(msg string, msgNo int64){
 	s1 := (lineWidth / 3) * 2
 	s2 := lineWidth - s1
 
-	if s.ErrNo != 0 {
-		sNo:= fmt.Sprintf("%v: %v", numTitle, s.ErrNo)
+	if s.errNo != 0 {
+		sNo:= fmt.Sprintf("%v: %v", numTitle, s.errNo)
 		str1, _ := s.strCenterInStr(mTitle, s1)
 		str2, _ := s.strRightJustify(sNo, s2)
 		m+= "\n" + str1 + str2
@@ -798,7 +980,7 @@ func(s *SpecErr) setFormatMessage(msg string, msgNo int64){
 			m += " -ParentObj: " + bi.ParentObjectName
 			m += " -FuncName: " + bi.FuncName
 			m += " -BaseMsgId: " + fmt.Sprintf("%v", bi.BaseErrorId)
-			}
+		}
 	}
 
 
@@ -831,23 +1013,24 @@ func(s *SpecErr) setFormatMessage(msg string, msgNo int64){
 
 	m += "\n" + nextBanner
 	nextBanner = banner2
-	m += fmt.Sprintf("\n   UTC Time: %v", dt.GetDateTimeCustomFmt(s.ErrorMsgTimeUTC, dtfmt))
-	m += fmt.Sprintf("\n Local Time: %v", dt.GetDateTimeCustomFmt(s.ErrorMsgTimeLocal, dtfmt))
+	m += fmt.Sprintf("\n   UTC Time: %v", s.ErrorMsgTimeUTC.Format(dtfmt))
+	m += fmt.Sprintf("\n Local Time: %v", s.ErrorMsgTimeLocal.Format(dtfmt))
 	m += "\n" + banner1
 
-	s.FmtErrMsg = m
+	s.fmtErrMsg = m
 	return
 
 }
 
 // setMsgParms - Set Message Parameters.
 // Called by SpecErr.setMessageText()
-func(s *SpecErr) setMsgParms() (banner1, banner2, title, numTitle string) {
+func (s *SpecErr) setMsgParms() (banner1, banner2, title, numTitle, abbrvTitle string) {
 
 	switch s.ErrorMsgType {
 
 	case SpecErrTypeNOERRORSALLCLEAR:
 		title = "No Errors - No Messages"
+		abbrvTitle = "No Errors-No Messages"
 		banner1 =  strings.Repeat("&", 78)
 		banner2 =  strings.Repeat("-", 78)
 		numTitle = "MsgNo"
@@ -856,12 +1039,14 @@ func(s *SpecErr) setMsgParms() (banner1, banner2, title, numTitle string) {
 		banner1 =  strings.Repeat("#", 78)
 		banner2 =  strings.Repeat("-", 78)
 		title = "Standard Error Message"
+		abbrvTitle = "Standard ERROR Msg"
 		numTitle = "ErrNo"
 
 	case SpecErrTypeFATAL:
 		banner1 =  strings.Repeat("!", 78)
 		banner2 =  strings.Repeat("-", 78)
 		title = "Fatal Error Message"
+		abbrvTitle = "FATAL ERROR Msg"
 		numTitle = "ErrNo"
 
 	case SpecErrTypeINFO:
@@ -869,35 +1054,38 @@ func(s *SpecErr) setMsgParms() (banner1, banner2, title, numTitle string) {
 		banner1 =  strings.Repeat("*", 78)
 		banner2 =  strings.Repeat("-", 78)
 		title = "Information Message"
+		abbrvTitle = "Information Msg"
 		numTitle = "InfoMsgNo"
 
 	case SpecErrTypeWARNING:
 		banner1 =  strings.Repeat("?", 78)
 		banner2 =  strings.Repeat("-", 78)
 		title = "Warning Message"
+		abbrvTitle = "WARNING Msg"
 		numTitle = "WarningMsgNo"
 
 	case SpecErrTypeSUCCESSFULCOMPLETION:
 		banner1 =  strings.Repeat("$", 78)
 		banner2 =  strings.Repeat("-", 78)
 		title = "Successful Completion"
+		abbrvTitle = "Successful Completion Msg"
 		numTitle = "MsgNo"
 
 	default:
 		panic("SpecErr.setMsgParms() - INVALID SpecErrType")
 	}
 
-	return banner1, banner2, title, numTitle
+	return banner1, banner2, title, numTitle, abbrvTitle
 }
 
 func(s *SpecErr) setMsgIdMsgNo(msgId int64){
 
 	if msgId == 0 {
-		s.ErrId = 0
-		s.ErrNo = 0
+		s.errId = 0
+		s.errNo = 0
 	} else {
-		s.ErrId = msgId
-		s.ErrNo = s.ErrId + s.BaseInfo.BaseErrorId
+		s.errId = msgId
+		s.errNo = s.errId + s.BaseInfo.BaseErrorId
 	}
 }
 

@@ -42,8 +42,8 @@ func TestErrorUtility_01(t *testing.T) {
 		t.Error(fmt.Sprintf("Expected '%v' got", ex2), x.BaseInfo.FuncName)
 	}
 
-	if x.ErrNo != ex7 {
-		t.Error(fmt.Sprintf("Expected '%v' got", ex7), x.ErrNo)
+	if x.errNo != ex7 {
+		t.Error(fmt.Sprintf("Expected '%v' got", ex7), x.errNo)
 	}
 
 }
@@ -171,8 +171,8 @@ func TestSetErrDetail(t *testing.T) {
 
 	x := SpecErr{}.InitializeBaseInfo(a, bi).New(err, SpecErrTypeFATAL, ex5)
 
-	if x.ErrNo != ex7 {
-		t.Error(fmt.Sprintf("Expected Err No '%v', got", ex7), x.ErrNo)
+	if x.errNo != ex7 {
+		t.Error(fmt.Sprintf("Expected Err No '%v', got", ex7), x.errNo)
 	}
 
 	if x.BaseInfo.SourceFileName != ex1 {
@@ -253,8 +253,8 @@ func TestQuickInitialize(t *testing.T) {
 
 	x := SpecErr{}.New(err, SpecErrTypeERROR, ex4)
 
-	if x.ErrNo != ex4 {
-		t.Error(fmt.Sprintf("Expected ErrNo: '%v', got", ex4), x.ErrNo)
+	if x.errNo != ex4 {
+		t.Error(fmt.Sprintf("Expected errNo: '%v', got", ex4), x.errNo)
 	}
 
 	if x.ErrMsg != ex2 {
@@ -309,8 +309,8 @@ func TestFullInitialize(t *testing.T) {
 		t.Errorf("Expected IsPanic == '%v'. Instead IsPannic=='%v'", ex5, x.IsPanic)
 	}
 
-	if x.ErrNo != ex7 {
-		t.Error(fmt.Sprintf("Expected ErrNo '%v', got", ex7), x.ErrNo)
+	if x.errNo != ex7 {
+		t.Error(fmt.Sprintf("Expected errNo '%v', got", ex7), x.errNo)
 	}
 
 	if x.BaseInfo.SourceFileName != ex21 {
@@ -352,8 +352,8 @@ func TestBlankInitialize(t *testing.T) {
 		t.Error(fmt.Sprintf("Expected IsPanic == '%v', got", ex3), x.IsPanic)
 	}
 
-	if x.ErrNo != ex4 {
-		t.Error(fmt.Sprintf("Expected ErrNo '%v', got", ex4), x.ErrNo)
+	if x.errNo != ex4 {
+		t.Error(fmt.Sprintf("Expected errNo '%v', got", ex4), x.errNo)
 	}
 
 	if x.BaseInfo.SourceFileName != "" {
@@ -508,7 +508,7 @@ func TestSpecErr_NewErrorMsgString_02(t *testing.T) {
 
 	errResult := s.Error()
 
-	hasErrNo := strings.Contains(errResult, "ErrNo:")
+	hasErrNo := strings.Contains(errResult, "errNo:")
 
 	if true == hasErrNo {
 		t.Error("Due to Error Number=Zero, expected error message WITHOUT Error Number. Instead, Error Number was included in Error Message")
@@ -555,8 +555,8 @@ func TestSpecErr_ConfigureParentInfoFromParentSpecErr01(t *testing.T) {
 		t.Errorf("Expected se2.ParentInfo[5].ParentObjectName != 'TestObject6'. Instead ObjectName='%v'", se2.ParentInfo[5].ParentObjectName)
 	}
 
-	if se2.ErrNo != 7902 {
-		t.Errorf("Expected se2.ErrNo== 7902.  Instead, se2.ErrNo== '%v'", se2.ErrNo)
+	if se2.errNo != 7902 {
+		t.Errorf("Expected se2.errNo== 7902.  Instead, se2.errNo== '%v'", se2.errNo)
 	}
 
 	msg := se2.Error()
@@ -597,8 +597,8 @@ func TestSpecErr_InitializeBaseInfoWithSpecErr01(t *testing.T) {
 		t.Errorf("Expected se2.ParentInfo[5].ParentObjectName != 'TestObject6'. Instead ObjectName='%v'", se2.ParentInfo[5].ParentObjectName)
 	}
 
-	if se2.ErrNo != 7902 {
-		t.Errorf("Expected se2.ErrNo== 7902.  Instead, se2.ErrNo== '%v'", se2.ErrNo)
+	if se2.errNo != 7902 {
+		t.Errorf("Expected se2.errNo== 7902.  Instead, se2.errNo== '%v'", se2.errNo)
 	}
 
 	msg := se2.Error()
@@ -643,8 +643,8 @@ func TestSpecErr_NewInfoMsgString01(t *testing.T) {
 		t.Errorf("Expected se2.ParentInfo[5].ParentObjectName != 'TestObject6'. Instead ObjectName='%v'", se2.ParentInfo[5].ParentObjectName)
 	}
 
-	if se2.ErrNo != 7902 {
-		t.Errorf("Expected se2.ErrNo== 7902.  Instead, se2.ErrNo== '%v'", se2.ErrNo)
+	if se2.errNo != 7902 {
+		t.Errorf("Expected se2.errNo== 7902.  Instead, se2.errNo== '%v'", se2.errNo)
 	}
 
 	msg := se2.Error()
@@ -689,8 +689,8 @@ func TestSpecErr_NewWarningMsgString01(t *testing.T) {
 		t.Errorf("Expected se2.ParentInfo[5].ParentObjectName != 'TestObject6'. Instead ObjectName='%v'", se2.ParentInfo[5].ParentObjectName)
 	}
 
-	if se2.ErrNo != 7902 {
-		t.Errorf("Expected se2.ErrNo== 7902.  Instead, se2.ErrNo== '%v'", se2.ErrNo)
+	if se2.errNo != 7902 {
+		t.Errorf("Expected se2.errNo== 7902.  Instead, se2.errNo== '%v'", se2.errNo)
 	}
 
 	msg := se2.Error()
@@ -723,8 +723,8 @@ func TestSpecErr_SetStdError_01(t *testing.T) {
 		t.Errorf("Expected se2.ParentInfo[5].ParentObjectName != 'TestObject5'. Instead ObjectName='%v'", se.ParentInfo[4].ParentObjectName)
 	}
 
-	if se.ErrNo != 6822 {
-		t.Errorf("Expected se.ErrNo== 6822.  Instead, se.ErrNo== '%v'", se.ErrNo)
+	if se.errNo != 6822 {
+		t.Errorf("Expected se.errNo== 6822.  Instead, se.errNo== '%v'", se.errNo)
 	}
 
 	msg := se.Error()
@@ -756,8 +756,8 @@ func TestSpecErr_SetFatalError_01(t *testing.T) {
 		t.Errorf("Expected se2.ParentInfo[5].ParentObjectName != 'TestObject5'. Instead ObjectName='%v'", se.ParentInfo[4].ParentObjectName)
 	}
 
-	if se.ErrNo != 6822 {
-		t.Errorf("Expected se.ErrNo== 6822.  Instead, se.ErrNo== '%v'", se.ErrNo)
+	if se.errNo != 6822 {
+		t.Errorf("Expected se.errNo== 6822.  Instead, se.errNo== '%v'", se.errNo)
 	}
 
 	msg := se.Error()
@@ -795,8 +795,8 @@ func TestSpecErr_SetInfoMsg_01(t *testing.T) {
 		t.Errorf("Expected se2.ParentInfo[5].ParentObjectName != 'TestObject5'. Instead ObjectName='%v'", se.ParentInfo[4].ParentObjectName)
 	}
 
-	if se.ErrNo != 6822 {
-		t.Errorf("Expected se.ErrNo== 6822.  Instead, se.ErrNo== '%v'", se.ErrNo)
+	if se.errNo != 6822 {
+		t.Errorf("Expected se.errNo== 6822.  Instead, se.errNo== '%v'", se.errNo)
 	}
 
 	msg := se.Error()
@@ -834,8 +834,8 @@ func TestSpecErr_SetWarningMsg_01(t *testing.T) {
 		t.Errorf("Expected se2.ParentInfo[5].ParentObjectName != 'TestObject5'. Instead ObjectName='%v'", se.ParentInfo[4].ParentObjectName)
 	}
 
-	if se.ErrNo != 6822 {
-		t.Errorf("Expected se.ErrNo== 6822.  Instead, se.ErrNo== '%v'", se.ErrNo)
+	if se.errNo != 6822 {
+		t.Errorf("Expected se.errNo== 6822.  Instead, se.errNo== '%v'", se.errNo)
 	}
 
 	msg := se.Error()
@@ -985,7 +985,7 @@ func TestSpecErr_Equal_05(t *testing.T) {
 
 	s2 := s.CopyOut()
 
-	s2.ErrNo = 47
+	s2.errNo = 47
 
 	if s.Equal(&s2) {
 		t.Error("Expected after changes to s2, s!=s2. However, s==s2!")
@@ -1107,8 +1107,8 @@ func TestSpecErr_Empty_01(t *testing.T) {
 		t.Errorf("Expected length of se.ParentInfo array == 0. Instead, array length == '%v'", len(se.ParentInfo))
 	}
 
-	if se.ErrNo != 0 {
-		t.Errorf("Expected se.ErrNo== 0.  Instead, se.ErrNo== '%v'", se.ErrNo)
+	if se.errNo != 0 {
+		t.Errorf("Expected se.errNo== 0.  Instead, se.errNo== '%v'", se.errNo)
 	}
 
 	msg := se.Error()
@@ -1152,8 +1152,8 @@ func TestSpecErr_EmptyMsgData_01(t *testing.T) {
 		t.Errorf("Expected se.BaseInfo.FuncName == 'TestFuncName6'. Instead FuncName= '%v'",se.BaseInfo.FuncName)
 	}
 
-	if se.ErrNo != 0 {
-		t.Errorf("Expected se.ErrNo== 0.  Instead, se.ErrNo== '%v'", se.ErrNo)
+	if se.errNo != 0 {
+		t.Errorf("Expected se.errNo== 0.  Instead, se.errNo== '%v'", se.errNo)
 	}
 
 	msg := se.Error()

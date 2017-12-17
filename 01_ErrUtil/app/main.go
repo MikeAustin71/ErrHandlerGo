@@ -17,7 +17,7 @@ import (
 
 func main() {
 
-	common.TestOpsMsgDto_Example002_NewFatalErrorMsg()
+	common.TestSpecErrFatalError_002()
 
 }
 

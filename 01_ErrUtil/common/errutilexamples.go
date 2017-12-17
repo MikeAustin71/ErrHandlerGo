@@ -90,6 +90,22 @@ func TestSpecErrStandardError_004(){
 	fmt.Printf(se.String())
 }
 
+func TestSpecErrFatalError_001(){
+
+	se := SpecErr{}.InitializeBaseInfo(testExampleSpecErrParentInfo(), testExampleSpecErrCreateErrBaseInfoObj())
+	se.SetFatalError("This is Fatal Error Message.", 224 )
+	fmt.Printf(se.String())
+}
+
+func TestSpecErrFatalError_002(){
+
+	se := SpecErr{}.InitializeBaseInfo(testExampleSpecErrParentInfo(), testExampleSpecErrCreateErrBaseInfoObj())
+	se.SetFatalError("This is Fatal Error Message.", 224 )
+	se.SetMessageOutputMode(false)
+	fmt.Printf(se.String())
+}
+
+
 
 /*
 =======================================================================================================

@@ -89,6 +89,23 @@ func TestErrMsgType_String006(t *testing.T) {
 
 	var r SpecErrMsgType
 
+	r = SpecErrTypeDEBUG
+
+	var s string
+
+	s = r.String()
+
+	if s != "DEBUG" {
+		t.Errorf("Expected string 'DEBUG'. Instead got %v", s)
+	}
+
+}
+
+
+func TestErrMsgType_String007(t *testing.T) {
+
+	var r SpecErrMsgType
+
 	r = SpecErrTypeSUCCESSFULCOMPLETION
 
 	var s string
@@ -190,12 +207,29 @@ func TestErrMsgType_Value006(t *testing.T) {
 
 	var i int
 
-	r = SpecErrTypeSUCCESSFULCOMPLETION
+	r = SpecErrTypeDEBUG
 
 	i = int(r)
 
 	if r != 5 {
-		t.Errorf("Expected SpecErrTypeSUCCESSFULCOMPLETION value = 5. Instead got %v", i)
+		t.Errorf("Expected SpecErrTypeDEBUG value = 5. Instead got %v", i)
+	}
+
+}
+
+
+func TestErrMsgType_Value007(t *testing.T) {
+
+	var r SpecErrMsgType
+
+	var i int
+
+	r = SpecErrTypeSUCCESSFULCOMPLETION
+
+	i = int(r)
+
+	if r != 6 {
+		t.Errorf("Expected SpecErrTypeSUCCESSFULCOMPLETION value = 6. Instead got %v", i)
 	}
 
 }

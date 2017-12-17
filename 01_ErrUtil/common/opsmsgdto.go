@@ -13,6 +13,10 @@ import (
 
 		https://github.com/MikeAustin71/ErrHandlerGo.git
 
+		Dependencies:
+		=============
+
+			NONE
 
 		Message Formats:
 		================
@@ -752,6 +756,14 @@ func (opsMsg *OpsMsgDto) IsWarningMsg() bool {
 
 }
 
+// ModifyMsg - Change the existing message text.
+// Note: this will NOT change the message type.
+// Only the message text is affected.
+func (opsMsg *OpsMsgDto) ModifyMsg(msg string, msgId int64) {
+
+	opsMsg.setMessageText(msg, msgId)
+}
+
 // NewDebugMsg - Create a new Debug Message
 //
 // Input Parameters
@@ -927,26 +939,30 @@ func (opsMsg *OpsMsgDto) SetFromSpecErrMessage(se SpecErr) {
 
 	opsMsg.MsgContext = OpsMsgContextInfo{SourceFileName:y.SourceFileName, ParentObjectName: y.ParentObjectName, FuncName: y.FuncName, BaseMessageId: y.BaseErrorId}
 
+	errId := se.GetErrorId()
 
 	switch se.ErrorMsgType {
 
 	case SpecErrTypeNOERRORSALLCLEAR:
-		opsMsg.SetNoErrorsNoMessages(se.ErrMsg, se.ErrId)
+		opsMsg.SetNoErrorsNoMessages(se.ErrMsg, errId)
 
 	case SpecErrTypeERROR:
-		opsMsg.SetStdErrorMessage(se.ErrMsg, se.ErrId)
+		opsMsg.SetStdErrorMessage(se.ErrMsg, errId)
 
 	case SpecErrTypeFATAL:
-		opsMsg.SetFatalErrorMessage(se.ErrMsg, se.ErrId)
+		opsMsg.SetFatalErrorMessage(se.ErrMsg, errId)
 
 	case SpecErrTypeINFO:
-		opsMsg.SetInfoMessage(se.ErrMsg, se.ErrId)
+		opsMsg.SetInfoMessage(se.ErrMsg, errId)
 
 	case SpecErrTypeWARNING:
-		opsMsg.SetWarningMessage(se.ErrMsg, se.ErrId )
+		opsMsg.SetWarningMessage(se.ErrMsg, errId)
+
+	case SpecErrTypeDEBUG:
+		opsMsg.SetDebugMessage(se.ErrMsg, errId)
 
 	case SpecErrTypeSUCCESSFULCOMPLETION:
-		opsMsg.SetSuccessfulCompletionMessage(se.ErrMsg, se.ErrId)
+		opsMsg.SetSuccessfulCompletionMessage(se.ErrMsg, errId)
 
 	default:
 		panic("OpsMsgDto.SetFromSpecErrMessage() - INVALID SpecErrType Code")
@@ -1098,9 +1114,9 @@ func (opsMsg *OpsMsgDto) String() string {
 // private methods
 // ***********************************************
 
-// getMsgTitle - Returns the Message title, message number and the
+// setMsgParms - Returns the Message title, message number and the
 // banner line separator based on value of OpsMsgDto.MsgClass
-func (opsMsg *OpsMsgDto) getMsgTitle() (banner1, banner2, title, numTitle, abbrvTitle string, ) {
+func (opsMsg *OpsMsgDto) setMsgParms() (banner1, banner2, title, numTitle, abbrvTitle string, ) {
 
 	switch opsMsg.MsgClass {
 
@@ -1164,7 +1180,7 @@ func (opsMsg *OpsMsgDto) getMsgTitle() (banner1, banner2, title, numTitle, abbrv
 
 	default:
 		// This should never happen
-		panic("OpsMsgDto.getMsgTitle() - Invalid opsMsg.MsgClass")
+		panic("OpsMsgDto.setMsgParms() - Invalid opsMsg.MsgClass")
 	}
 
 	return banner1, banner2, title, numTitle, abbrvTitle
@@ -1244,7 +1260,7 @@ func(opsMsg *OpsMsgDto) setMessageText(msg string, msgId int64) {
 
 	opsMsg.Message = msg
 
-	banner1, banner2, title, numTitle, abbrvTitle := opsMsg.getMsgTitle()
+	banner1, banner2, title, numTitle, abbrvTitle := opsMsg.setMsgParms()
 
 	if opsMsg.MsgClass == OpsMsgClassDEBUG {
 		opsMsg.setDebugMsgText(banner1, banner2, title, numTitle)
@@ -1257,6 +1273,9 @@ func(opsMsg *OpsMsgDto) setMessageText(msg string, msgId int64) {
 	opsMsg.setAbbreviatedMessageText(abbrvTitle)
 }
 
+
+// - setAbbreviatedMessageText - Sets the abbreviated or
+// or 'short form' text message for all messages.
 func(opsMsg *OpsMsgDto) setAbbreviatedMessageText(abbrvTitle string) {
 
 	var m string
