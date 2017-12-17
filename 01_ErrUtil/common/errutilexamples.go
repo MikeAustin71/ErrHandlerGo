@@ -62,6 +62,7 @@ func TestErrorUtilityExample002() {
 	panic(x)
 }
 
+// TestSpecErrStandardError_001 - Testing creation of Standard Error message
 func TestSpecErrStandardError_001(){
 
 	se := SpecErr{}.InitializeBaseInfo(testExampleSpecErrParentInfo(), testExampleSpecErrCreateErrBaseInfoObj())
@@ -69,6 +70,7 @@ func TestSpecErrStandardError_001(){
 	fmt.Printf(se.String())
 }
 
+// TestSpecErrStandardError_002 - Testing creation of Standard Error message.
 func TestSpecErrStandardError_002(){
 
 	se := SpecErr{}.InitializeCurrentBaseInfo(testExampleSpecErrCreateErrBaseInfoObj())
@@ -76,6 +78,7 @@ func TestSpecErrStandardError_002(){
 	fmt.Printf(se.String())
 }
 
+// TestSpecErrStandardError_003 - Testing creation of Standard Error message.
 func TestSpecErrStandardError_003(){
 
 	se := SpecErr{}
@@ -83,6 +86,7 @@ func TestSpecErrStandardError_003(){
 	fmt.Printf(se.String())
 }
 
+// TestSpecErrStandardError_004 - Testing creation of Standard Error Message
 func TestSpecErrStandardError_004(){
 
 	se := SpecErr{}.InitializeBaseInfo(testExampleSpecErrParentInfo(), testExampleSpecErrCreateErrBaseInfoObj())
@@ -90,6 +94,7 @@ func TestSpecErrStandardError_004(){
 	fmt.Printf(se.String())
 }
 
+// TestSpecErrFatalError_001 - Testing creation of Fatal Error Message
 func TestSpecErrFatalError_001(){
 
 	se := SpecErr{}.InitializeBaseInfo(testExampleSpecErrParentInfo(), testExampleSpecErrCreateErrBaseInfoObj())
@@ -97,6 +102,7 @@ func TestSpecErrFatalError_001(){
 	fmt.Printf(se.String())
 }
 
+// TestSpecErrFatalError_002 - Testing creation of Fatal Error Message
 func TestSpecErrFatalError_002(){
 
 	se := SpecErr{}.InitializeBaseInfo(testExampleSpecErrParentInfo(), testExampleSpecErrCreateErrBaseInfoObj())
