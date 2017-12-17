@@ -783,18 +783,24 @@ func (opsMsg *OpsMsgDto) ModifyMsgId(msgId int64) {
 // Input Parameters
 // ****************
 //
-//	msg string 		- The text of the Debug Message
+// msg string			- This is the text message that will be formatted and displayed
+//									for this OpsMsgDto object. This is the Debug Message.
 //
-//	msgNo	int64		- The message number to be associated with
-//									this message. If 'msgNo' is equal to zero,
-//									no message number will be displayed in the
-//									final message
-func(opsMsg OpsMsgDto) NewDebugMsg(msg string, msgNo int64) OpsMsgDto {
+// msgId int64		- The message Id number to be associated with this message. If this
+//									Id number is set to zero ('0'), no message number will be displayed
+//									in the final message text.
+//
+//									Message Id differs from Message Number. The final Message Number is
+//									calculated by adding Message Id to the opsMsg.MsgContext.BaseMessageId.
+//									Again, if Message Id is zero ('0'), no message number is displayed in
+//									the final message text.
+//
+func(opsMsg OpsMsgDto) NewDebugMsg(msg string, msgId int64) OpsMsgDto {
 
 	om := OpsMsgDto{}
 	om.SetParentMessageContextHistory(opsMsg.DeepCopyParentContextHistory(opsMsg.ParentContextHistory))
 	om.SetMessageContext(opsMsg.MsgContext)
-	om.SetDebugMessage(msg, msgNo)
+	om.SetDebugMessage(msg, msgId)
 
 	return om
 }
@@ -807,13 +813,20 @@ func(opsMsg OpsMsgDto) NewDebugMsg(msg string, msgNo int64) OpsMsgDto {
 //  prefixMsg string	- The message text will be prefixed to the error text to create the final
 //											message text.
 //
-//	err error					- An error type containing error text will be added to the end of the prefixMsg
+//	err error			- An error type containing error text will be added to the end of the prefixMsg
 //											to create the final message text.
 //
-//	errMsg string			- The text of the Error Message
+//	errMsg string	- The text of the Error Message
 //
-//	errNo	int64				- The number to be associated with this message. If 'errNo' is equal to zero,
-// 											no error number will be displayed in the final error message
+//	errId	int64		- The error Id number to be associated with
+//									this message. If 'errId' is equal to zero,
+//									no error number will be displayed in the
+//									final error message
+//
+//									Error Id differs from Error Number. The final Error Number is
+//									calculated by adding Error Id to the opsMsg.MsgContext.BaseMessageId.
+//									Again, if Error Id is zero ('0'), no Error Number is displayed in
+//									the final message text.
 //
 func (opsMsg OpsMsgDto) NewError(prefixMsg string, err error, msgType OpsMsgType, errId int64) OpsMsgDto {
 
@@ -832,16 +845,22 @@ func (opsMsg OpsMsgDto) NewError(prefixMsg string, err error, msgType OpsMsgType
 //
 //	errMsg string	- The text of the Error Message
 //
-//	errNo	int64		- The error number to be associated with
-//									this message. If 'errNo' is equal to zero,
+//	errId	int64		- The error Id number to be associated with
+//									this message. If 'errId' is equal to zero,
 //									no error number will be displayed in the
 //									final error message
-func (opsMsg OpsMsgDto) NewFatalErrorMsg(errMsg string, errNo int64) OpsMsgDto {
+//
+//									Error Id differs from Error Number. The final Error Number is
+//									calculated by adding Error Id to the opsMsg.MsgContext.BaseMessageId.
+//									Again, if Error Id is zero ('0'), no Error Number is displayed in
+//									the final message text.
+//
+func (opsMsg OpsMsgDto) NewFatalErrorMsg(errMsg string, errId int64) OpsMsgDto {
 
 	om := OpsMsgDto{}
 	om.SetParentMessageContextHistory(opsMsg.DeepCopyParentContextHistory(opsMsg.ParentContextHistory))
 	om.SetMessageContext(opsMsg.MsgContext)
-	om.SetFatalErrorMessage(errMsg, errNo)
+	om.SetFatalErrorMessage(errMsg, errId)
 	return om
 
 }
@@ -854,16 +873,21 @@ func (opsMsg OpsMsgDto) NewFatalErrorMsg(errMsg string, errNo int64) OpsMsgDto {
 //
 //	msg string 		- The text of the Information Message
 //
-//	msgNo	int64		- The message number to be associated with
-//									this message. If 'msgNo' is equal to zero,
-//									no message number will be displayed in the
-//									final message
-func(opsMsg OpsMsgDto) NewInfoMsg(msg string, msgNo int64) OpsMsgDto {
+// msgId int64		- The message Id number to be associated with this message. If this
+//									Id number is set to zero ('0'), no message number will be displayed
+//									in the final message text.
+//
+//									Message Id differs from Message Number. The final Message Number is
+//									calculated by adding Message Id to the opsMsg.MsgContext.BaseMessageId.
+//									Again, if Message Id is zero ('0'), no message number is displayed in
+//									the final message text.
+//
+func(opsMsg OpsMsgDto) NewInfoMsg(msg string, msgId int64) OpsMsgDto {
 
 	om := OpsMsgDto{}
 	om.SetParentMessageContextHistory(opsMsg.DeepCopyParentContextHistory(opsMsg.ParentContextHistory))
 	om.SetMessageContext(opsMsg.MsgContext)
-	om.SetInfoMessage(msg, msgNo)
+	om.SetInfoMessage(msg, msgId)
 
 	return om
 }
@@ -872,6 +896,10 @@ func(opsMsg OpsMsgDto) NewInfoMsg(msg string, msgNo int64) OpsMsgDto {
 // the error information contained in a Type SpecErr passed
 // into the method. The new message will be designated as
 // an error message.
+//
+// Input Parameters:
+// se SpecErr 		- A SpecErr object. See the SpecErr type in source
+//									file errutility.go in this repository.
 func (opsMsg *OpsMsgDto) NewMsgFromSpecErrMsg(se SpecErr) OpsMsgDto {
 
 	om := OpsMsgDto{}
@@ -887,22 +915,43 @@ func (opsMsg *OpsMsgDto) NewMsgFromSpecErrMsg(se SpecErr) OpsMsgDto {
 //
 //	errMsg string	- The text of the Error Message
 //
-//	errNo	int64		- The error number to be associated with
-//									this message. If 'errNo' is equal to zero,
+//	errId	int64		- The error Id number to be associated with
+//									this message. If 'errId' is equal to zero,
 //									no error number will be displayed in the
-//									final error message
-func (opsMsg OpsMsgDto) NewStdErrorMsg(errMsg string, errNo int64) OpsMsgDto {
+//									final error message.
+//
+//									Error Id differs from Error Number. The final Error Number is
+//									calculated by adding Error Id to the opsMsg.MsgContext.BaseMessageId.
+//									Again, if Error Id is zero ('0'), no Error Number is displayed in
+//									the final message text.
+func (opsMsg OpsMsgDto) NewStdErrorMsg(errMsg string, errId int64) OpsMsgDto {
 
 	om := OpsMsgDto{}
 	om.SetParentMessageContextHistory(opsMsg.ParentContextHistory)
 	om.SetMessageContext(opsMsg.MsgContext)
-	om.SetStdErrorMessage(errMsg, errNo)
+	om.SetStdErrorMessage(errMsg, errId)
 	return om
 }
 
 // NewSuccessfulCompletionMsg - Creates a new Successful Completion
 // Message and returns it as a new OpsMsgDto object.
+//
+// Input Parameters:
+// =================
+//
+// msg string			- This is the text message that will be formatted and displayed
+//									for this OpsMsgDto object.
+//
+// msgId int64		- The message Id number to be associated with this message. If this
+//									Id number is set to zero ('0'), no message number will be displayed
+//									in the final message text.
+//
+//									Message Id differs from Message Number. The final Message Number is
+//									calculated by adding Message Id to the opsMsg.MsgContext.BaseMessageId.
+//									Again, if Message Id is zero ('0'), no message number is displayed in
+//									the final message text.
 func (opsMsg OpsMsgDto) NewSuccessfulCompletionMsg(msg string, msgId int64) OpsMsgDto {
+
 	om := OpsMsgDto{}
 	om.SetParentMessageContextHistory(opsMsg.ParentContextHistory)
 	om.SetMessageContext(opsMsg.MsgContext)
@@ -926,13 +975,29 @@ func (opsMsg OpsMsgDto) NewWarningMsg(msg string, msgNo int64) OpsMsgDto {
 
 // NewNoErrorsNoMessagesMsg - Creates a new No Errors and No
 // Messages Message and returns it as a new OpsMsgDto object.
-func (opsMsg OpsMsgDto) NewNoErrorsNoMessagesMsg(msg string,msgNo int64) OpsMsgDto {
+//
+// Input Parameters:
+// =================
+//
+// msg string			- This is the text message that will be formatted and displayed
+//									for this OpsMsgDto object.
+//
+// msgId int64		- The message Id number to be associated with this message. If this
+//									Id number is set to zero ('0'), no message number will be displayed
+//									in the final message text.
+//
+//									Message Id differs from Message Number. The final Message Number is
+//									calculated by adding Message Id to the opsMsg.MsgContext.BaseMessageId.
+//									Again, if Message Id is zero ('0'), no message number is displayed in
+//									the final message text.
+//
+func (opsMsg OpsMsgDto) NewNoErrorsNoMessagesMsg(msg string, msgId int64) OpsMsgDto {
 
 	om := OpsMsgDto{}
 	om.SetParentMessageContextHistory(opsMsg.ParentContextHistory)
 	om.SetMessageContext(opsMsg.MsgContext)
 
-	om.SetNoErrorsNoMessages(msg, msgNo)
+	om.SetNoErrorsNoMessages(msg, msgId)
 
 	return om
 
@@ -940,6 +1005,22 @@ func (opsMsg OpsMsgDto) NewNoErrorsNoMessagesMsg(msg string,msgNo int64) OpsMsgD
 
 // SetDebugMessage - Configures the current or host
 // OpsMsgDto object as a 'DEBUG' message.
+//
+// Input Parameters:
+// =================
+//
+// msg string			- This is the text message that will be formatted and displayed
+//									for this OpsMsgDto object.
+//
+// msgId int64		- The message Id number to be associated with this message. If this
+//									Id number is set to zero ('0'), no message number will be displayed
+//									in the final message text.
+//
+//									Message Id differs from Message Number. The final Message Number is
+//									calculated by adding Message Id to the opsMsg.MsgContext.BaseMessageId.
+//									Again, if Message Id is zero ('0'), no message number is displayed in
+//									the final message text.
+//
 func (opsMsg *OpsMsgDto) SetDebugMessage(msg string, msgId int64){
 	opsMsg.EmptyMsgData()
 	opsMsg.MsgType = OpsMsgTypeDEBUGMSG
@@ -961,8 +1042,14 @@ func (opsMsg *OpsMsgDto) SetDebugMessage(msg string, msgId int64){
 //
 //	errMsg string			- The text of the Error Message
 //
-//	errNo	int64				- The number to be associated with this message. If 'errNo' is equal to zero,
-// 											no error number will be displayed in the final error message
+//	errId	int64				- The number to be associated with this message. If 'errId' is equal to zero,
+// 											no error number will be displayed in the final error message text.
+//
+//											Error Id differs from Error Number. The final Error Number is
+//											calculated by adding Error Id to the opsMsg.MsgContext.BaseMessageId.
+//											Again, if Error Id is zero ('0'), no error number is displayed in
+//											the final message text.
+//
 //
 func(opsMsg *OpsMsgDto) SetFatalError(prefixMsg string, err error, errId int64) {
 
@@ -985,6 +1072,22 @@ func(opsMsg *OpsMsgDto) SetFatalError(prefixMsg string, err error, errId int64) 
 
 // SetFatalErrorMessage - Configures the current or host
 // OpsMsgDto object as an information message.
+//
+// Input Parameters:
+// =================
+//
+// errMsg string	- This is the text message that will be formatted and displayed
+//									for this OpsMsgDto object.
+//
+// errId int64		- The error Id number to be associated with this message. If this
+//									Id number is set to zero ('0'), no message number will be displayed
+//									in the final message text.
+//
+//									Error Id differs from Error Number. The final Error Number is
+//									calculated by adding Error Id to the opsMsg.MsgContext.BaseMessageId.
+//									Again, if Error Id is zero ('0'), no error number is displayed in
+//									the final message text.
+//
 func (opsMsg *OpsMsgDto) SetFatalErrorMessage(errMsg string, errId int64) {
 
 	opsMsg.EmptyMsgData()
@@ -1006,10 +1109,23 @@ func (opsMsg *OpsMsgDto) SetFatalErrorMessage(errMsg string, errId int64) {
 //	err error					- An error type containing error text which will be added to the end of the
 //											'prefixMsg' to create the final message text.
 //
-//	msgTyp3 OpsMsgType- This Type code specifies the type of message to be created.
+//	msgType OpsMsgType- This Type code specifies the type of message to be created. Available types
+//											are:
+// 												1. No Errors - No Messages 		= OpsMsgTypeNOERRORNOMSGS
+//												2. Standard Errors 						= OpsMsgTypeERRORMSG
+//												3. Fatal Errors (Panic Errors)= OpsMsgTypeFATALERRORMSG
+//												4. Information Messages				= OpsMsgTypeINFOMSG
+//												5. Warning Messages						= OpsMsgTypeWARNINGMSG
+//												6. Debug Messages							= OpsMsgTypeDEBUGMSG
+//												7. Successful Completion Msg  = OpsMsgTypeSUCCESSFULCOMPLETION
 //
-//	errNo	int64				- The number to be associated with this message. If 'errNo' is equal to zero,
-// 											no error number will be displayed in the final error message
+//	errId	int64				- The error id number to be associated with this message. If 'errNo' is equal
+// 											to zero, no error number will be displayed in the final error message.
+//
+//											Error Id differs from Error Number. The final Error Number is
+//											calculated by adding Error Id to the opsMsg.MsgContext.BaseMessageId.
+//											Again, if Message Id is zero ('0'), no message number is displayed in
+//											the final message text.
 //
 func (opsMsg *OpsMsgDto) SetFromError(prefixMsg string, err error, msgType OpsMsgType, errId int64) {
 
@@ -1052,6 +1168,11 @@ func (opsMsg *OpsMsgDto) SetFromError(prefixMsg string, err error, msgType OpsMs
 
 // SetFromSpecErrMessage - Sets an instance of OpsMsgDto type based
 // on a SpecErr object passed as an input parameter.
+//
+// Input Parameters:
+// se SpecErr 		- A SpecErr object. See the SpecErr type in source
+//									file errutility.go in this repository.
+//
 func (opsMsg *OpsMsgDto) SetFromSpecErrMessage(se SpecErr) {
 
 	opsMsg.Empty()
@@ -1100,6 +1221,22 @@ func (opsMsg *OpsMsgDto) SetFromSpecErrMessage(se SpecErr) {
 
 // SetInfoMessage - Configures the current or host
 // OpsMsgDto object as an information message.
+//
+// Input Parameters:
+// =================
+//
+// msg string			- This is the text message that will be formatted and displayed
+//									for this OpsMsgDto object.
+//
+// msgId int64		- The message Id number to be associated with this message. If this
+//									Id number is set to zero ('0'), no message number will be displayed
+//									in the final message text.
+//
+//									Message Id differs from Message Number. The final Message Number is
+//									calculated by adding Message Id to the opsMsg.MsgContext.BaseMessageId.
+//									Again, if Message Id is zero ('0'), no message number is displayed in
+//									the final message text.
+//
 func (opsMsg *OpsMsgDto) SetInfoMessage(msg string, msgId int64) {
 	opsMsg.EmptyMsgData()
 	opsMsg.MsgType = OpsMsgTypeINFOMSG
@@ -1179,6 +1316,10 @@ func (opsMsg *OpsMsgDto) SetParentMessageContextHistory( parentHistory []OpsMsgC
 // errId int64				- This error Id number will be added to the opsMsg.MsgContext.BaseMessageId
 //											to create the final Error or Message Number.
 //
+//											Error Id differs from Error Number. The final Error Number is
+//											calculated by adding Error Id to the opsMsg.MsgContext.BaseMessageId.
+//											Again, if Error Id is zero ('0'), no Error Number is displayed in
+//											the final message text.
 func (opsMsg *OpsMsgDto) SetStdError(prefixMsg string, err error, errId int64){
 
 	var msg string
@@ -1198,6 +1339,21 @@ func (opsMsg *OpsMsgDto) SetStdError(prefixMsg string, err error, errId int64){
 
 // SetStdErrorMessage - Configures the current or host
 // OpsMsgDto object as a standard error message.
+//
+// Input Parameters
+// ****************
+//
+//	errMsg string	- The text of the Error Message
+//
+//	errId	int64		- The error Id number to be associated with
+//									this message. If 'errId' is equal to zero,
+//									no error number will be displayed in the
+//									final error message.
+//
+//									Error Id differs from Error Number. The final Error Number is
+//									calculated by adding Error Id to the opsMsg.MsgContext.BaseMessageId.
+//									Again, if Error Id is zero ('0'), no Error Number is displayed in
+//									the final message text.
 func (opsMsg *OpsMsgDto) SetStdErrorMessage(errMsg string, errId int64){
 	opsMsg.EmptyMsgData()
 	opsMsg.MsgType = OpsMsgTypeERRORMSG
@@ -1209,6 +1365,22 @@ func (opsMsg *OpsMsgDto) SetStdErrorMessage(errMsg string, errId int64){
 // SetNoErrorsNoMessages - Configures the current or host
 // OpsMsgDto object for the default message type,
 // 'No Errors and No Messages'.
+//
+// Input Parameters:
+// =================
+//
+// msg string			- This is the text message that will be formatted and displayed
+//									for this OpsMsgDto object.
+//
+// msgId int64		- The message Id number to be associated with this message. If this
+//									Id number is set to zero ('0'), no message number will be displayed
+//									in the final message text.
+//
+//									Message Id differs from Message Number. The final Message Number is
+//									calculated by adding Message Id to the opsMsg.MsgContext.BaseMessageId.
+//									Again, if Message Id is zero ('0'), no message number is displayed in
+//									the final message text.
+//
 func (opsMsg *OpsMsgDto) SetNoErrorsNoMessages(msg string, msgId int64) {
 
 	opsMsg.EmptyMsgData()
@@ -1220,6 +1392,22 @@ func (opsMsg *OpsMsgDto) SetNoErrorsNoMessages(msg string, msgId int64) {
 
 // SetSuccessfulCompletionMessage - Configures the current or host
 // OpsMsgDto object as a Successful Completion Message.
+//
+// Input Parameters:
+// =================
+//
+// msg string			- This is the text message that will be formatted and displayed
+//									for this OpsMsgDto object.
+//
+// msgId int64		- The message Id number to be associated with this message. If this
+//									Id number is set to zero ('0'), no message number will be displayed
+//									in the final message text.
+//
+//									Message Id differs from Message Number. The final Message Number is
+//									calculated by adding Message Id to the opsMsg.MsgContext.BaseMessageId.
+//									Again, if Message Id is zero ('0'), no message number is displayed in
+//									the final message text.
+//
 func (opsMsg *OpsMsgDto) SetSuccessfulCompletionMessage(msg string, msgId int64){
 	opsMsg.EmptyMsgData()
 	opsMsg.MsgType = OpsMsgTypeSUCCESSFULCOMPLETION
@@ -1230,6 +1418,22 @@ func (opsMsg *OpsMsgDto) SetSuccessfulCompletionMessage(msg string, msgId int64)
 
 // SetWarningMessage - Configures the current or host
 // OpsMsgDto object as a Warning Message.
+//
+// Input Parameters:
+// =================
+//
+// msg string			- This is the text message that will be formatted and displayed
+//									for this OpsMsgDto object.
+//
+// msgId int64		- The message Id number to be associated with this message. If this
+//									Id number is set to zero ('0'), no message number will be displayed
+//									in the final message text.
+//
+//									Message Id differs from Message Number. The final Message Number is
+//									calculated by adding Message Id to the opsMsg.MsgContext.BaseMessageId.
+//									Again, if Message Id is zero ('0'), no message number is displayed in
+//									the final message text.
+//
 func (opsMsg *OpsMsgDto) SetWarningMessage(msg string, msgId int64) {
 	opsMsg.EmptyMsgData()
 	opsMsg.MsgType = OpsMsgTypeWARNINGMSG
@@ -1243,6 +1447,18 @@ func (opsMsg *OpsMsgDto) SetWarningMessage(msg string, msgId int64) {
 // returns it as a new OpsMsgDto object.
 //
 // Can be used to return Successful Completion message to a calling function.
+//
+// Input Parameters:
+// =================
+//
+// msgId int64		- The message Id number to be associated with this message. If this
+//									Id number is set to zero ('0'), no message number will be displayed
+//									in the final message text.
+//
+//									Message Id differs from Message Number. The final Message Number is
+//									calculated by adding Message Id to the opsMsg.MsgContext.BaseMessageId.
+//									Again, if Message Id is zero ('0'), no message number is displayed in
+//									the final message text.
 //
 func (opsMsg OpsMsgDto) SignalSuccessfulCompletion(msgId int64) OpsMsgDto {
 
