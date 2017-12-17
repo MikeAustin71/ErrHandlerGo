@@ -15,6 +15,13 @@ import (
 						https://github.com/MikeAustin71/ErrHandlerGo.git
 
 
+		STATUS: DEPRICATED - Used OpsMsgDto Instead
+    ===========================================
+		The SpecErr type is maintained for backwards compatibility. It depricated and
+		and no longer used for new development. Use 'OpsMsgDto' instead. 'OpsMsgDto'
+		is located in this source code repository.
+
+
 		Dependencies:
 		=============
 
