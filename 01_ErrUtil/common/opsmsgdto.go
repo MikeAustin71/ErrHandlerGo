@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"errors"
 	"unicode/utf8"
+	"os"
 )
 
 /*  'opsmsgdto.go' is located in source code
@@ -278,20 +279,20 @@ func (ci OpsMsgContextInfo) GetNewParentInfo(srcFile, parentObject, funcName str
 // containing information about an
 // operations Message
 type OpsMsgDto struct {
-	ParentContextHistory [] OpsMsgContextInfo // Function tree showing the execution path leading to this method
-	MsgContext           OpsMsgContextInfo
-	Message              string // The original message sent to OpsMsgDto
-	MsgType              OpsMsgType
-	MsgTimeUTC           time.Time
-	MsgTimeLocal         time.Time
-	MsgLocalTimeZone     string
-	UseFormattedMsg			 bool		// If true, message output methods will return the fully formatted message.
+	ParentContextHistory 	[] OpsMsgContextInfo // Function tree showing the execution path leading to this method
+	MsgContext           	OpsMsgContextInfo
+	Message              	string // The original message sent to OpsMsgDto
+	MsgType              	OpsMsgType
+	MsgTimeUTC           	time.Time
+	MsgTimeLocal         	time.Time
+	MsgLocalTimeZone     	string
+	UseFormattedMsg			 	bool		// If true, message output methods will return the fully formatted message.
 															// If false, message output methods will return an abbreviated from of the message
 															// By default, the fully formatted version of the message will be displayed.
-	fmtMessage           string // The formatted message
-	abbrvMessage				 string // An Abbreviated Form of the message
-	msgId                int64  // The identifying number for this message
-	msgNumber            int64  //  Message Number = msgId + MsgContext.BaseMessageId. This is the number displayed in the message
+	fmtMessage   					string   // The formatted message
+	abbrvMessage 					string   // An Abbreviated Form of the message
+	msgId        					int64    // The identifying number for this message
+	msgNumber    					int64    //  Message Number = msgId + MsgContext.BaseMessageId. This is the number displayed in the message
 
 }
 
@@ -371,16 +372,16 @@ func (opsMsg *OpsMsgDto) ConfigureMessageContext(newMsgContext OpsMsgContextInfo
 func (opsMsg *OpsMsgDto) CopyIn(opsMsg2 *OpsMsgDto) {
 	opsMsg.Empty()
 	opsMsg.ParentContextHistory = opsMsg2.DeepCopyParentContextHistory(opsMsg2.ParentContextHistory)
-	opsMsg.MsgContext = opsMsg2.MsgContext.DeepCopyOpsMsgContextInfo()
-
+	opsMsg.MsgContext 			= opsMsg2.MsgContext.DeepCopyOpsMsgContextInfo()
 	opsMsg.Message       		= opsMsg2.Message
-	opsMsg.fmtMessage = opsMsg2.fmtMessage
-	opsMsg.msgId            = opsMsg2.GetMessageId()
-	opsMsg.msgNumber        = opsMsg2.GetMessageNumber()
 	opsMsg.MsgType          = opsMsg2.MsgType
 	opsMsg.MsgTimeUTC       = opsMsg2.MsgTimeUTC
 	opsMsg.MsgTimeLocal     = opsMsg2.MsgTimeLocal
 	opsMsg.MsgLocalTimeZone = opsMsg2.MsgLocalTimeZone
+	opsMsg.msgId            = opsMsg2.GetMessageId()
+	opsMsg.msgNumber        = opsMsg2.GetMessageNumber()
+	opsMsg.fmtMessage 			=	opsMsg2.GetFmtMessage()
+	opsMsg.abbrvMessage			= opsMsg2.GetAbbrvMessage()
 
 }
 
@@ -394,15 +395,16 @@ func (opsMsg *OpsMsgDto) CopyOut() OpsMsgDto {
 	opsMsg2.ParentContextHistory = opsMsg.DeepCopyParentContextHistory(opsMsg.ParentContextHistory)
 	opsMsg2.MsgContext = opsMsg.MsgContext.DeepCopyOpsMsgContextInfo()
 
-	opsMsg2.Message       	= opsMsg.Message
-	opsMsg2.fmtMessage = opsMsg.fmtMessage
-	opsMsg2.msgId            = opsMsg.GetMessageId()
-	opsMsg2.msgNumber        = opsMsg.GetMessageNumber()
-	opsMsg2.MsgType          = opsMsg.MsgType
-	opsMsg2.MsgTimeUTC       = opsMsg.MsgTimeUTC
-	opsMsg2.MsgTimeLocal     = opsMsg.MsgTimeLocal
-	opsMsg2.MsgLocalTimeZone = opsMsg.MsgLocalTimeZone
-	
+	opsMsg2.Message       		= opsMsg.Message
+	opsMsg2.MsgType          	= opsMsg.MsgType
+	opsMsg2.MsgTimeUTC       	= opsMsg.MsgTimeUTC
+	opsMsg2.MsgTimeLocal     	= opsMsg.MsgTimeLocal
+	opsMsg2.MsgLocalTimeZone 	= opsMsg.MsgLocalTimeZone
+	opsMsg2.fmtMessage 				= opsMsg.GetFmtMessage()
+	opsMsg2.abbrvMessage			= opsMsg.GetAbbrvMessage()
+	opsMsg2.msgId            	= opsMsg.GetMessageId()
+	opsMsg2.msgNumber        	= opsMsg.GetMessageNumber()
+
 	return opsMsg2
 }
 
@@ -434,11 +436,11 @@ func (opsMsg *OpsMsgDto) DeepCopyParentContextHistory(pi []OpsMsgContextInfo) []
 // Empty - Resets the current OpsMsgDto object to
 // an uninitialized or 'empty' state.
 func (opsMsg *OpsMsgDto) Empty() {
-
 	opsMsg.EmptyParentHistory()
 	opsMsg.EmptyMessageContext()
 	opsMsg.EmptyMsgData()
 }
+
 
 // EmptyParentHistory - Deletes the current ParentHistory ([] OpsMsgContextInfo)
 // and resets it to an 'empty' or uninitialized state (zero length array).
@@ -457,7 +459,8 @@ func (opsMsg *OpsMsgDto) EmptyMessageContext() {
 // to an uninitialized or 'empty' state.
 func (opsMsg *OpsMsgDto) EmptyMsgData() {
 	opsMsg.Message 					= ""
-	opsMsg.fmtMessage = ""
+	opsMsg.fmtMessage 			= ""
+	opsMsg.abbrvMessage			= ""
 	opsMsg.msgId          	= int64(0) // The identifying number for this message
 	opsMsg.msgNumber      	= int64(0) //  Message Number = msgId + MsgContext.BaseMessageId. This is the number displayed in the message
 	opsMsg.MsgType        	= OpsMsgTypeNOERRORNOMSGS
@@ -489,15 +492,18 @@ func (opsMsg *OpsMsgDto) Equal(opsMsg2 *OpsMsgDto) bool {
 	}
 
 	if  opsMsg.Message     			!= opsMsg2.Message 						||
-			opsMsg.fmtMessage 			!= opsMsg2.fmtMessage 				||
-			opsMsg.msgId            != opsMsg2.GetMessageId()			||
-			opsMsg.msgNumber        != opsMsg2.GetMessageNumber()	||
 			opsMsg.MsgType          != opsMsg2.MsgType						||
 			opsMsg.MsgTimeUTC       != opsMsg2.MsgTimeUTC					||
 			opsMsg.MsgTimeLocal     != opsMsg2.MsgTimeLocal				||
-			opsMsg.MsgLocalTimeZone != opsMsg2.MsgLocalTimeZone {
+			opsMsg.MsgLocalTimeZone != opsMsg2.MsgLocalTimeZone   ||
+			opsMsg.fmtMessage 			!= opsMsg2.GetFmtMessage()		||
+			opsMsg.abbrvMessage			!= opsMsg2.GetAbbrvMessage()	||
+			opsMsg.msgId            != opsMsg2.GetMessageId()			||
+			opsMsg.msgNumber        != opsMsg2.GetMessageNumber()	{
+
 
 		return false
+
 	}
 
 	return true
@@ -581,6 +587,7 @@ func (opsMsg *OpsMsgDto) GetFmtMessage() string {
 func (opsMsg *OpsMsgDto) GetAbbrvMessage() string {
 	return opsMsg.abbrvMessage
 }
+
 
 // GetMessageId - returns data field 'msgId' for
 // the current OpsMsgDto object.
@@ -788,6 +795,38 @@ func (opsMsg *OpsMsgDto) IsWarningMsg() bool {
 	}
 
 	return false
+
+}
+
+// LogMsgToFile - Logs the OpsMsgDto message text to a file.
+func (opsMsg *OpsMsgDto) LogMsgToFile(fPtr *os.File) (int, error) {
+	return fPtr.WriteString(opsMsg.String())
+}
+
+// LogMsgAndPanic - This method will write the operations message text
+// to disk file. Then, if the OpsMsgDto object is configured as a 'FATAL'
+// error, it will call the panic function with the operations message text
+// and terminate program execution.
+//
+// If the OpsMsgDto object is NOT configured as a 'FATAL' Error Message,
+// the program will continue execution normally after writing the operations
+// message to the disk file.
+//
+// ************************************************************************
+// BE CAREFUL! - Understand the implications before calling this method.
+// ************************************************************************
+//
+func (opsMsg *OpsMsgDto) LogMsgAndPanic(fPtr *os.File) {
+
+	opsMsg.LogMsgToFile(fPtr)
+
+	if opsMsg.MsgType == OpsMsgTypeFATALERRORMSG {
+
+		defer fPtr.Close()
+
+		panic(opsMsg.String())
+
+	}
 
 }
 
@@ -1023,6 +1062,17 @@ func (opsMsg OpsMsgDto) NewNoErrorsNoMessagesMsg(msg string, msgId int64) OpsMsg
 	om.SetNoErrorsNoMessages(msg, msgId)
 
 	return om
+
+}
+
+// PanicOnFatalError - If the current OpsMsgDto is configured
+// as a FATAL Error - this method will issue a call to
+// 'panic' thereby halting program execution.
+func (opsMsg *OpsMsgDto) PanicOnFatalError() {
+
+	if opsMsg.MsgType == OpsMsgTypeFATALERRORMSG {
+		panic(opsMsg.String())
+	}
 
 }
 
@@ -1266,6 +1316,7 @@ func (opsMsg *OpsMsgDto) SetInfoMessage(msg string, msgId int64) {
 
 	opsMsg.setMessageText(msg, msgId)
 }
+
 
 // SetMsgContext - Receives an OpsMsgContextInfo object as
 // an input parameter and configures the current OpsMsgDto

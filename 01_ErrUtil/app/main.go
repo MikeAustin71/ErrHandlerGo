@@ -3,6 +3,7 @@ package main
 import (
 	"MikeAustin71/ErrHandlerGo/01_ErrUtil/common"
 
+	"fmt"
 )
 
 /*
@@ -17,7 +18,15 @@ import (
 
 func main() {
 
-	common.TestSpecErrFatalError_002()
+	om1 := testOpsMsgDtoCreateFatalErrorMsg()
+
+	om2 := testOpsMsgDtoCreateInfoMsg()
+
+	om1.CopyIn(&om2)
+
+	result := om2.Equal(&om1)
+
+	fmt.Println("Equal Result = ", result)
 
 }
 
@@ -43,6 +52,7 @@ func testOpsMsgDtoCreateParentHistory() []common.OpsMsgContextInfo {
 
 	return parent
 }
+*/
 
 func testOpsMsgDtoCreateStdErrorMsg() common.OpsMsgDto {
 	om := common.OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
@@ -76,13 +86,13 @@ func testOpsMsgDtoCreateDebugMsg() common.OpsMsgDto {
 
 func testOpsMsgDtoCreateSuccessfulCompletionMsg() common.OpsMsgDto {
 	om := common.OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
-	om.SetSuccessfulCompletionMessage( 64)
+	om.SetSuccessfulCompletionMessage( "", 64)
 	return om
 }
 
 func testOpsMsgDtoCreateNoErrorsNoMessagesMsg() common.OpsMsgDto {
 	om := common.OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
-	om.SetNoErrorsNoMessages(28)
+	om.SetNoErrorsNoMessages("", 28)
 	return om
 }
 
@@ -111,4 +121,3 @@ func testOpsMsgDtoCreateParentHistory() []common.OpsMsgContextInfo {
 
 	return parent
 }
-*/
