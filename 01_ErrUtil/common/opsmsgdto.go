@@ -1151,19 +1151,24 @@ func (opsMsg *OpsMsgDto) SetDebugMessage(msg string, msgId int64){
 func(opsMsg *OpsMsgDto) SetFatalError(prefixMsg string, err error, errId int64) {
 
 	var msg string
+	var errMsg string
 
-	if prefixMsg != "" {
-		msg = prefixMsg + err.Error()
+	if err == nil {
+		errMsg = ""
 	} else {
-		msg = err.Error()
+		errMsg = err.Error()
 	}
 
+	if prefixMsg != "" {
+		msg = prefixMsg + errMsg
+	} else {
+		msg = errMsg
+	}
 
 	opsMsg.EmptyMsgData()
 	opsMsg.MsgType = OpsMsgTypeFATALERRORMSG
 
 	opsMsg.setMessageText(msg, errId)
-
 
 }
 
@@ -1226,12 +1231,19 @@ func (opsMsg *OpsMsgDto) SetFatalErrorMessage(errMsg string, errId int64) {
 //
 func (opsMsg *OpsMsgDto) SetFromError(prefixMsg string, err error, msgType OpsMsgType, errId int64) {
 
-	var msg string
+	var msg, errMsg string
+
+	if err == nil {
+		errMsg = ""
+	} else {
+		errMsg = err.Error()
+	}
+
 
 	if prefixMsg != "" {
-		msg = prefixMsg + err.Error()
+		msg = prefixMsg + errMsg
 	} else {
-		msg = err.Error()
+		msg = errMsg
 	}
 
 	switch msgType {
@@ -1421,11 +1433,18 @@ func (opsMsg *OpsMsgDto) SetParentMessageContextHistory( parentHistory []OpsMsgC
 func (opsMsg *OpsMsgDto) SetStdError(prefixMsg string, err error, errId int64){
 
 	var msg string
+	var errMsg string
+
+	if err == nil {
+		errMsg = ""
+	} else {
+		errMsg = err.Error()
+	}
 
 	if prefixMsg != "" {
-		msg = prefixMsg + err.Error()
+		msg = prefixMsg + errMsg
 	} else {
-		msg = err.Error()
+		msg = errMsg
 	}
 
 	opsMsg.EmptyMsgData()
