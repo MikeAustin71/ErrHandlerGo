@@ -1582,6 +1582,25 @@ func (opsMsg *OpsMsgDto) String() string {
 	return opsMsg.GetAbbrvMessage()
 }
 
+// SetTimeZone - This method sets the local time zone for
+// use in time stamping messages.
+//
+// Input Parameters:
+// =================
+//
+// ianaTimeZone string - 	The IANA Time Zone as specified in the IANA Time Zone
+// 												Data base. Reference https://www.iana.org/time-zones.
+//												If this parameter is judged to be INVALID, the time
+//												zone will default to 'Local' which is the local time
+//												zone designated on the host computer.
+//
+func (opsMsg *OpsMsgDto) SetTimeZone(ianaTimeZone string) {
+
+	opsMsg.MsgLocalTimeZone = ianaTimeZone
+
+	opsMsg.setMessageText(opsMsg.Message, opsMsg.msgId)
+}
+
 // ***********************************************
 // private methods
 // ***********************************************
@@ -1726,7 +1745,7 @@ func(opsMsg *OpsMsgDto) setMessageText(msg string, msgId int64) {
 
 	opsMsg.setMsgIdAndMsgNumber(msgId)
 
-	opsMsg.setTime("Local")
+	opsMsg.setTime(opsMsg.MsgLocalTimeZone)
 
 	opsMsg.UseFormattedMsg = true
 
@@ -1895,6 +1914,10 @@ func (opsMsg *OpsMsgDto) setMsgIdAndMsgNumber(msgId int64) {
 // invalid time zone, local time zone will default to 'Local'.
 // The 'Local' time zone is determined by the host computer.
 func(opsMsg *OpsMsgDto) setTime(localTimeZone string){
+
+	if localTimeZone == "" {
+		localTimeZone = "Local"
+	}
 
 	tz := TimeZoneUtility{}
 
