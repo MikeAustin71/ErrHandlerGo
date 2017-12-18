@@ -1194,4 +1194,3 @@ func TestOpsMsgDto_SetSuccessfulCompletionMessage_04(t *testing.T) {
 
 }
 
-

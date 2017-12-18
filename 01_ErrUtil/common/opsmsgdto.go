@@ -320,6 +320,33 @@ func (opsMsg *OpsMsgDto) AddOpsMsgContextInfoToParentHistory(newContextInfo OpsM
 	opsMsg.ParentContextHistory = append(opsMsg.ParentContextHistory, ci)
 }
 
+// ChangeMsg - Change the existing message text.
+// Note: this will NOT change the message type.
+// Only the message text is affected.
+func (opsMsg *OpsMsgDto) ChangeMsg(msg string) {
+
+	opsMsg.setMessageText(msg, opsMsg.msgId)
+
+}
+
+// ChangeMsgId - Change the existing message Id.
+//
+// Input Parameter:
+// ================
+//
+// msgId int64		- The message Id number to be associated with this message. If this
+//									Id number is set to zero ('0'), no message number will be displayed
+//									in the final message text.
+//
+//									Message Id differs from Message Number. The final Message Number is
+//									calculated by adding Message Id to the opsMsg.MsgContext.BaseMessageId.
+//									Again, if Message Id is zero ('0'), no message number is displayed in
+//									the final message text.
+//
+func (opsMsg *OpsMsgDto) ChangeMsgId(msgId int64) {
+	opsMsg.setMsgIdAndMsgNumber(msgId)
+}
+
 // ConfigureContextHistoryFromParentOpsMsgDto - Receives an OpsMsgDto object as
 // an input parameter ('parentOpsMsgDto'). The parent context history from this
 // second OpsMsgDto object ('parentOpsMsgDto') is added to the parent history
@@ -462,7 +489,7 @@ func (opsMsg *OpsMsgDto) Equal(opsMsg2 *OpsMsgDto) bool {
 	}
 
 	if  opsMsg.Message     			!= opsMsg2.Message 						||
-			opsMsg.fmtMessage != opsMsg2.fmtMessage ||
+			opsMsg.fmtMessage 			!= opsMsg2.fmtMessage 				||
 			opsMsg.msgId            != opsMsg2.GetMessageId()			||
 			opsMsg.msgNumber        != opsMsg2.GetMessageNumber()	||
 			opsMsg.MsgType          != opsMsg2.MsgType						||
@@ -764,20 +791,6 @@ func (opsMsg *OpsMsgDto) IsWarningMsg() bool {
 
 }
 
-// ModifyMsg - Change the existing message text.
-// Note: this will NOT change the message type.
-// Only the message text is affected.
-func (opsMsg *OpsMsgDto) ModifyMsg(msg string) {
-
-	opsMsg.setMessageText(msg, opsMsg.msgId)
-
-}
-
-// ModifyMsgId - Change the existing message Id.
-func (opsMsg *OpsMsgDto) ModifyMsgId(msgId int64) {
-	opsMsg.setMsgIdAndMsgNumber(msgId)
-}
-
 // NewDebugMsg - Create a new Debug Message
 //
 // Input Parameters
@@ -813,10 +826,20 @@ func(opsMsg OpsMsgDto) NewDebugMsg(msg string, msgId int64) OpsMsgDto {
 //  prefixMsg string	- The message text will be prefixed to the error text to create the final
 //											message text.
 //
-//	err error			- An error type containing error text will be added to the end of the prefixMsg
+//	err error					- An error type containing error text will be added to the end of the prefixMsg
 //											to create the final message text.
 //
-//	errMsg string	- The text of the Error Message
+//
+//	msgType OpsMsgType- This Type code specifies the type of message to be created. Available types
+//											are:
+// 												1. No Errors - No Messages 		= OpsMsgTypeNOERRORNOMSGS
+//												2. Standard Errors 						= OpsMsgTypeERRORMSG
+//												3. Fatal Errors (Panic Errors)= OpsMsgTypeFATALERRORMSG
+//												4. Information Messages				= OpsMsgTypeINFOMSG
+//												5. Warning Messages						= OpsMsgTypeWARNINGMSG
+//												6. Debug Messages							= OpsMsgTypeDEBUGMSG
+//												7. Successful Completion Msg  = OpsMsgTypeSUCCESSFULCOMPLETION
+//
 //
 //	errId	int64		- The error Id number to be associated with
 //									this message. If 'errId' is equal to zero,
@@ -1442,11 +1465,37 @@ func (opsMsg *OpsMsgDto) SetWarningMessage(msg string, msgId int64) {
 
 }
 
+// SignalNoErrors - Creates a 'No Errors - No Messages' message and
+// returns it as a new OpsMsgDto object.
+//
+// Can be used to quickly return a 'No Errors - No Messages' message
+// to a calling function. A better approach might be to use the
+// 'SignalSuccessfulCompletion() method shown below.
+//
+// Input Parameters:
+// =================
+//
+// msgId int64		- The message Id number to be associated with this message. If this
+//									Id number is set to zero ('0'), no message number will be displayed
+//									in the final message text.
+//
+//									Message Id differs from Message Number. The final Message Number is
+//									calculated by adding Message Id to the opsMsg.MsgContext.BaseMessageId.
+//									Again, if Message Id is zero ('0'), no message number is displayed in
+//									the final message text.
+//
+func (opsMsg OpsMsgDto) SignalNoErrors(msgId int64) OpsMsgDto {
+
+	om := OpsMsgDto{}.InitializeAllContextInfo(opsMsg.DeepCopyParentContextHistory(opsMsg.ParentContextHistory), opsMsg.MsgContext.DeepCopyOpsMsgContextInfo())
+	om.SetNoErrorsNoMessages("", msgId)
+
+	return om
+}
 
 // SignalSuccessfulCompletion - Creates a Successful Completion message and
 // returns it as a new OpsMsgDto object.
 //
-// Can be used to return Successful Completion message to a calling function.
+// Can be used to quickly return Successful Completion message to a calling function.
 //
 // Input Parameters:
 // =================

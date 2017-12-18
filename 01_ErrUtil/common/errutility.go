@@ -555,7 +555,7 @@ func (s *SpecErr) IsWarningMsg() bool {
 	return false
 }
 
-// ModifyMsg - Change the existing message text.
+// ChangeMsg - Change the existing message text.
 // Note: this will NOT change the message type.
 // Only the message text is affected.
 func (s *SpecErr) ModifyMsg(msg string, msgId int64){
