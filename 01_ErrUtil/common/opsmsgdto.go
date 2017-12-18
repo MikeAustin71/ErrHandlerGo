@@ -323,6 +323,7 @@ func (opsMsg *OpsMsgDto) AddOpsMsgContextInfoToParentHistory(newContextInfo OpsM
 	opsMsg.ParentContextHistory = append(opsMsg.ParentContextHistory, ci)
 }
 
+
 // ChangeMsg - Change the existing message text.
 // Note: this will NOT change the message type.
 // Only the message text is affected.
@@ -605,6 +606,14 @@ func (opsMsg *OpsMsgDto) GetMessageNumber() int64 {
 	return opsMsg.msgNumber
 }
 
+// GetNewParentHistory - Returns a new Parent History Array consisting
+// of the original Parent History plus the current Message Context
+func (opsMsg *OpsMsgDto) GetNewParentHistory() [] OpsMsgContextInfo {
+	newParentHistory := opsMsg.DeepCopyParentContextHistory(opsMsg.ParentContextHistory)
+	newParentHistory = append(newParentHistory, opsMsg.MsgContext.DeepCopyOpsMsgContextInfo())
+	return newParentHistory
+}
+
 // InitializeAllContextInfo - Initializes Parent Context History and Message Context Info for a new
 // OpsMsgDto object.
 //
@@ -699,6 +708,19 @@ func(opsMsg OpsMsgDto) InitializeContextWithOpsMsgDto(parentOpsMsg OpsMsgDto, ne
 
 	return om
 }
+
+// Initialize - Create a new OpsMsgDto from a parent OpsMsgDto. This
+// method will add the parent Message Context to ParentContext History
+// array and return it in a new OpsMsgDto object.
+func (opsMsg OpsMsgDto) Initialize(parentOpsMsg OpsMsgDto) OpsMsgDto {
+	om := OpsMsgDto{}
+
+	om.ParentContextHistory = om.DeepCopyParentContextHistory(parentOpsMsg.ParentContextHistory)
+	om.AddOpsMsgContextInfoToParentHistory(parentOpsMsg.MsgContext)
+
+	return om
+}
+
 
 // IsDebugMsg - Returns a boolean value indicating
 // whether or not this message is a 'Debug'
