@@ -2,8 +2,6 @@ package main
 
 import (
 	"MikeAustin71/ErrHandlerGo/01_ErrUtil/common"
-
-	"fmt"
 )
 
 /*
@@ -18,15 +16,7 @@ import (
 
 func main() {
 
-	om1 := testOpsMsgDtoCreateFatalErrorMsg()
-
-	om2 := testOpsMsgDtoCreateInfoMsg()
-
-	om1.CopyIn(&om2)
-
-	result := om2.Equal(&om1)
-
-	fmt.Println("Equal Result = ", result)
+	common.TestOpsMsgDto_Example002_NewFatalErrorMsg()
 
 }
 
@@ -52,7 +42,7 @@ func testOpsMsgDtoCreateParentHistory() []common.OpsMsgContextInfo {
 
 	return parent
 }
-*/
+
 
 func testOpsMsgDtoCreateStdErrorMsg() common.OpsMsgDto {
 	om := common.OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
@@ -121,3 +111,5 @@ func testOpsMsgDtoCreateParentHistory() []common.OpsMsgContextInfo {
 
 	return parent
 }
+
+*/

@@ -6,6 +6,7 @@ import (
 	"strings"
 	"unicode/utf8"
 	"errors"
+	"os"
 )
 
 /*
@@ -690,16 +691,66 @@ func (s SpecErr)NewNoErrsNoMsg() SpecErr {
 	return se
 }
 
+// LogMsgToFile - Write the SpecErr Message to a disk file.
+//
+// Input Parameters:
+//
+//	fptr *os.File	- A valid pointer to a disk file. The SpecErr message
+//									will be written to this file.
+//
+func (s *SpecErr) LogMsgToFile(fptr *os.File) (int, error) {
+
+	return fptr.WriteString(s.String())
+}
+
+// LogMsgAndPanic - This method first writes the SpecErr message
+// to a file. Afterwards, it then determines whether this is a 'FATAL' Error
+// or 'panic' error. If 'true', and this is a 'FATAL' Error condition,
+// the 'panic' command will be issued thereby terminating all further
+// program execution.
+//
+// Input Parameters:
+//
+//	fptr *os.File	- A valid pointer to a disk file. The SpecErr message
+//									will be written to this file.
+//
+// *******************************************************************
+// BE CAREFUL! - Consider the implications before calling this method!
+// *******************************************************************
+func (s *SpecErr) LogMsgAndPanic(fptr *os.File) {
+	s.LogMsgToFile(fptr)
+
+	if s.IsPanic {
+		defer fptr.Close()
+		panic(s.String())
+	}
+
+}
+
 // Panic - Executes 'panic' command
-// if IsPanic == 'true'
+// if IsPanic == 'true'.
+//
+// Triggering the 'panic' command will terminate
+// all program execution.
+//
+// *******************************************************************
+// BE CAREFUL! - Consider the implications before calling this method!
+// *******************************************************************
+//
 func (s *SpecErr) Panic() {
 	if s.IsPanic {
 		panic(s)
 	}
 }
 
-// PanicOnSpecErr - Issues a 'panic'
-// command if SpecErr IsPanic flag is set
+// PanicOnSpecErr - Issues a 'panic' command if SpecErr IsPanic flag
+// is set. Issuing the 'panic' command will terminate all further
+// program execution.
+//
+// *******************************************************************
+// BE CAREFUL! - Consider the implications before calling this method!
+// *******************************************************************
+//
 func (s *SpecErr) PanicOnSpecErr(eSpec SpecErr) {
 
 	if s.IsPanic {
@@ -826,7 +877,7 @@ func (s *SpecErr) SetFatalError(errMsg string, errNo int64) {
 	s.EmptyMsgData()
 	s.ErrorMsgType	= SpecErrTypeFATAL
 	s.IsErr  = true
-	s.IsPanic = false
+	s.IsPanic = true
 	s.setMessageText(errMsg, errNo)
 
 
@@ -857,6 +908,8 @@ func (s *SpecErr) SetMessageOutputMode(isFullyFormattedMsg bool) {
 // SpecErrType= SpecErrTypeNOERRORSALLCLEAR
 func (s *SpecErr) SetNoErrorsNoMessages(msg string, msgNo int64) {
 	s.EmptyMsgData()
+	s.IsPanic = false
+	s.IsErr = false
 	s.setMessageText(msg, msgNo)
 }
 
