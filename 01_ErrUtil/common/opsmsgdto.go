@@ -1700,6 +1700,10 @@ func (opsMsg *OpsMsgDto) String() string {
 //
 func (opsMsg *OpsMsgDto) SetTimeZone(ianaTimeZone string) {
 
+	if opsMsg.MsgLocalTimeZone == ianaTimeZone {
+		return
+	}
+
 	opsMsg.MsgLocalTimeZone = ianaTimeZone
 
 	opsMsg.setMessageText(opsMsg.Message, opsMsg.msgId)
