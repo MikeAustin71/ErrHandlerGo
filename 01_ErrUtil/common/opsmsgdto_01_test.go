@@ -951,55 +951,6 @@ func TestOpsMsgContextInfo_Equal_08(t *testing.T) {
 
 }
 
-func TestOpsMsgDto_GetError_01(t *testing.T) {
-	om := testOpsMsgDtoCreateStdErrorMsg()
-
-	err := om.GetError()
-
-	if err == nil {
-		t.Error("Expected a valid 'error' type to be returned from standard error om.GetError(). It was 'nil'!")
-	}
-
-	actualMsg := err.Error()
-
-	expectedMsg := "This is Standard Error Msg for test object"
-
-	if !strings.Contains(actualMsg, expectedMsg) {
-		t.Errorf("Expected error message returned by error type to include text, '%v'. Actual message was '%v'",expectedMsg, actualMsg)
-	}
-
-}
-
-func TestOpsMsgDto_GetError_02(t *testing.T) {
-	om := testOpsMsgDtoCreateFatalErrorMsg()
-
-	err := om.GetError()
-
-	if err == nil {
-		t.Error("Expected a valid 'error' type to be returned from fatal error om.GetError(). It was 'nil'!")
-	}
-
-	actualMsg := err.Error()
-
-	expectedMsg := "This is FATAL Error Msg for test object"
-
-	if !strings.Contains(actualMsg, expectedMsg) {
-		t.Errorf("Expected error message returned by error type to include text, '%v'. Actual message was '%v'",expectedMsg, actualMsg)
-	}
-
-}
-
-func TestOpsMsgDto_GetError_03(t *testing.T) {
-	om := testOpsMsgDtoCreateInfoMsg()
-
-	err := om.GetError()
-
-	if err != nil {
-		t.Error("Expected 'nil' to be returned from information message om.GetError(). It was non nil 'nil'!")
-	}
-
-}
-
 /*
 =======================================================================================================
 								Private Methods

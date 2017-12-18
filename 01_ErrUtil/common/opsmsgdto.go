@@ -609,8 +609,25 @@ func (opsMsg *OpsMsgDto) GetMessageNumber() int64 {
 // GetNewParentHistory - Returns a new Parent History Array consisting
 // of the original Parent History plus the current Message Context
 func (opsMsg *OpsMsgDto) GetNewParentHistory() [] OpsMsgContextInfo {
-	newParentHistory := opsMsg.DeepCopyParentContextHistory(opsMsg.ParentContextHistory)
-	newParentHistory = append(newParentHistory, opsMsg.MsgContext.DeepCopyOpsMsgContextInfo())
+
+	var newParentHistory [] OpsMsgContextInfo
+
+	if len(opsMsg.ParentContextHistory) == 0 {
+		newParentHistory = make([] OpsMsgContextInfo, 0, 5)
+	} else {
+		newParentHistory = opsMsg.DeepCopyParentContextHistory(opsMsg.ParentContextHistory)
+	}
+
+	if opsMsg.MsgContext.SourceFileName != "" 		||
+			opsMsg.MsgContext.ParentObjectName != "" 	||
+				opsMsg.MsgContext.FuncName != ""				||
+					opsMsg.MsgContext.BaseMessageId != 0	{
+
+		newParentHistory = append(newParentHistory, opsMsg.MsgContext.DeepCopyOpsMsgContextInfo())
+	}
+
+
+
 	return newParentHistory
 }
 
@@ -621,7 +638,7 @@ func (opsMsg *OpsMsgDto) GetNewParentHistory() [] OpsMsgContextInfo {
 // =================
 //
 // parentHistory []OpsMsgContextInfo - An array of OpsMsgContextInfo objects
-// 											documenting execution path that led to the generation
+// 											documenting execution path that led to the execution
 //											of this method.
 //
 // msgContext OpsMsgContextInfo - This object records the current context in
@@ -652,10 +669,53 @@ func(opsMsg OpsMsgDto) InitializeAllContextInfo(parentHistory []OpsMsgContextInf
 
 // InitializeWithMessageContext - Initialize a new OpsMsgDto object
 // with only a Message Context - No ParentHistory.
+//
+// Input Parameters:
+// =================
+//
+// msgContext OpsMsgContextInfo - This object records the current context in
+//											which the new OpsMsgDto returned by this method will
+//											will be operating.
+//
+// 											It allows the newly created OpsMsgDto to return data
+// 											on the execution path which	led to the generation of
+// 											the Operations Message.
+//
+//
+// Example Usage:
+// ==============
+//
+// oMsg := OpsMsgDto{}.InitializeAllContextInfo(msgContext)
+//
 func(opsMsg OpsMsgDto) InitializeWithMessageContext(msgContext OpsMsgContextInfo) OpsMsgDto {
 	om := OpsMsgDto{}
 	om.MsgContext = msgContext.DeepCopyOpsMsgContextInfo()
 	return om
+}
+
+// InitializeWithParentHistory - Initialize a new OpsMsgDto object
+// with Parent History Only - No MessageContext
+//
+// Input Parameters:
+// =================
+//
+// parentHistory []OpsMsgContextInfo - An array of OpsMsgContextInfo objects
+// 											documenting the execution path that led to the execution
+//											of this method.
+//
+//
+// Example Usage:
+// ==============
+//
+// oMsg := OpsMsgDto{}.InitializeAllContextInfo(parentHistory)
+//
+func(opsMsg OpsMsgDto) InitializeWithParentHistory(parentHistory []OpsMsgContextInfo) OpsMsgDto {
+
+	om := OpsMsgDto{}
+
+	om.ParentContextHistory = om.DeepCopyParentContextHistory(parentHistory)
+
+	return  om
 }
 
 // InitializeContextWithOpsMsgDto - Initialize a new OpsMsgDto object with a parent
@@ -712,6 +772,9 @@ func(opsMsg OpsMsgDto) InitializeContextWithOpsMsgDto(parentOpsMsg OpsMsgDto, ne
 // Initialize - Create a new OpsMsgDto from a parent OpsMsgDto. This
 // method will add the parent Message Context to ParentContext History
 // array and return it in a new OpsMsgDto object.
+//
+// Note: The returned OpsMsgDto object will have an 'empty' Message
+// Context object.
 func (opsMsg OpsMsgDto) Initialize(parentOpsMsg OpsMsgDto) OpsMsgDto {
 	om := OpsMsgDto{}
 
