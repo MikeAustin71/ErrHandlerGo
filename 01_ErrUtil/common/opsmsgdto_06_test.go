@@ -1150,7 +1150,7 @@ func TestOpsMsgDto_SignalSuccessfulCompletion_03(t *testing.T) {
 
 }
 
-func TestOpsMsgClass_String(t *testing.T) {
+func TestOpsMsgClass_String_01(t *testing.T) {
 	om := testOpsMsgDtoCreateInfoMsg()
 
 	actualMsg := om.String()
@@ -1160,3 +1160,27 @@ func TestOpsMsgClass_String(t *testing.T) {
 	}
 }
 
+func TestOpsMsgClass_Sequencing_01(t *testing.T) {
+
+	omControl := testOpsMsgDtoCreateFatalErrorMsg_03()
+
+	om := testOpsMsgDtoCreateStdErrorMsg()
+
+	om = testOpsMsgDtoCreateStdErrorMsg_02()
+
+	om = testOpsMsgDtoCreateStdErrorMsg_03()
+
+	om = testOpsMsgDtoCreateFatalErrorMsg()
+
+	om = testOpsMsgDtoCreateFatalErrorMsg_02()
+
+	om = testOpsMsgDtoCreateFatalErrorMsg_03()
+
+	if !om.Equal(&omControl) {
+
+		t.Error("om should be equal to omContrl. It is NOT!")
+
+	}
+
+
+}

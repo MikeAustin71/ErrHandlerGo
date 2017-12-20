@@ -296,6 +296,7 @@ func TestOpsMsgDto_Example001_Abbrviated_Msg() {
 	fmt.Println(msg)
 }
 
+
 /*
 =======================================================================================================
 								Private Methods
@@ -373,3 +374,4 @@ func testExampleOpsMsgDtoCreateNoErrorsNoMessagesMsg() OpsMsgDto {
 	om.SetNoErrorsNoMessages("",28)
 	return om
 }
+

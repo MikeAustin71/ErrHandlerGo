@@ -129,8 +129,25 @@ func TestOpsMsgCollection_AddOpsMsgCollection_01(t *testing.T) {
 }
 
 func TestOpsMsgCollection_AddOpsMsgCollection_02(t *testing.T) {
-	col1 := testOpsMsgCollectionCreateT01Collection()
+
+
+	testCol1 := testOpsMsgCollectionCreateT01Collection()
+	col1 := testCol1.CopyOut()
 	lcol1 := len(col1.OpsMessages)
+	ltestCol1 := len(testCol1.OpsMessages)
+
+	if lcol1 != ltestCol1 {
+		t.Error("Length of testCol1 should EQUAL length of col1. It does NOT!")
+	}
+
+	for i:= 0; i < lcol1; i++ {
+
+		if !col1.OpsMessages[i].Equal(&testCol1.OpsMessages[i]) {
+			t.Errorf("col1.OpsMessages[2]!= testCol1.OpsMessages[2]")
+		}
+
+	}
+
 	col2 := testOpsMsgCollectionCreateT02Collection()
 	lcol2 := len(col2.OpsMessages)
 
@@ -143,14 +160,35 @@ func TestOpsMsgCollection_AddOpsMsgCollection_02(t *testing.T) {
 		t.Errorf(" Expected combined collection Length = %v. Instead combined collection length = %v", expectedLenCol1, newLenCol1 )
 	}
 
-	testCol1 := testOpsMsgCollectionCreateT01Collection()
 
-	for i:=0; i < len(testCol1.OpsMessages); i++ {
+	for i:=0; i < ltestCol1; i++ {
 
 		if !col1.OpsMessages[i].Equal(&testCol1.OpsMessages[i]){
-			t.Errorf("Expected col1 OpsMsgs = to test1Colleciton. They are NOT! i='%v'", i)
+			t.Errorf("Run # 2 - Expected col1 OpsMsgs = to test1Colleciton. They are NOT! i='%v'", i)
 		}
 
+	}
+
+}
+
+func TestOpsMsgCollection_CopyOut_01(t *testing.T) {
+
+	opMsgs := testOpsMsgCollectionCreateT01Collection()
+
+	lopMsgs := len(opMsgs.OpsMessages)
+
+	opMsgs2 := opMsgs.CopyOut()
+
+	lopMsgs2 := len(opMsgs2.OpsMessages)
+
+	if lopMsgs != lopMsgs2 {
+		t.Errorf("Lenght of opMsgs = '%v'. Lenght of opMsgs2 = '%v'. They should be EQUAL, but are NOT!",lopMsgs, lopMsgs2)
+	}
+
+	for i:=0; i < lopMsgs; i++ {
+		if !opMsgs.OpsMessages[i].Equal(&opMsgs2.OpsMessages[i]){
+			t.Errorf("opMsgs.OpsMessages[i] NOT EQUAL TO opMsgs2.OpsMessages[i]. i='%v' ", i)
+		}
 	}
 
 }

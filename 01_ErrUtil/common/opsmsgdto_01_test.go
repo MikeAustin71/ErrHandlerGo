@@ -982,10 +982,63 @@ func testOpsMsgDtoCreateParentHistory() []OpsMsgContextInfo {
 	return parent
 }
 
+func testOpsMsgDtoCreateContextInfoObj2() OpsMsgContextInfo {
+	ci := OpsMsgContextInfo{}
+	return ci.New("T2Source04", "P2Obj04", "F2unc004", 4000)
+}
+
+func testOpsMsgDtoCreateParentHistory2() []OpsMsgContextInfo {
+	ci := OpsMsgContextInfo{}
+
+	x1 := ci.New("T2Source01", "P2Obj01", "F2unc001", 1000)
+	x2 := ci.New("T2Source02", "P2Obj02", "F2unc002", 2000)
+	x3 := ci.New("T2Source03", "P2Obj03", "F2unc003", 3000)
+
+	parent := make([]OpsMsgContextInfo,0,10)
+
+	parent = append(parent, x1)
+	parent = append(parent, x2)
+	parent = append(parent, x3)
+
+	return parent
+}
+
+
+func testOpsMsgDtoCreateContextInfoObj3() OpsMsgContextInfo {
+	ci := OpsMsgContextInfo{}
+	return ci.New("T3Source04", "P3Obj04", "F3unc004", 3000)
+}
+
+func testOpsMsgDtoCreateParentHistory3() []OpsMsgContextInfo {
+	ci := OpsMsgContextInfo{}
+
+	x1 := ci.New("T3Source01", "P3Obj01", "F3unc001", 1000)
+	x2 := ci.New("T3Source02", "P3Obj02", "F3unc002", 2000)
+
+	parent := make([]OpsMsgContextInfo,0,10)
+
+	parent = append(parent, x1)
+	parent = append(parent, x2)
+
+	return parent
+}
+
 
 func testOpsMsgDtoCreateStdErrorMsg() OpsMsgDto {
 	om := OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
 	om.SetStdErrorMessage("This is Standard Error Msg for test object", 429)
+	return om
+}
+
+func testOpsMsgDtoCreateStdErrorMsg_02() OpsMsgDto {
+	om := OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory2(), testOpsMsgDtoCreateContextInfoObj2())
+	om.SetStdErrorMessage("This is Test Standard Error Msg #2", 229)
+	return om
+}
+
+func testOpsMsgDtoCreateStdErrorMsg_03() OpsMsgDto {
+	om := OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory3(), testOpsMsgDtoCreateContextInfoObj3())
+	om.SetStdErrorMessage("This is Test Standard Error Msg #3", 339)
 	return om
 }
 
@@ -995,9 +1048,34 @@ func testOpsMsgDtoCreateFatalErrorMsg() OpsMsgDto {
 	return om
 }
 
+
+func testOpsMsgDtoCreateFatalErrorMsg_02() OpsMsgDto {
+	om := OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory2(), testOpsMsgDtoCreateContextInfoObj2())
+	om.SetFatalErrorMessage("This is Test FATAL Error Msg #2", 22152)
+	return om
+}
+
+func testOpsMsgDtoCreateFatalErrorMsg_03() OpsMsgDto {
+	om := OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory3(), testOpsMsgDtoCreateContextInfoObj3())
+	om.SetFatalErrorMessage("This is Test FATAL Error Msg #3", 33152)
+	return om
+}
+
 func testOpsMsgDtoCreateInfoMsg() OpsMsgDto {
 	om := OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory(), testOpsMsgDtoCreateContextInfoObj())
 	om.SetInfoMessage("This is Information Message for test object", 19)
+	return om
+}
+
+func testOpsMsgDtoCreateInfoMsg_02() OpsMsgDto {
+	om := OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory2(), testOpsMsgDtoCreateContextInfoObj2())
+	om.SetInfoMessage("This is Test Information Message #2", 229)
+	return om
+}
+
+func testOpsMsgDtoCreateInfoMsg_03() OpsMsgDto {
+	om := OpsMsgDto{}.InitializeAllContextInfo(testOpsMsgDtoCreateParentHistory3(), testOpsMsgDtoCreateContextInfoObj3())
+	om.SetInfoMessage("This is Test Information Message #3", 339)
 	return om
 }
 

@@ -97,6 +97,20 @@ func (omc *OpsMsgCollection) AddOpsMsgCollection(omc2 *OpsMsgCollection) {
 	return
 }
 
+// CopyOut - Returns an OpsMsgCollection which is an
+// exact duplicate of the current OpsMsgCollection
+func (omc *OpsMsgCollection) CopyOut() OpsMsgCollection {
+	omc2 := OpsMsgCollection{}
+
+	lOmc := len(omc.OpsMessages)
+
+	for i:= 0; i < lOmc; i++ {
+		omc2.AddOpsMsg(omc.OpsMessages[i].CopyOut())
+	}
+
+	return omc2
+}
+
 // GetArrayLength - returns the array length of the
 // OpsMessages array.
 func (omc *OpsMsgCollection) GetArrayLength() int {
