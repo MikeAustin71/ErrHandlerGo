@@ -16,7 +16,7 @@ import (
 
 func main() {
 
-	common.TestOpsMsgDto_Example002_NewFatalErrorMsg()
+	common.TestOpsMsgDto_Example006_NewStdErrorMsg()
 
 }
 

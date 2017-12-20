@@ -76,6 +76,14 @@ func TestOpsMsgDto_Example005_NewStdErrorMsg() {
 	fmt.Printf(msg.GetFmtMessage())
 }
 
+// TestOpsMsgDto_Example002_NewStdErrorMsg - Test
+// Ops Message Standard Error Display
+func TestOpsMsgDto_Example006_NewStdErrorMsg() {
+	msg := OpsMsgDto{}.InitializeAllContextInfo(testExampleOpsMsgDtoCreateParentHistory(),testExampleOpsMsgDtoCreateContextInfoObj()).NewStdErrorMsg("This is Standard Error message text.", 974)
+
+	msg.PrintToConsole()
+}
+
 
 // TestOpsMsgDto_Example001_NewFatalErrorMsg - Test
 // Ops Message Fatal Error Display

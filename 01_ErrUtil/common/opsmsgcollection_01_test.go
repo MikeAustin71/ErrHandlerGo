@@ -106,9 +106,69 @@ func TestOpsMsgCollection_AddOpsMsg_01(t *testing.T) {
 
 }
 
-func TestOpsMsgCollection_PopLastMsg_01(t *testing.T) {
+func TestOpsMsgCollection_AddOpsMsgCollection_01(t *testing.T) {
+	col1 := testOpsMsgCollectionCreateT01Collection()
+	lcol1 := len(col1.OpsMessages)
+	col2 := testOpsMsgCollectionCreateT02Collection()
+	lcol2 := len(col2.OpsMessages)
+
+	col1.AddOpsMsgCollection(&col2)
+	newLenCol1 := len(col1.OpsMessages)
+
+	expectedLenCol1 := lcol1 + lcol2
+
+	if expectedLenCol1 != newLenCol1 {
+		t.Errorf(" Expected combined collection Length = %v. Instead combined collection length = %v", expectedLenCol1, newLenCol1 )
+	}
+
+	for i:= 0; i < lcol2; i++ {
+		if !col2.OpsMessages[i].Equal(&col1.OpsMessages[i + (lcol2)]) {
+			t.Errorf("Error col2.OpsMessages[i] NOT EQUAL TO col1.OpsMessages[i + (lcol2)]). i= %v  lcol2= %v ", i, lcol2)
+		}
+	}
+}
+
+func TestOpsMsgCollection_AddOpsMsgCollection_02(t *testing.T) {
+	col1 := testOpsMsgCollectionCreateT01Collection()
+	lcol1 := len(col1.OpsMessages)
+	col2 := testOpsMsgCollectionCreateT02Collection()
+	lcol2 := len(col2.OpsMessages)
+
+	col1.AddOpsMsgCollection(&col2)
+	newLenCol1 := len(col1.OpsMessages)
+
+	expectedLenCol1 := lcol1 + lcol2
+
+	if expectedLenCol1 != newLenCol1 {
+		t.Errorf(" Expected combined collection Length = %v. Instead combined collection length = %v", expectedLenCol1, newLenCol1 )
+	}
+
+	testCol1 := testOpsMsgCollectionCreateT01Collection()
+
+	for i:=0; i < len(testCol1.OpsMessages); i++ {
+
+		if !col1.OpsMessages[i].Equal(&testCol1.OpsMessages[i]){
+			t.Errorf("Expected col1 OpsMsgs = to test1Colleciton. They are NOT! i='%v'", i)
+		}
+
+	}
+
+}
+
+func TestOpsMsgCollection_GetArrayLength_01(t *testing.T) {
 
 	opMsgs := testOpsMsgCollectionCreateT01Collection()
+	expectedLen := 7
+	actualLen := opMsgs.GetArrayLength()
+
+	if expectedLen != actualLen {
+		t.Errorf("Expected opMsgs.OpsMessages Get Array Length = '%v'.  Actual opMsgs.GetArrayLength() = '%v'", expectedLen, actualLen)
+	}
+
+}
+
+func TestOpsMsgCollection_PeekFirstMsg_01(t *testing.T) {
+	opMsgs := testOpsMsgCollectionCreateT02Collection()
 	expectedLen := 7
 	actualLen := len(opMsgs.OpsMessages)
 
@@ -117,7 +177,7 @@ func TestOpsMsgCollection_PopLastMsg_01(t *testing.T) {
 	}
 
 
-	om := opMsgs.PopLastMsg()
+	om := opMsgs.PeekFirstMsg()
 
 	testParentHistory := testOpsMsgDtoCreateParentHistory()
 	testMsgContext := testOpsMsgDtoCreateContextInfoObj()
@@ -188,18 +248,17 @@ func TestOpsMsgCollection_PopLastMsg_01(t *testing.T) {
 		t.Errorf("Error: om.MsgLocalTimeZone is NOT set to 'Local'. om.MsgLocalTimeZone== '%v' ", om.MsgLocalTimeZone)
 	}
 
-	expectedLen--
 	actualLen = len(opMsgs.OpsMessages)
 
 	if expectedLen != actualLen {
-		t.Errorf("After PopLastMsg - Expected opMsgs.OpsMessages Array Length = '%v'. After PopLastMsg Actual opMsgs.OpsMessages Array Length = '%v'", expectedLen, actualLen)
+		t.Errorf("After PeekMsg - Expected opMsgs.OpsMessages Array Length = '%v'. After PeekMsg Actual opMsgs.OpsMessages Array Length = '%v'", expectedLen, actualLen)
 	}
 
 }
 
-func TestOpsMsgCollection_PopLastMsg_02(t *testing.T) {
+func TestOpsMsgCollection_PeekFirstMsg_02(t *testing.T) {
 
-	opMsgs := testOpsMsgCollectionCreateT01Collection()
+	opMsgs := testOpsMsgCollectionCreateT02Collection()
 	expectedLen := 7
 	actualLen := len(opMsgs.OpsMessages)
 
@@ -207,17 +266,18 @@ func TestOpsMsgCollection_PopLastMsg_02(t *testing.T) {
 		t.Errorf("Expected opMsgs.OpsMessages Array Length = '%v'.  Actual opMsgs.OpsMessages Array Length = '%v'", expectedLen, actualLen)
 	}
 
-	om := opMsgs.PopLastMsg()
-	om = opMsgs.PopLastMsg()
+	opMsgs.PopFirstMsg()
+	opMsgs.PopFirstMsg()
+
+	om := opMsgs.PeekFirstMsg()
 
 	testParentHistory := testOpsMsgDtoCreateParentHistory()
+	testMsgContext := testOpsMsgDtoCreateContextInfoObj()
 
-	testMsgCtx := testOpsMsgDtoCreateContextInfoObj()
-
-	xMsg := "This is Standard Error Msg for test object"
-	msgId := int64(429)
-	msgNo := int64(6429)
-	msgType := OpsMsgTypeERRORMSG
+	xMsg := "This is Information Message for test object"
+	msgId := int64(19)
+	msgNo := int64(6019)
+	msgType := OpsMsgTypeINFOMSG
 
 	l1 := len(testParentHistory)
 
@@ -233,20 +293,20 @@ func TestOpsMsgCollection_PopLastMsg_02(t *testing.T) {
 		}
 	}
 
-	if !testMsgCtx.Equal(&om.MsgContext) {
-		t.Error("Expected testMsgCtx to EQUAL om.MsgContext. It did NOT!")
+	if !testMsgContext.Equal(&om.MsgContext) {
+		t.Error("Expected testMsgContext to EQUAL om.MsgContext. It did NOT!")
 	}
 
 	if om.MsgType != msgType {
 		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
 	}
 
-	if om.IsError() != true {
-		t.Error("Expected error msg to generate IsError='true'. It did NOT! IsError='false'.")
+	if om.IsError() != false {
+		t.Error("Expected Information Message to generate IsError='false'. It did NOT! IsError='true'.")
 	}
 
-	if om.IsFatalError() == true {
-		t.Error("Expected standard error msg to generate IsFatalError()='false'. It did NOT! IsFatalError()='true'")
+	if om.IsFatalError() != false {
+		t.Errorf("Expected Information to generate IsFatalError()='false'. It did NOT! IsFatalError()='%v'", om.IsFatalError())
 	}
 
 	mId := om.GetMessageId()
@@ -284,10 +344,8 @@ func TestOpsMsgCollection_PopLastMsg_02(t *testing.T) {
 	actualLen = len(opMsgs.OpsMessages)
 
 	if expectedLen != actualLen {
-		t.Errorf("After PopLastMsg - Expected opMsgs.OpsMessages Array Length = '%v'. After PopLastMsg Actual opMsgs.OpsMessages Array Length = '%v'", expectedLen, actualLen)
+		t.Errorf("After PeekMsg - Expected opMsgs.OpsMessages Array Length = '%v'. After PeekMsg Actual opMsgs.OpsMessages Array Length = '%v'", expectedLen, actualLen)
 	}
-
-
 
 }
 
@@ -474,6 +532,190 @@ func TestOpsMsgCollection_PeekLastMsg_02(t *testing.T) {
 
 }
 
+func TestOpsMsgCollection_PopLastMsg_01(t *testing.T) {
+
+	opMsgs := testOpsMsgCollectionCreateT01Collection()
+	expectedLen := 7
+	actualLen := len(opMsgs.OpsMessages)
+
+	if expectedLen != actualLen {
+		t.Errorf("Expected opMsgs.OpsMessages Array Length = '%v'.  Actual opMsgs.OpsMessages Array Length = '%v'", expectedLen, actualLen)
+	}
+
+
+	om := opMsgs.PopLastMsg()
+
+	testParentHistory := testOpsMsgDtoCreateParentHistory()
+	testMsgContext := testOpsMsgDtoCreateContextInfoObj()
+
+	xMsg := "This is FATAL Error Msg for test object"
+	msgId := int64(152)
+	msgNo := int64(6152)
+	msgType := OpsMsgTypeFATALERRORMSG
+
+	l1 := len(testParentHistory)
+
+	l2 := len(om.ParentContextHistory)
+
+	if l1 != l2 {
+		t.Errorf("Expected om.ParentContextHistory to equal length= '%v'. It did NOT! actual length= '%v'",l1, l2)
+	}
+
+	for i:=0; i<l1; i++ {
+		if !testParentHistory[i].Equal(&om.ParentContextHistory[i]) {
+			t.Errorf("Expected om.ParentContextHistory to Equal testParentContext History. It did NOT!. i= '%v'",i)
+		}
+	}
+
+	if !testMsgContext.Equal(&om.MsgContext) {
+		t.Error("Expected testMsgContext to EQUAL om.MsgContext. It did NOT!")
+	}
+
+
+	if om.MsgType != msgType {
+		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
+	}
+
+	if om.IsError() != true {
+		t.Errorf("Expected Fatal Error Message to generate IsError='true'. It did NOT! IsError='false'.")
+	}
+
+	if om.IsFatalError() != true {
+		t.Errorf("Expected Fatal Error Message to generate IsFatalError()='true'. It did NOT! IsFatalError()='%v'", om.IsFatalError())
+	}
+
+	mId := om.GetMessageId()
+
+	if mId != msgId {
+		t.Errorf("Expected message id = '%v'. Instead message id = '%v'.", msgId, mId)
+	}
+
+	mNo := om.GetMessageNumber()
+
+	if msgNo != mNo {
+		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
+	}
+
+	actMsg := om.GetFmtMessage()
+
+	if !strings.Contains(actMsg, xMsg) {
+		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
+	}
+
+	if om.MsgTimeUTC.IsZero()  {
+		t.Errorf("Error: om.MsgTimeUTC == Zero. om.MsgTimeUTC== '%v'", om.MsgTimeUTC)
+	}
+
+	if om.MsgTimeLocal.IsZero()  {
+		t.Errorf("Error: om.MsgTimeLocal == Zero. om.MsgTimeLocal== '%v'",om.MsgTimeLocal)
+	}
+
+	if om.MsgLocalTimeZone != "Local" {
+		t.Errorf("Error: om.MsgLocalTimeZone is NOT set to 'Local'. om.MsgLocalTimeZone== '%v' ", om.MsgLocalTimeZone)
+	}
+
+	expectedLen--
+	actualLen = len(opMsgs.OpsMessages)
+
+	if expectedLen != actualLen {
+		t.Errorf("After PopLastMsg - Expected opMsgs.OpsMessages Array Length = '%v'. After PopLastMsg Actual opMsgs.OpsMessages Array Length = '%v'", expectedLen, actualLen)
+	}
+
+}
+
+func TestOpsMsgCollection_PopLastMsg_02(t *testing.T) {
+
+	opMsgs := testOpsMsgCollectionCreateT01Collection()
+	expectedLen := 7
+	actualLen := len(opMsgs.OpsMessages)
+
+	if expectedLen != actualLen {
+		t.Errorf("Expected opMsgs.OpsMessages Array Length = '%v'.  Actual opMsgs.OpsMessages Array Length = '%v'", expectedLen, actualLen)
+	}
+
+	om := opMsgs.PopLastMsg()
+	om = opMsgs.PopLastMsg()
+
+	testParentHistory := testOpsMsgDtoCreateParentHistory()
+
+	testMsgCtx := testOpsMsgDtoCreateContextInfoObj()
+
+	xMsg := "This is Standard Error Msg for test object"
+	msgId := int64(429)
+	msgNo := int64(6429)
+	msgType := OpsMsgTypeERRORMSG
+
+	l1 := len(testParentHistory)
+
+	l2 := len(om.ParentContextHistory)
+
+	if l1 != l2 {
+		t.Errorf("Expected om.ParentContextHistory to equal length= '%v'. It did NOT! actual length= '%v'",l1, l2)
+	}
+
+	for i:=0; i<l1; i++ {
+		if !testParentHistory[i].Equal(&om.ParentContextHistory[i]) {
+			t.Errorf("Expected om.ParentContextHistory to Equal testParentContext History. It did NOT!. i= '%v'",i)
+		}
+	}
+
+	if !testMsgCtx.Equal(&om.MsgContext) {
+		t.Error("Expected testMsgCtx to EQUAL om.MsgContext. It did NOT!")
+	}
+
+	if om.MsgType != msgType {
+		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
+	}
+
+	if om.IsError() != true {
+		t.Error("Expected error msg to generate IsError='true'. It did NOT! IsError='false'.")
+	}
+
+	if om.IsFatalError() == true {
+		t.Error("Expected standard error msg to generate IsFatalError()='false'. It did NOT! IsFatalError()='true'")
+	}
+
+	mId := om.GetMessageId()
+
+	if mId != msgId {
+		t.Errorf("Expected message id = '%v'. Instead message id = '%v'.", msgId, mId)
+	}
+
+	mNo := om.GetMessageNumber()
+
+	if msgNo != mNo {
+		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
+	}
+
+	actMsg := om.GetFmtMessage()
+
+	if !strings.Contains(actMsg, xMsg) {
+		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
+	}
+
+	if om.MsgTimeUTC.IsZero()  {
+		t.Errorf("Error: om.MsgTimeUTC == Zero. om.MsgTimeUTC== '%v'", om.MsgTimeUTC)
+	}
+
+	if om.MsgTimeLocal.IsZero()  {
+		t.Errorf("Error: om.MsgTimeLocal == Zero. om.MsgTimeLocal== '%v'",om.MsgTimeLocal)
+	}
+
+	if om.MsgLocalTimeZone != "Local" {
+		t.Errorf("Error: om.MsgLocalTimeZone is NOT set to 'Local'. om.MsgLocalTimeZone== '%v' ", om.MsgLocalTimeZone)
+	}
+
+	expectedLen--
+	expectedLen--
+	actualLen = len(opMsgs.OpsMessages)
+
+	if expectedLen != actualLen {
+		t.Errorf("After PopLastMsg - Expected opMsgs.OpsMessages Array Length = '%v'. After PopLastMsg Actual opMsgs.OpsMessages Array Length = '%v'", expectedLen, actualLen)
+	}
+
+
+
+}
 func TestOpsMsgCollection_PopFirstMsg_01(t *testing.T) {
 
 	opMsgs := testOpsMsgCollectionCreateT02Collection()
@@ -654,188 +896,6 @@ func TestOpsMsgCollection_PopFirstMsg_02(t *testing.T) {
 
 	if expectedLen != actualLen {
 		t.Errorf("After PopLastMsg - Expected opMsgs.OpsMessages Array Length = '%v'. After PopLastMsg Actual opMsgs.OpsMessages Array Length = '%v'", expectedLen, actualLen)
-	}
-
-}
-
-func TestOpsMsgCollection_PeekFirstMsg_01(t *testing.T) {
-	opMsgs := testOpsMsgCollectionCreateT02Collection()
-	expectedLen := 7
-	actualLen := len(opMsgs.OpsMessages)
-
-	if expectedLen != actualLen {
-		t.Errorf("Expected opMsgs.OpsMessages Array Length = '%v'.  Actual opMsgs.OpsMessages Array Length = '%v'", expectedLen, actualLen)
-	}
-
-
-	om := opMsgs.PeekFirstMsg()
-
-	testParentHistory := testOpsMsgDtoCreateParentHistory()
-	testMsgContext := testOpsMsgDtoCreateContextInfoObj()
-
-	xMsg := "This is FATAL Error Msg for test object"
-	msgId := int64(152)
-	msgNo := int64(6152)
-	msgType := OpsMsgTypeFATALERRORMSG
-
-	l1 := len(testParentHistory)
-
-	l2 := len(om.ParentContextHistory)
-
-	if l1 != l2 {
-		t.Errorf("Expected om.ParentContextHistory to equal length= '%v'. It did NOT! actual length= '%v'",l1, l2)
-	}
-
-	for i:=0; i<l1; i++ {
-		if !testParentHistory[i].Equal(&om.ParentContextHistory[i]) {
-			t.Errorf("Expected om.ParentContextHistory to Equal testParentContext History. It did NOT!. i= '%v'",i)
-		}
-	}
-
-	if !testMsgContext.Equal(&om.MsgContext) {
-		t.Error("Expected testMsgContext to EQUAL om.MsgContext. It did NOT!")
-	}
-
-
-	if om.MsgType != msgType {
-		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
-	}
-
-	if om.IsError() != true {
-		t.Errorf("Expected Fatal Error Message to generate IsError='true'. It did NOT! IsError='false'.")
-	}
-
-	if om.IsFatalError() != true {
-		t.Errorf("Expected Fatal Error Message to generate IsFatalError()='true'. It did NOT! IsFatalError()='%v'", om.IsFatalError())
-	}
-
-	mId := om.GetMessageId()
-
-	if mId != msgId {
-		t.Errorf("Expected message id = '%v'. Instead message id = '%v'.", msgId, mId)
-	}
-
-	mNo := om.GetMessageNumber()
-
-	if msgNo != mNo {
-		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
-	}
-
-	actMsg := om.GetFmtMessage()
-
-	if !strings.Contains(actMsg, xMsg) {
-		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
-	}
-
-	if om.MsgTimeUTC.IsZero()  {
-		t.Errorf("Error: om.MsgTimeUTC == Zero. om.MsgTimeUTC== '%v'", om.MsgTimeUTC)
-	}
-
-	if om.MsgTimeLocal.IsZero()  {
-		t.Errorf("Error: om.MsgTimeLocal == Zero. om.MsgTimeLocal== '%v'",om.MsgTimeLocal)
-	}
-
-	if om.MsgLocalTimeZone != "Local" {
-		t.Errorf("Error: om.MsgLocalTimeZone is NOT set to 'Local'. om.MsgLocalTimeZone== '%v' ", om.MsgLocalTimeZone)
-	}
-
-	actualLen = len(opMsgs.OpsMessages)
-
-	if expectedLen != actualLen {
-		t.Errorf("After PeekMsg - Expected opMsgs.OpsMessages Array Length = '%v'. After PeekMsg Actual opMsgs.OpsMessages Array Length = '%v'", expectedLen, actualLen)
-	}
-
-}
-
-func TestOpsMsgCollection_PeekFirstMsg_02(t *testing.T) {
-
-	opMsgs := testOpsMsgCollectionCreateT02Collection()
-	expectedLen := 7
-	actualLen := len(opMsgs.OpsMessages)
-
-	if expectedLen != actualLen {
-		t.Errorf("Expected opMsgs.OpsMessages Array Length = '%v'.  Actual opMsgs.OpsMessages Array Length = '%v'", expectedLen, actualLen)
-	}
-
-	opMsgs.PopFirstMsg()
-	opMsgs.PopFirstMsg()
-
-	om := opMsgs.PeekFirstMsg()
-
-	testParentHistory := testOpsMsgDtoCreateParentHistory()
-	testMsgContext := testOpsMsgDtoCreateContextInfoObj()
-
-	xMsg := "This is Information Message for test object"
-	msgId := int64(19)
-	msgNo := int64(6019)
-	msgType := OpsMsgTypeINFOMSG
-
-	l1 := len(testParentHistory)
-
-	l2 := len(om.ParentContextHistory)
-
-	if l1 != l2 {
-		t.Errorf("Expected om.ParentContextHistory to equal length= '%v'. It did NOT! actual length= '%v'",l1, l2)
-	}
-
-	for i:=0; i<l1; i++ {
-		if !testParentHistory[i].Equal(&om.ParentContextHistory[i]) {
-			t.Errorf("Expected om.ParentContextHistory to Equal testParentContext History. It did NOT!. i= '%v'",i)
-		}
-	}
-
-	if !testMsgContext.Equal(&om.MsgContext) {
-		t.Error("Expected testMsgContext to EQUAL om.MsgContext. It did NOT!")
-	}
-
-	if om.MsgType != msgType {
-		t.Errorf("Expected Messgage Type == '%v'. Instead, Message Type == '%v'.", msgType, om.MsgType)
-	}
-
-	if om.IsError() != false {
-		t.Error("Expected Information Message to generate IsError='false'. It did NOT! IsError='true'.")
-	}
-
-	if om.IsFatalError() != false {
-		t.Errorf("Expected Information to generate IsFatalError()='false'. It did NOT! IsFatalError()='%v'", om.IsFatalError())
-	}
-
-	mId := om.GetMessageId()
-
-	if mId != msgId {
-		t.Errorf("Expected message id = '%v'. Instead message id = '%v'.", msgId, mId)
-	}
-
-	mNo := om.GetMessageNumber()
-
-	if msgNo != mNo {
-		t.Errorf("Expected message number = '%v'. Instead message number = '%v'.", msgNo, mNo)
-	}
-
-	actMsg := om.GetFmtMessage()
-
-	if !strings.Contains(actMsg, xMsg) {
-		t.Errorf("Expected message to contain '%v'. It did NOT! Actual Message = '%v'",xMsg, actMsg)
-	}
-
-	if om.MsgTimeUTC.IsZero()  {
-		t.Errorf("Error: om.MsgTimeUTC == Zero. om.MsgTimeUTC== '%v'", om.MsgTimeUTC)
-	}
-
-	if om.MsgTimeLocal.IsZero()  {
-		t.Errorf("Error: om.MsgTimeLocal == Zero. om.MsgTimeLocal== '%v'",om.MsgTimeLocal)
-	}
-
-	if om.MsgLocalTimeZone != "Local" {
-		t.Errorf("Error: om.MsgLocalTimeZone is NOT set to 'Local'. om.MsgLocalTimeZone== '%v' ", om.MsgLocalTimeZone)
-	}
-
-	expectedLen--
-	expectedLen--
-	actualLen = len(opMsgs.OpsMessages)
-
-	if expectedLen != actualLen {
-		t.Errorf("After PeekMsg - Expected opMsgs.OpsMessages Array Length = '%v'. After PeekMsg Actual opMsgs.OpsMessages Array Length = '%v'", expectedLen, actualLen)
 	}
 
 }
