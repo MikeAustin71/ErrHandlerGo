@@ -1174,7 +1174,7 @@ func TestOpsMsgClass_Sequencing_01(t *testing.T) {
 
 	om = testOpsMsgDtoCreateFatalErrorMsg_02()
 
-	om = testOpsMsgDtoCreateFatalErrorMsg_03()
+	om = omControl.CopyOut()
 
 	if !om.Equal(&omControl) {
 
