@@ -132,7 +132,12 @@ func TestOpsMsgCollection_AddOpsMsgCollection_02(t *testing.T) {
 
 
 	testCol1 := testOpsMsgCollectionCreateT01Collection()
-	col1 := testCol1.CopyOut()
+	col1, err := testCol1.CopyOut()
+
+	if err != nil {
+		t.Errorf("Error returned from testCol1.CopyOut(). Error='%v'", err)
+	}
+
 	lcol1 := len(col1.OpsMessages)
 	ltestCol1 := len(testCol1.OpsMessages)
 
@@ -177,7 +182,11 @@ func TestOpsMsgCollection_CopyOut_01(t *testing.T) {
 
 	lopMsgs := len(opMsgs.OpsMessages)
 
-	opMsgs2 := opMsgs.CopyOut()
+	opMsgs2, err:= opMsgs.CopyOut()
+
+	if err!=nil {
+		t.Errorf("Error returned by opMsgs.CopyOut(). Error='%v'", err.Error())
+	}
 
 	lopMsgs2 := len(opMsgs2.OpsMessages)
 
@@ -214,8 +223,11 @@ func TestOpsMsgCollection_PeekFirstMsg_01(t *testing.T) {
 		t.Errorf("Expected opMsgs.OpsMessages Array Length = '%v'.  Actual opMsgs.OpsMessages Array Length = '%v'", expectedLen, actualLen)
 	}
 
+	om, err := opMsgs.PeekFirstMsg()
 
-	om := opMsgs.PeekFirstMsg()
+	if err != nil {
+		t.Errorf("Error returned by opMsgs.PeekFirstMsg(). Error='%v'", err.Error())
+	}
 
 	testParentHistory := testOpsMsgDtoCreateParentHistory()
 	testMsgContext := testOpsMsgDtoCreateContextInfoObj()
@@ -307,7 +319,11 @@ func TestOpsMsgCollection_PeekFirstMsg_02(t *testing.T) {
 	opMsgs.PopFirstMsg()
 	opMsgs.PopFirstMsg()
 
-	om := opMsgs.PeekFirstMsg()
+	om, err := opMsgs.PeekFirstMsg()
+
+	if err != nil {
+		t.Errorf("Error returned by opMsgs.PeekFirstMsg() Error='%v'", err.Error())
+	}
 
 	testParentHistory := testOpsMsgDtoCreateParentHistory()
 	testMsgContext := testOpsMsgDtoCreateContextInfoObj()
@@ -398,7 +414,11 @@ func TestOpsMsgCollection_PeekLastMsg_01(t *testing.T) {
 	}
 
 
-	om := opMsgs.PeekLastMsg()
+	om, err := opMsgs.PeekLastMsg()
+
+	if err != nil {
+		t.Errorf("Error returned by opMsgs.PeekLastMsg(). Error='%v'", err.Error())
+	}
 
 	testParentHistory := testOpsMsgDtoCreateParentHistory()
 	testMsgContext := testOpsMsgDtoCreateContextInfoObj()
@@ -490,7 +510,11 @@ func TestOpsMsgCollection_PeekLastMsg_02(t *testing.T) {
 	opMsgs.PopLastMsg()
 	opMsgs.PopLastMsg()
 
-	om := opMsgs.PeekLastMsg()
+	om, err := opMsgs.PeekLastMsg()
+
+	if err != nil {
+		t.Errorf("Error returned by opMsgs.PeekLastMsg(). Error='%v'", err.Error())
+	}
 
 	testParentHistory := testOpsMsgDtoCreateParentHistory()
 	testMsgContext := testOpsMsgDtoCreateContextInfoObj()
@@ -581,7 +605,11 @@ func TestOpsMsgCollection_PopLastMsg_01(t *testing.T) {
 	}
 
 
-	om := opMsgs.PopLastMsg()
+	om, err := opMsgs.PopLastMsg()
+
+	if err != nil {
+		t.Errorf("Error returned by opMsgs.PopLastMsg(). Error='%v'", err.Error())
+	}
 
 	testParentHistory := testOpsMsgDtoCreateParentHistory()
 	testMsgContext := testOpsMsgDtoCreateContextInfoObj()
@@ -671,8 +699,18 @@ func TestOpsMsgCollection_PopLastMsg_02(t *testing.T) {
 		t.Errorf("Expected opMsgs.OpsMessages Array Length = '%v'.  Actual opMsgs.OpsMessages Array Length = '%v'", expectedLen, actualLen)
 	}
 
-	om := opMsgs.PopLastMsg()
-	om = opMsgs.PopLastMsg()
+	om, err := opMsgs.PopLastMsg()
+
+	if err != nil {
+		t.Errorf("Error returned by opMsgs.PopLastMsg(). Error='%v'", err.Error())
+	}
+
+
+	om, err = opMsgs.PopLastMsg()
+
+	if err!=nil {
+		t.Errorf("Error returned by 2nd call to opMsgs.PopLastMsg(). Error='%v'", err.Error())
+	}
 
 	testParentHistory := testOpsMsgDtoCreateParentHistory()
 
@@ -765,7 +803,11 @@ func TestOpsMsgCollection_PopFirstMsg_01(t *testing.T) {
 	}
 
 
-	om := opMsgs.PopFirstMsg()
+	om, err := opMsgs.PopFirstMsg()
+
+	if err != nil {
+		t.Errorf("Error returned by opMsgs.PopFirstMsg(). Error='%v'", err.Error())
+	}
 
 	testParentHistory := testOpsMsgDtoCreateParentHistory()
 	testMsgContext := testOpsMsgDtoCreateContextInfoObj()
@@ -855,9 +897,17 @@ func TestOpsMsgCollection_PopFirstMsg_02(t *testing.T) {
 		t.Errorf("Expected opMsgs.OpsMessages Array Length = '%v'.  Actual opMsgs.OpsMessages Array Length = '%v'", expectedLen, actualLen)
 	}
 
-	om := opMsgs.PopFirstMsg()
+	om, err := opMsgs.PopFirstMsg()
 
-	om = opMsgs.PopFirstMsg()
+	if err!=nil {
+		t.Errorf("Error returned by opMsgs.PopFirstMsg(). Error='%v'", err.Error())
+	}
+
+	om, err = opMsgs.PopFirstMsg()
+
+	if err!=nil {
+		t.Errorf("Error returned by 2nd call to opMsgs.PopFirstMsg(). Error='%v'", err.Error())
+	}
 
 	testParentHistory := testOpsMsgDtoCreateParentHistory()
 

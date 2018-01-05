@@ -99,16 +99,23 @@ func (omc *OpsMsgCollection) AddOpsMsgCollection(omc2 *OpsMsgCollection) {
 
 // CopyOut - Returns an OpsMsgCollection which is an
 // exact duplicate of the current OpsMsgCollection
-func (omc *OpsMsgCollection) CopyOut() OpsMsgCollection {
+func (omc *OpsMsgCollection) CopyOut() (OpsMsgCollection, error) {
+
+	ePrefix := "OpsMsgCollection.CopyOut() "
+
 	omc2 := OpsMsgCollection{}
 
 	lOmc := len(omc.OpsMessages)
+
+	if lOmc == 0 {
+		return OpsMsgCollection{}, errors.New(ePrefix + "Error: Empty OpsMsgCollection. No messages available!")
+	}
 
 	for i:= 0; i < lOmc; i++ {
 		omc2.AddOpsMsg(omc.OpsMessages[i].CopyOut())
 	}
 
-	return omc2
+	return omc2, nil
 }
 
 // GetArrayLength - returns the array length of the
@@ -120,47 +127,68 @@ func (omc *OpsMsgCollection) GetArrayLength() int {
 // PopLastMsg - Removes the last OpsMsgDto object
 // from the collections array, and returns it to
 // the calling method.
-func (omc *OpsMsgCollection) PopLastMsg() OpsMsgDto {
-
+func (omc *OpsMsgCollection) PopLastMsg() (OpsMsgDto, error) {
+	ePrefix := "OpsMsgCollection.PopLastMsg() "
 	l1 := len(omc.OpsMessages)
+
+	if l1 == 0 {
+		return OpsMsgDto{}, errors.New(ePrefix + "Error: Empty OpsMsgCollection. No messages available!")
+	}
 
 	om := omc.OpsMessages[l1-1].CopyOut()
 
 	omc.OpsMessages = omc.OpsMessages[0:l1-1]
 
-	return om
+	return om, nil
 }
 
 // PopFirstMsg - Removes the first OpsMsgDto object
 // from the collections array, and returns it to
 // the calling method.
-func (omc *OpsMsgCollection) PopFirstMsg() OpsMsgDto {
+func (omc *OpsMsgCollection) PopFirstMsg() (OpsMsgDto, error) {
+
+	ePrefix := "OpsMsgCollection.PopFirstMsg() "
 
 	l1 := len(omc.OpsMessages)
+
+	if l1 == 0 {
+		return OpsMsgDto{}, errors.New(ePrefix + "Error: Empty OpsMsgCollection. No messages available!")
+	}
 
 	om := omc.OpsMessages[0].CopyOut()
 
 	omc.OpsMessages = omc.OpsMessages[1:l1]
 
-	return om
+	return om, nil
 }
 
 // PeekFirstMsg - Returns the first element from the
 // Operation Messages Collection, but does NOT remove
 // it from the OpsMessages array.
-func (omc *OpsMsgCollection) PeekFirstMsg() OpsMsgDto {
+func (omc *OpsMsgCollection) PeekFirstMsg() (OpsMsgDto, error) {
+	ePrefix := "OpsMsgCollection.PeekFirstMsg() "
 
-	return omc.OpsMessages[0].CopyOut()
+	if len(omc.OpsMessages) == 0 {
+		return OpsMsgDto{}, errors.New(ePrefix + "Error: Empty OpsMsgCollection. No messages available!")
+	}
+
+	return omc.OpsMessages[0].CopyOut(), nil
 }
 
 // PeekLastMsg - Returns the last element from the
 // Operation Messages Collection, but does NOT remove
 // it from the OpsMessages array.
-func (omc *OpsMsgCollection) PeekLastMsg() OpsMsgDto {
+func (omc *OpsMsgCollection) PeekLastMsg() (OpsMsgDto, error) {
+
+	ePrefix := "OpsMsgCollection.PeekLastMsg()"
 
 	l1 := len(omc.OpsMessages)
 
-	return omc.OpsMessages[l1-1].CopyOut()
+	if l1==0 {
+		return OpsMsgDto{}, errors.New(ePrefix + "Error: Empty OpsMsgCollection. No messages available!")
+	}
+
+	return omc.OpsMessages[l1-1].CopyOut(), nil
 }
 
 
